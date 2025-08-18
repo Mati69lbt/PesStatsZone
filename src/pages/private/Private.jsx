@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import Notiflix from "notiflix";
+import Navbar from "../../components/Navbar";
 
 const Private = () => {
   const { user, loading } = useAuth();
@@ -20,7 +21,8 @@ const Private = () => {
   if (!user) return <Navigate to="/" replace />;
   return (
     <div>
-      <Outlet />;
+      <Navbar />
+      <Outlet />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-// cspell: ignore Notiflix notiflix useAuth logueado
+// cspell: ignore Notiflix notiflix useAuth logueado formacion
 import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import Notiflix from "notiflix";
@@ -14,7 +14,7 @@ const Login = () => {
 
   useEffect(() => {
     if (user && !loading) {
-      navigate("/equipo", { replace: true });
+      navigate("/formacion", { replace: true });
     } else {
       return;
     }
@@ -23,10 +23,10 @@ const Login = () => {
   useEffect(() => {
     if (loading) {
       Notiflix.Loading.circle("Cargando");
-    } 
+    }
     return () => {
       Notiflix.Loading.remove();
-    }
+    };
   }, [loading]);
 
   const loginUser = async (e) => {
@@ -49,23 +49,35 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <div>
+    <div className="p-4 max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-4 text-center">Iniciar Sesión</h1>
+      <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
         <form action="" onSubmit={loginUser}>
           <label htmlFor="email">Email</label>
-          <input type="email" name="email" id="email" onChange={changed} />
+          <input
+            type="email"
+            name="email"
+            id="email"
+            onChange={changed}
+            className="w-full border rounded p-2"
+          />
           <label htmlFor="password">Contraseña</label>
           <input
             type="password"
             name="password"
             id="password"
             onChange={changed}
+            className="w-full border rounded p-2"
           />
-          <input type="submit" value={"Ingresar"} />
+          <input
+            type="submit"
+            value={"Ingresar"}
+            className="text-blue-600 hover:underline bg-gray-200 shadow-md rounded-xl p-2 w-full cursor-pointer mt-2"
+          />
         </form>
       </div>
 
-      <button onClick={formRegister}>Registrarse</button>
+      <button onClick={formRegister} className="text-2xl font-bold mb-4 mt-4 text-center">Registrarse</button>
 
       {showRegister && <Register />}
     </div>
