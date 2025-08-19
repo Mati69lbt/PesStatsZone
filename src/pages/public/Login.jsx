@@ -10,6 +10,7 @@ const Login = () => {
   const { form, changed } = useForm();
   const { user, loading, handleLogin } = useAuth();
   const [showRegister, setShowRegister] = useState(false);
+  const [viewPassword, setViewPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,21 +64,33 @@ const Login = () => {
           />
           <label htmlFor="password">Contraseña</label>
           <input
-            type="password"
+            type={viewPassword ? "text" : "password"}
             name="password"
             id="password"
             onChange={changed}
             className="w-full border rounded p-2"
           />
+          <button
+            type="button"
+            onClick={() => setViewPassword(!viewPassword)}
+            className="text-sm text-blue-600 hover:text-red-600"
+          >
+            {viewPassword ? "Ocultar Contraseña" : "Ver Contraseña"}
+          </button>
           <input
             type="submit"
             value={"Ingresar"}
-            className="text-blue-600 hover:underline bg-gray-200 shadow-md rounded-xl p-2 w-full cursor-pointer mt-2"
+            className="text-blue-600 hover:font-bold bg-gray-200 shadow-md rounded-xl p-2 w-full cursor-pointer mt-2"
           />
         </form>
       </div>
 
-      <button onClick={formRegister} className="text-2xl font-bold mb-4 mt-4 text-center">Registrarse</button>
+      <button
+        onClick={formRegister}
+        className="text-2xl font-bold mb-4 mt-4 text-center hover:text-blue-600 hover:cursor-pointer"
+      >
+        Registrarse
+      </button>
 
       {showRegister && <Register />}
     </div>

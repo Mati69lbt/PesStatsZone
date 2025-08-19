@@ -10,6 +10,8 @@ export default function Navbar() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [forzarHamburguesa, setForzarHamburguesa] = useState(false);
 
+  console.log("user", user);
+
   useEffect(() => {
     const evaluarPantalla = () => {
       const ancho = window.innerWidth;
@@ -29,6 +31,29 @@ export default function Navbar() {
 
   const mostrarConfirmacionReset = () => {
     // cuando tenga informacion en el forebase, hacer este boton funcional
+  };
+
+  const cerrarSesion = () => {
+    Notiflix.Confirm.show(
+      "Cerrar Sesión",
+      "¿Estás seguro de que quieres cerrar sesión?",
+      "Sí",
+      "No",
+      async () => {
+        await handleLogout();
+      },
+      () => {
+        Notiflix.Notify.info("Sesión no cerrada");
+      },
+      {
+        width: "300px",
+        borderRadius: "8px",
+        titleColor: "#333",
+        messageColor: "#555",
+        okButtonBackground: "#4CAF50",
+        cancelButtonBackground: "#f44336",
+      }
+    );
   };
 
   const links = [
@@ -61,15 +86,23 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+            {user && (
+              <div className="flex flex-col items-center justify-center border p-2 rounded-lg">
+                <label>Dt</label>
+                <span className="text-gray-700 font-semibold">
+                  {user.displayName}
+                </span>
+              </div>
+            )}
             <button
               onClick={mostrarConfirmacionReset}
-              className="text-red-600 hover:underline flex items-center gap-1"
+              className="text-red-600 hover:uppercase hover:font-bold flex items-center gap-1"
             >
               🗑️ Reiniciar
             </button>
             <button
-              onClick={() => handleLogout()}
-              className="text-red-600 hover:underline flex items-center gap-1"
+              onClick={() => cerrarSesion()}
+              className=" bg-red-400 text-white rounded-xl px-4 hover:bg-red-600 flex items-center gap-1"
             >
               Salir
             </button>
@@ -123,6 +156,12 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
+              {user && (
+                <div className="flex items-center gap-2 text-right w-full text-gray-700">
+                  <label className="font-semibold">Dt</label>
+                  <span>{user.displayName}</span>
+                </div>
+              )}
               <button
                 onClick={() => {
                   setMenuAbierto(false);
@@ -135,7 +174,7 @@ export default function Navbar() {
               <button
                 onClick={() => {
                   setMenuAbierto(false);
-                  handleLogout();
+                  cerrarSesion();
                 }}
                 className="text-red-600 hover:underline flex items-center gap-1 mt-4 text-right w-full"
               >

@@ -5,9 +5,12 @@ import {
   signOut,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
-import { auth } from "../configuration/firebase";
+import { auth, db } from "../configuration/firebase";
+
 import Notiflix from "notiflix";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 const initialState = {
   user: null,
@@ -89,13 +92,25 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const handleRegister = async (email, password) => {
+  const handleRegister = async (email, password, dtName) => {
     dispatch({ type: "REGISTER_REQUEST" });
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
+      );
+      await updateProfile(userCredential.user, {
+        displayName: dtName,
+      });
+      await setDoc(
+        doc(db, "users", userCredential.user.uid),
+        {
+          dtName,
+          email,
+          createdAt: serverTimestamp(),
+        },
+        { merge: true }
       );
       dispatch({ type: "REGISTER_SUCCESS", payload: userCredential.user });
       Notiflix.Notify.success("Registro exitoso");
