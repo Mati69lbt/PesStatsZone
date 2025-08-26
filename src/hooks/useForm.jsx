@@ -8,9 +8,17 @@ const useForm = (initialObj = {}) => {
     const { name, value } = target;
     setform({ ...form, [name]: value });
   };
+
+  const setValue = (name, value) => {
+    setform((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
   return {
     form,
     changed,
+    setValue,
   };
 };
 

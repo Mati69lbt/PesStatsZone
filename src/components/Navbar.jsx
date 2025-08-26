@@ -10,8 +10,6 @@ export default function Navbar() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [forzarHamburguesa, setForzarHamburguesa] = useState(false);
 
-  console.log("user", user);
-
   useEffect(() => {
     const evaluarPantalla = () => {
       const ancho = window.innerWidth;
@@ -58,7 +56,7 @@ export default function Navbar() {
 
   const links = [
     // { path: "/", label: "🏠 Inicio" },
-    // { path: "/equipo", label: "📊 Equipo" },
+    // { path: "ASDFVBNM,.-o", label: "📊 Equipo" },
     // { path: "/campeonatos", label: "🏆 Camp" },
     // { path: "/analisis", label: "📈 Análisis" },
     // { path: "/Temporadas", label: "🗓️ Temp" },
