@@ -14,7 +14,7 @@ import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 const initialState = {
   user: null,
-  status: "loading" | "idle" | "authenticated" | "error",
+  status: "loading",
   error: null,
 };
 
@@ -132,6 +132,8 @@ const AuthProvider = ({ children }) => {
         handleLogin,
         handleLogout,
         handleRegister,
+        uid: state.user?.uid,
+        isAuthenticated: state.status === "authenticated",
       }}
     >
       {children}
