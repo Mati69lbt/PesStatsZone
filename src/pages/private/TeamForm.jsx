@@ -1,6 +1,7 @@
-// cspell: ignore Notiflix lenght notiflix Andrada, "Rossi", "Izquierdoz", "Heredia", "Golts", "Vergini", "Magallan", "Peruzzi", "Jara", "Buffarini", "Fabra", "Olaza", "Mas", "S.Perez", "Perez", "Barrios", "Nandez", "Villa", "Pavon", "Cardona", "Reynoso", "Tevez", "Zarate", "Wanchope", Benedetto, volvé, debés
+// cspell: ignore Notiflix lenght notiflix Andrada, "Rossi", "Izquierdoz", "Heredia", "Golts", "Vergini", "Magallan", "Peruzzi", "Jara", "Buffarini", "Fabra", "Olaza", "Mas", "S.Perez", "Perez", "Barrios", "Nandez", "Villa", "Pavon", "Cardona", "Reynoso", "Tevez", "Zarate", "Wanchope", Benedetto, volvé, debés, firestore
 import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import useForm from "../../hooks/useForm";
+
 import {
   doc,
   setDoc,
@@ -12,8 +13,6 @@ import {
 
 import Notiflix from "notiflix";
 import {
-  lineupReducer,
-  lineupInitialState,
   LINEUP_RESET,
   LINEUP_SET_SELECTED,
   LINEUP_SET_CAPTAIN,
@@ -28,10 +27,13 @@ import {
   SAVE_CLUB_NAME,
   CLUB_LOAD_FROM_ACTIVE,
   LINEUPS_UPSERT_BUCKET,
+  useLineups,
 } from "../../context/LineUpProvider";
+
 import { normalizeName } from "../../utils/normalizeName";
 import useAuth from "../../hooks/useAuth";
 import { db } from "../../configuration/firebase";
+import { pretty } from "./match/utils/pretty";
 
 const TeamForm = () => {
   const { form, changed, setValue } = useForm();
@@ -40,7 +42,8 @@ const TeamForm = () => {
 
   const [teamName, setTeamName] = useState(form.teamName || "");
 
-  const [lineupState, dispatch] = useReducer(lineupReducer, lineupInitialState);
+  const { state: lineupState, dispatch } = useLineups();
+
   const {
     captainName,
     activeClub,
@@ -52,17 +55,6 @@ const TeamForm = () => {
   } = lineupState;
 
   const [showForm, setShowForm] = useState(false);
-
-  const pretty = (name) => {
-    if (!name) return "";
-    const nombre = name.split(" ");
-    const palabras = nombre.map(
-      (palabra) =>
-        palabra.charAt(0).toUpperCase() + normalizeName(palabra).slice(1)
-    );
-    const resultado = palabras.join(" ");
-    return resultado;
-  };
 
   useEffect(() => {
     if (!uid) return;
@@ -357,10 +349,10 @@ const TeamForm = () => {
           [`lineups.${clubKey}.players`]: players,
           [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
         });
-        // opcional: Notiflix.Notify.success("Plantel sincronizado");
+        Notiflix.Notify.success("Plantel sincronizado");
       } catch (e) {
         console.error(e);
-        // opcional: Notiflix.Notify.failure("No se pudo sincronizar el plantel");
+        Notiflix.Notify.failure("No se pudo sincronizar el plantel");
       }
     }, 400);
 
@@ -408,7 +400,7 @@ const TeamForm = () => {
         <div className="space-y-2">
           <div className="bg-white shadow-md rounded-xl p-6 space-y-2">
             <h1 className="text-2xl font-bold text-blue-700 mb-2 underline">
-              Equipo del DT: {teamName}
+              Equipo del DT: {pretty(teamName)}
             </h1>
             <label htmlFor="teamName">Nombre del Equipo</label>
             <div className="flex flex-row gap-2">
@@ -432,8 +424,12 @@ const TeamForm = () => {
                     await setDoc(
                       doc(db, "users", uid),
                       {
-                        [`lineups.${clubKey}.label`]: teamName,
-                        [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
+                        activeClub: clubKey,
+                        lineups: {
+                          [clubKey]: {
+                            updatedAt: serverTimestamp(),
+                          },
+                        },
                       },
                       { merge: true }
                     );
@@ -476,8 +472,10 @@ const TeamForm = () => {
                     await setDoc(
                       doc(db, "users", uid),
                       {
-                        [`lineups.${clubKey}.label`]: teamName, // nombre tal cual lo ingresó el usuario
-                        [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
+                        activeClub: clubKey,
+                        lineups: {
+                          [clubKey]: { updatedAt: serverTimestamp() },
+                        },
                       },
                       { merge: true }
                     );

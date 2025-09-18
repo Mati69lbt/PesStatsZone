@@ -6,6 +6,8 @@ import Public from "./pages/public/Public";
 import Login from "./pages/public/Login";
 import Private from "./pages/private/Private";
 import TeamForm from "./pages/private/TeamForm";
+import Partido from "./pages/private/match/Partido";
+import Versus from "./pages/private/versus/Versus";
 
 const App = () => {
   return (
@@ -15,7 +17,9 @@ const App = () => {
           <Route path="/" element={<Login />} />
         </Route>
         <Route element={<Private />}>
+          <Route path="/registrar-partido" element={<Partido />} />
           <Route path="/formacion" element={<TeamForm />} />
+          <Route path="/versus" element={<Versus />} />
         </Route>
       </Routes>
     </BrowserRouter>

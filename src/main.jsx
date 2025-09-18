@@ -5,6 +5,8 @@ import "./index.css";
 import App from "./App.jsx";
 import AuthProvider from "./context/AuthProvider.jsx";
 import Notiflix from "notiflix";
+import { LineupsProvider } from "./context/LineUpProvider.jsx";
+import { PartidoProvider } from "./context/PartidoReducer.jsx";
 
 Notiflix.Notify.init({
   position: "center-bottom",
@@ -18,7 +20,11 @@ Notiflix.Notify.init({
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
-      <App />
+      <LineupsProvider>
+        <PartidoProvider>
+          <App />
+        </PartidoProvider>
+      </LineupsProvider>
     </AuthProvider>
   </StrictMode>
 );

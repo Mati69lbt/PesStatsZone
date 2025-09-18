@@ -1,3 +1,4 @@
+import React, { createContext, useReducer, useContext } from "react";
 import { normalizeName } from "../utils/normalizeName";
 
 export const LINEUP_RESET = "LINEUP_RESET";
@@ -26,6 +27,14 @@ export const lineupInitialState = {
   players: [],
   usedClub: false,
 };
+
+export const LineupsContext = createContext();
+export function useLineups() {
+  const ctx = useContext(LineupsContext);
+  if (!ctx)
+    throw new Error("useLineups debe usarse dentro de <LineupsProvider>");
+  return ctx; // { state, dispatch }
+}
 
 export function lineupReducer(state, action) {
   switch (action.type) {
@@ -275,7 +284,7 @@ export function lineupReducer(state, action) {
       }
     }
     case LINEUPS_UPSERT_BUCKET: {
-      const { club, bucket } = action.payload || {};  
+      const { club, bucket } = action.payload || {};
 
       if (!club || !bucket) return state;
       const prev = state.lineups?.[club] ?? {
@@ -299,4 +308,13 @@ export function lineupReducer(state, action) {
     default:
       return state;
   }
+}
+
+export function LineupsProvider({ children }) {
+  const [state, dispatch] = useReducer(lineupReducer, lineupInitialState);
+  return (
+    <LineupsContext.Provider value={{ state, dispatch }}>
+      {children}
+    </LineupsContext.Provider>
+  );
 }

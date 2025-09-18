@@ -55,12 +55,32 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     dispatch({ type: "AUTH_INIT" });
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        dispatch({ type: "AUTH_READY", payload: user });
-      } else {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
         dispatch({ type: "AUTH_READY", payload: null });
+        return;
       }
+      let name = user.displayName?.trim() || "";
+      if (!name) {
+        try {
+          // 1) Intentar leer dtName desde Firestore
+          const snap = await getDoc(doc(db, "users", user.uid));
+          const dt = snap.exists() ? (snap.data()?.dtName || "").trim() : "";
+          if (dt) {
+            name = dt;
+            // 2) (Opcional) Persistir en Auth para próximos logins
+            try {
+              await updateProfile(user, { displayName: dt });
+            } catch {}
+          }
+        } catch {}
+      }
+      // 3) Fallback final: parte local del email
+      if (!name) name = user.email?.split("@")[0] || "";
+
+      // 4) “Congelar” un objeto con displayName resuelto
+      const mergedUser = { ...user, displayName: name };
+      dispatch({ type: "AUTH_READY", payload: mergedUser });
     });
     return () => unsubscribe();
   }, []);
@@ -123,6 +143,7 @@ const AuthProvider = ({ children }) => {
       console.error("Error al registrar usuario:", error);
     }
   };
+
 
   return (
     <AuthContext.Provider

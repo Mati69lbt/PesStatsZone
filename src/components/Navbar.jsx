@@ -5,7 +5,7 @@ import Notiflix from "notiflix";
 import useAuth from "../hooks/useAuth";
 
 export default function Navbar() {
-  const { user, handleLogout } = useAuth();
+  const { user, handleLogout, uid, isAuthenticated } = useAuth();
   const location = useLocation();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [forzarHamburguesa, setForzarHamburguesa] = useState(false);
@@ -55,8 +55,8 @@ export default function Navbar() {
   };
 
   const links = [
-    // { path: "/", label: "🏠 Inicio" },
-    // { path: "ASDFVBNM,.-o", label: "📊 Equipo" },
+    { path: "versus", label: "🆚" },
+    { path: "/registrar-partido", label: "🏠" },
     // { path: "/campeonatos", label: "🏆 Camp" },
     // { path: "/analisis", label: "📈 Análisis" },
     // { path: "/Temporadas", label: "🗓️ Temp" },
@@ -64,8 +64,10 @@ export default function Navbar() {
     // { path: "/goleadoresxcampeonato", label: "⚽ GxC" },
     // { path: "/villanos", label: "😈 Villanos" },
     // { path: "/palmares", label: "👑 Palmares" },
-    { path: "/formacion", label: "Formacion" },
+    { path: "/formacion", label: "📝" },
   ];
+
+
 
   return (
     <nav className="bg-white shadow-md w-full sticky top-0 z-10">
@@ -79,7 +81,7 @@ export default function Navbar() {
               <Link
                 key={path}
                 to={path}
-                className={`${linkClass(path)} flex items-center gap-1`}
+                className={`${linkClass(path)} flex items-center gap-1 text-xl`}
               >
                 {label}
               </Link>
