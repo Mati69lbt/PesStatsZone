@@ -1,30 +1,34 @@
 import React from "react";
 
-const RivalInput = ({ value, onChange, onBlur, suggestions = [] }) => {
+// TorneoInput.jsx
+export default function TorneoInput({
+  value,
+  onChange,
+  onBlur,
+  suggestions = [],
+}) {
   return (
     <div className="space-y-1">
-      <label className="block text-sm text-gray-600">Rival</label>
+      <label className="block text-sm text-gray-600">Torneo</label>
       <input
         type="text"
-        name="rival"
+        name="torneoName" 
         value={value || ""}
         onChange={onChange}
         onBlur={onBlur}
-        list="sugerencias-rivales"
-        placeholder="Rival (nombre completo)"
+        list="torneos-list"
+        placeholder="Ej: Copa Argentina"
         className="w-full border rounded p-2"
         autoComplete="off"
       />
-      <datalist id="sugerencias-rivales">
+      <datalist id="torneos-list">
         {(suggestions || []).map((opt) => (
           <option key={opt} value={opt} />
         ))}
       </datalist>
       <p className="text-xs text-gray-500">
-        Elegí de la lista o escribí un rival nuevo.
+        Elegí de la lista o escribí un nombre nuevo.
       </p>
     </div>
   );
-};
-
-export default RivalInput;
+}

@@ -3,7 +3,11 @@ export const matchInitialState = {
   fecha: "2018-07-01",
   bootstrapped: true,
   rival: "",
-  
+  activeClub: "",
+  torneoName: "",
+  torneoYear: null,
+  torneoDisplay: "",
+  torneosIndex: [],
 };
 
 export function partidoReducer(state, action) {
@@ -18,10 +22,26 @@ export function partidoReducer(state, action) {
       if (typeof value !== "string" || value.trim() === "") return state;
       return { ...state, fecha: value, bootstrapped: true };
     }
-    case "SET_RIVAL":
+    case "SET_RIVAL": {
       const value = action.payload;
       if (typeof value !== "string" || value.trim() === "") return state;
       return { ...state, rival: value };
+    }
+    case "HYDRATE_FROM_FIREBASE": {
+      const data = action.payload || {};
+     
+      const incomingIndex = Array.isArray(data.torneosIndex)
+        ? data.torneosIndex
+        : Array.isArray(data.torneoIndex)
+        ? data.torneoIndex
+        : state.torneosIndex || [];
+
+      return {
+        ...state,
+        activeClub: data.activeClub ?? state.activeClub,
+        torneosIndex: incomingIndex,
+      };
+    }
     default:
       return state;
   }

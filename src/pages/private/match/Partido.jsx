@@ -21,6 +21,9 @@ import saveMatch from "./utils/saveMatch";
 import { useNavigate } from "react-router-dom";
 import { pretty } from "./utils/pretty";
 import { db } from "../../../configuration/firebase";
+import useUserData from "../../../hooks/useUserData";
+import TorneoInput from "./inputs/TorneoInput";
+import { makeHandleOnBlur } from "./utils/handleOnBlur";
 
 const Partido = () => {
   const { state: matchState, dispatch: matchDispatch } = usePartido();
@@ -28,51 +31,56 @@ const Partido = () => {
   const { state: lineupState } = useLineups();
   const { activeClub, lineups } = lineupState;
 
-  /************* Borrar  **************/
-  const [userData, setUserData] = useState(null);
-
   const navigate = useNavigate();
   const handleChange = makeHandleChange(matchDispatch);
 
-  useEffect(() => {
-    if (!uid) return;
-    (async () => {
-      try {
-        if (!uid) return;
-
-        const userRef = doc(db, "users", uid);
-        const userSnap = await getDoc(userRef);
-
-        const data = userSnap.data();
-        console.log(data);
-
-        setUserData(data);
-      } catch (error) {
-        console.error("Error al montar el formulario", error);
-        Notiflix.Notify.failure("Error montar el Formulario");
-      }
-    })();
-  }, []);
-
+  useUserData(uid, matchDispatch);
   return (
     <div className="p-4 max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-4 text-center">Registrar Partido</h1>
       <form className="bg-white shadow-md rounded-xl p-6 space-y-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
           <span className="text-lg font-bold text-blue-700">
-            {userData?.activeClub
-              ? pretty(userData.activeClub)
+            {matchState.activeClub
+              ? pretty(matchState.activeClub)
               : "Esperando Nombre del Club"}
           </span>
         </div>
         <FechaInput value={matchState.fecha} onChange={handleChange} />
-        <RivalInput value={matchState.rival} onChange={handleChange} />
+        <RivalInput
+          value={matchState.rival}
+          onChange={handleChange}
+          onBlur={makeHandleOnBlur(
+            matchDispatch,
+            "rival",
+            "El campo Rival es Obligatorio"
+          )}
+        />
+        <TorneoInput
+          value={matchState.torneoName}
+          onChange={handleChange}
+          suggestions={matchState.torneosIndex}
+          onBlur={makeHandleOnBlur(
+            matchDispatch,
+            "torneoName",
+            "El campo Torneo es Obligatorio"
+          )}
+        />
         <GuardarPartidoButton
-          disabled={!uid || !matchState.fecha || !matchState.rival}
+          disabled={
+            !uid ||
+            !matchState.fecha ||
+            !matchState.rival ||
+            !matchState.torneoName
+          }
           onClick={async (e) => {
             e.preventDefault();
             try {
-              await saveMatch({ uid, matchState, activeClub });
+              await saveMatch({
+                uid,
+                matchState,
+                activeClub,
+              });
               navigate("/versus");
             } catch (err) {
               Notiflix.Notify.failure("Error Guardar el Formulario");
