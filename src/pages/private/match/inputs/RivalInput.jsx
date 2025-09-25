@@ -1,4 +1,5 @@
 import React from "react";
+import { pretty } from "../utils/pretty";
 
 const RivalInput = ({ value, onChange, onBlur, suggestions = [] }) => {
   return (
@@ -17,7 +18,7 @@ const RivalInput = ({ value, onChange, onBlur, suggestions = [] }) => {
       />
       <datalist id="sugerencias-rivales">
         {(suggestions || []).map((opt) => (
-          <option key={opt} value={opt} />
+          <option key={opt} value={pretty(opt)} />
         ))}
       </datalist>
       <p className="text-xs text-gray-500">

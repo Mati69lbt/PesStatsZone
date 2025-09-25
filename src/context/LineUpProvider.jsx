@@ -39,11 +39,10 @@ export function useLineups() {
 export function lineupReducer(state, action) {
   switch (action.type) {
     case CLUB_RESET: {
-      return {
-        ...state,
-        activeClub: null,
+      return {      
+        activeClub: "",
         players: [],
-        usedClub: false,
+        lineups: {},
       };
     }
     case LINEUP_RESET: {

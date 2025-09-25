@@ -384,6 +384,17 @@ const TeamForm = () => {
     );
   };
 
+  useEffect(() => {
+    if (!uid) {
+      dispatch({ type: CLUB_RESET }); // limpia activeClub, players, etc.
+      // opcionalmente también:
+      dispatch({
+        type: LINEUPS_UPSERT_BUCKET,
+        payload: { club: "", bucket: {} },
+      });
+    }
+  }, [uid, dispatch]);
+
   const hasFormCaptain =
     showForm && selectMode === "captain" && players.length > 0;
   const hasFormStarters = selectMode === "starters" && players.length > 0;

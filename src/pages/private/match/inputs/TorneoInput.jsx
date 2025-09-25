@@ -1,4 +1,5 @@
 import React from "react";
+import { pretty } from "../utils/pretty";
 
 // TorneoInput.jsx
 export default function TorneoInput({
@@ -12,7 +13,7 @@ export default function TorneoInput({
       <label className="block text-sm text-gray-600">Torneo</label>
       <input
         type="text"
-        name="torneoName" 
+        name="torneoName"
         value={value || ""}
         onChange={onChange}
         onBlur={onBlur}
@@ -23,11 +24,11 @@ export default function TorneoInput({
       />
       <datalist id="torneos-list">
         {(suggestions || []).map((opt) => (
-          <option key={opt} value={opt} />
+          <option key={opt} value={pretty(opt)} />
         ))}
       </datalist>
       <p className="text-xs text-gray-500">
-        Elegí de la lista o escribí un nombre nuevo.
+        Elegí de la lista o escribí un torneo nuevo.
       </p>
     </div>
   );

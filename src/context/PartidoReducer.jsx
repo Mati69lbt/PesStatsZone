@@ -1,3 +1,4 @@
+// cspell: ignore FORMACION
 import React, { createContext, useContext, useReducer } from "react";
 export const matchInitialState = {
   fecha: "2018-07-01",
@@ -7,7 +8,13 @@ export const matchInitialState = {
   torneoName: "",
   torneoYear: null,
   torneoDisplay: "",
+  condition: "",
   torneosIndex: [],
+  matches: [],
+  rivalesIndex: [],
+  captain: "",
+  starters: [],
+  substitutes: [],
 };
 
 export function partidoReducer(state, action) {
@@ -29,19 +36,37 @@ export function partidoReducer(state, action) {
     }
     case "HYDRATE_FROM_FIREBASE": {
       const data = action.payload || {};
-     
-      const incomingIndex = Array.isArray(data.torneosIndex)
-        ? data.torneosIndex
-        : Array.isArray(data.torneoIndex)
-        ? data.torneoIndex
-        : state.torneosIndex || [];
-
       return {
         ...state,
         activeClub: data.activeClub ?? state.activeClub,
-        torneosIndex: incomingIndex,
+        torneosIndex: Array.isArray(data.torneosIndex) ? data.torneosIndex : [],
+        matches: Array.isArray(data.matches) ? data.matches : [],
+        rivalesIndex: Array.isArray(data.rivalesIndex) ? data.rivalesIndex : [],
       };
     }
+    case "SET_FORMACION": {
+      const { captain, starters } = action.payload;
+      return {
+        ...state,
+        captain,
+        starters,
+      };
+    }
+    case "SET_SUBS":
+      const { substitutes } = action.payload;
+      return {
+        ...state,
+        substitutes,
+      };
+    case "RESET_FORM":
+      return {
+        ...matchInitialState,
+        activeClub: state.activeClub,
+        torneosIndex: state.torneosIndex,
+        matches: state.matches,
+        rivalesIndex: state.rivalesIndex,
+      };
+
     default:
       return state;
   }

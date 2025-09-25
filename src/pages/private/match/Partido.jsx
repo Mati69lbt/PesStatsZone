@@ -3,27 +3,24 @@ import React, { useEffect, useState } from "react";
 import { usePartido } from "../../../context/PartidoReducer";
 import { useLineups } from "../../../context/LineUpProvider";
 import useAuth from "../../../hooks/useAuth";
-import FechaInput from "./inputs/FechaInput";
-import { makeHandleChange } from "./utils/handleChange";
-import RivalInput from "./inputs/RivalInput";
-import GuardarPartidoButton from "./button/GuardarPartidoButton";
-import Notiflix from "notiflix";
-
-import {
-  doc,
-  setDoc,
-  updateDoc,
-  getDoc,
-  serverTimestamp,
-  deleteField,
-} from "firebase/firestore";
-import saveMatch from "./utils/saveMatch";
-import { useNavigate } from "react-router-dom";
-import { pretty } from "./utils/pretty";
-import { db } from "../../../configuration/firebase";
 import useUserData from "../../../hooks/useUserData";
+import FechaInput from "./inputs/FechaInput";
+import RivalInput from "./inputs/RivalInput";
 import TorneoInput from "./inputs/TorneoInput";
+import CaptainSelect from "./inputs/CaptainSelect";
+import SubstitutesInput from "./inputs/SubstitutesInput ";
+import { makeHandleChange } from "./utils/handleChange";
+import { pretty } from "./utils/pretty";
 import { makeHandleOnBlur } from "./utils/handleOnBlur";
+import makeHandleChangeCaptainSelect from "./utils/handleChangeCaptainSelect";
+import GuardarPartidoButton from "./button/GuardarPartidoButton";
+import { useNavigate } from "react-router-dom";
+import handleSaveMatch from "./utils/handleSaveMatch";
+import ConditionInput from "./inputs/ConditionInput";
+import makeHandleChangeSubstitutes from "./utils/handleChangeSubstitutes";
+
+// lc0001
+//lc@gmail.com
 
 const Partido = () => {
   const { state: matchState, dispatch: matchDispatch } = usePartido();
@@ -33,6 +30,19 @@ const Partido = () => {
 
   const navigate = useNavigate();
   const handleChange = makeHandleChange(matchDispatch);
+  const handleChangeCaptainSelect = makeHandleChangeCaptainSelect(
+    lineups,
+    activeClub,
+    matchDispatch
+  );
+  const handleChangeSubstitutes = makeHandleChangeSubstitutes(matchDispatch);
+
+  const captains = (lineups?.[activeClub]?.formations || []).map(
+    (f) => f.captain
+  );
+  const players = lineups?.[activeClub]?.players || [];
+
+  console.log("[Partido] lineups[activeClub]:", lineups?.[activeClub]);
 
   useUserData(uid, matchDispatch);
   return (
@@ -55,6 +65,7 @@ const Partido = () => {
             "rival",
             "El campo Rival es Obligatorio"
           )}
+          suggestions={matchState.rivalesIndex}
         />
         <TorneoInput
           value={matchState.torneoName}
@@ -66,26 +77,37 @@ const Partido = () => {
             "El campo Torneo es Obligatorio"
           )}
         />
+        <ConditionInput value={matchState.condition} onChange={handleChange} />
+        <CaptainSelect
+          captains={captains}
+          value={matchState.captain}
+          onChange={handleChangeCaptainSelect}
+        />
+        <SubstitutesInput
+          disabled={!matchState.captain}
+          players={players}
+          value={matchState.substitutes}
+          onChange={handleChangeSubstitutes}
+          starters={matchState.starters}
+          substitutes={matchState.substitutes}
+        />
         <GuardarPartidoButton
           disabled={
             !uid ||
             !matchState.fecha ||
             !matchState.rival ||
-            !matchState.torneoName
+            !matchState.torneoName ||
+            !matchState.condition
           }
-          onClick={async (e) => {
+          onClick={(e) => {
             e.preventDefault();
-            try {
-              await saveMatch({
-                uid,
-                matchState,
-                activeClub,
-              });
-              navigate("/versus");
-            } catch (err) {
-              Notiflix.Notify.failure("Error Guardar el Formulario");
-              console.error("Error al guardar:", err);
-            }
+            handleSaveMatch({
+              uid,
+              matchState,
+              activeClub,
+              matchDispatch,
+              navigate,
+            });
           }}
         />
       </form>
