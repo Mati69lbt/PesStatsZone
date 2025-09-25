@@ -42,8 +42,6 @@ const Partido = () => {
   );
   const players = lineups?.[activeClub]?.players || [];
 
-  console.log("[Partido] lineups[activeClub]:", lineups?.[activeClub]);
-
   useUserData(uid, matchDispatch);
   return (
     <div className="p-4 max-w-md mx-auto">
@@ -79,13 +77,13 @@ const Partido = () => {
         />
         <ConditionInput value={matchState.condition} onChange={handleChange} />
         <CaptainSelect
-          captains={captains}
+          formations={lineups?.[activeClub]?.formations || []}
           value={matchState.captain}
           onChange={handleChangeCaptainSelect}
         />
         <SubstitutesInput
           disabled={!matchState.captain}
-          players={players}
+          players={lineups?.[activeClub]?.players || []}
           value={matchState.substitutes}
           onChange={handleChangeSubstitutes}
           starters={matchState.starters}

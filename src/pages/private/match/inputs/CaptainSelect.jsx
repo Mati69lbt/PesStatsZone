@@ -1,7 +1,8 @@
 import React from "react";
 import { pretty } from "../utils/pretty";
 
-const CaptainSelect = ({ value, onChange, captains = [] }) => {
+const CaptainSelect = ({ formations = [], value, onChange }) => {
+  const captains = formations.map((f) => f.captain);
   return (
     <div className="space-y-1">
       <label className="block text-sm text-gray-600">Capitán</label>
