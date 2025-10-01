@@ -17,9 +17,14 @@ const RivalInput = ({ value, onChange, onBlur, suggestions = [] }) => {
         autoComplete="off"
       />
       <datalist id="sugerencias-rivales">
-        {(suggestions || []).map((opt) => (
-          <option key={opt} value={pretty(opt)} />
-        ))}
+        {(suggestions || [])
+          .slice()
+          .sort((a, b) =>
+            pretty(a).localeCompare(pretty(b), "es", { sensitivity: "base" })
+          )
+          .map((opt) => (
+            <option key={opt} value={pretty(opt)} />
+          ))}
       </datalist>
       <p className="text-xs text-gray-500">
         Elegí de la lista o escribí un rival nuevo.

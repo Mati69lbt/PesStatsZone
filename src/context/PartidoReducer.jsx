@@ -1,4 +1,4 @@
-// cspell: ignore FORMACION
+// cspell: ignore FORMACION hattrick
 import React, { createContext, useContext, useReducer } from "react";
 export const matchInitialState = {
   fecha: "2018-07-01",
@@ -15,6 +15,8 @@ export const matchInitialState = {
   captain: "",
   starters: [],
   substitutes: [],
+  goleadoresActiveClub: [],
+  goleadoresRivales: [],
 };
 
 export function partidoReducer(state, action) {
@@ -42,6 +44,9 @@ export function partidoReducer(state, action) {
         torneosIndex: Array.isArray(data.torneosIndex) ? data.torneosIndex : [],
         matches: Array.isArray(data.matches) ? data.matches : [],
         rivalesIndex: Array.isArray(data.rivalesIndex) ? data.rivalesIndex : [],
+        goleadoresActiveClub: Array.isArray(data.goleadoresActiveClub)
+          ? data.goleadoresActiveClub
+          : state.goleadoresActiveClub,
       };
     }
     case "SET_FORMACION": {
@@ -58,6 +63,48 @@ export function partidoReducer(state, action) {
         ...state,
         substitutes,
       };
+    case "ADD_GOLEADOR": {
+      const { name, activeClub } = action.payload;
+      const exists = state.goleadoresActiveClub.some(
+        (g) => g.name === name && g.activeClub === activeClub
+      );
+      if (exists) return state;
+      return {
+        ...state,
+        goleadoresActiveClub: [
+          ...state.goleadoresActiveClub,
+          {
+            name,
+            activeClub,
+            gol: false,
+            doblete: false,
+            hattrick: false,
+            expulsion: false,
+          },
+        ],
+      };
+    }
+
+    case "TOGGLE_EVENT": {
+      const { name, activeClub, event } = action.payload;
+      return {
+        ...state,
+        goleadoresActiveClub: state.goleadoresActiveClub.map((g) =>
+          g.name === name && g.activeClub === activeClub
+            ? { ...g, [event]: !g[event] }
+            : g
+        ),
+      };
+    }
+    case "REMOVE_GOLEADOR": {
+      const { name, activeClub } = action.payload;
+      return {
+        ...state,
+        goleadoresActiveClub: state.goleadoresActiveClub.filter(
+          (g) => !(g.name === name && g.activeClub === activeClub)
+        ),
+      };
+    }
     case "RESET_FORM":
       return {
         ...matchInitialState,
@@ -66,6 +113,34 @@ export function partidoReducer(state, action) {
         matches: state.matches,
         rivalesIndex: state.rivalesIndex,
       };
+    case "RIVAL_ADD": {
+      const p = action.payload; // {name, club, gol, doblete, triplete, expulsion}
+      const exists = state.goleadoresRivales.some(
+        (g) => g.name === p.name && g.club === p.club
+      );
+      if (exists) return state;
+      return { ...state, goleadoresRivales: [...state.goleadoresRivales, p] };
+    }
+
+    case "RIVAL_TOGGLE": {
+      const { name, club, field } = action.payload;
+      return {
+        ...state,
+        goleadoresRivales: state.goleadoresRivales.map((g) =>
+          g.name === name && g.club === club ? { ...g, [field]: !g[field] } : g
+        ),
+      };
+    }
+
+    case "RIVAL_REMOVE": {
+      const { name, club } = action.payload;
+      return {
+        ...state,
+        goleadoresRivales: state.goleadoresRivales.filter(
+          (g) => !(g.name === name && g.club === club)
+        ),
+      };
+    }
 
     default:
       return state;

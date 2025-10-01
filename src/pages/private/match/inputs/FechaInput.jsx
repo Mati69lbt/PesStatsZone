@@ -10,6 +10,7 @@ const FechaInput = ({ value, onChange }) => {
         onChange={onChange}
         className="w-full border rounded p-2"
       />
+      <p className="text-xs text-gray-500">Fecha del Partido</p>
     </div>
   );
 };

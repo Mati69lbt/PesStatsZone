@@ -15,8 +15,16 @@ import { normalizeName } from "../../../../utils/normalizeName";
 const saveMatch = async ({ uid, matchState, activeClub }) => {
   if (!uid) throw new Error("UID no disponible; no se puede guardar.");
 
-  const { fecha, rival, captain, starters, substitutes, condition } =
-    matchState || {};
+  const {
+    fecha,
+    rival,
+    captain,
+    starters,
+    substitutes,
+    condition,
+    goleadoresActiveClub,
+    goleadoresRivales,
+  } = matchState || {};
   const year = fecha ? new Date(fecha).getFullYear() : null;
   const name = matchState?.torneoName?.trim() || "";
   const display = name && year ? `${name} ${year}` : name || "";
@@ -41,6 +49,8 @@ const saveMatch = async ({ uid, matchState, activeClub }) => {
     createdAt: Date.now(),
     starters: starters,
     substitutes: substitutes,
+    goleadoresActiveClub: goleadoresActiveClub || [],
+    goleadoresRivales: goleadoresRivales,
   };
 
   // guardamos todo en el doc de usuario
@@ -56,22 +66,56 @@ const saveMatch = async ({ uid, matchState, activeClub }) => {
   );
 
   const statsRef = doc(db, "users", uid);
-  for (const player of starters) {
-    const path = `lineups.${activeClub}.playersStats.${player}`;
-    await updateDoc(statsRef, {
-      [`${path}.matchesPlayed`]: increment(1),
-      // [`${path}.goals`]: 0, // se dejan porque después se usarán
-      // [`${path}.dobletes`]: 0,
-      // [`${path}.hatTricks`]: 0,
-      // [`${path}.expulsiones`]: 0,
-    });
+  // 🔹 Loop para goleadores
+  for (const g of matchState.goleadoresActiveClub || []) {
+    const path = `lineups.${activeClub}.playersStats.${g.name}`;
+    const updates = {};
+    updates[`${path}.matchesPlayed`] = increment(1);
+
+    const goles = (g.gol ? 1 : 0) + (g.doblete ? 2 : 0) + (g.triplete ? 3 : 0);
+
+    if (goles > 0) {
+      updates[`${path}.goals`] = increment(goles);
+    }
+    if (g.doblete) {
+      updates[`${path}.dobletes`] = increment(1);
+    }
+    if (g.triplete) {
+      updates[`${path}.hatTricks`] = increment(1);
+    }
+    if (g.expulsion) {
+      updates[`${path}.expulsiones`] = increment(1);
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await updateDoc(statsRef, updates);
+    }
   }
-  for (const player of substitutes) {
-    const path = `lineups.${activeClub}.playersStats.${player}`;
-    await updateDoc(statsRef, {
-      [`${path}.matchesPlayed`]: increment(1),
-    });
-  }
+
+   for (const g of matchState.goleadoresRivales || []) {
+     const path = `lineups.${activeClub}.rivalsPlayers.${g.name}`;
+     const updates = {};
+     updates[`${path}.matchesPlayed`] = increment(1);
+
+     const goles = (g.gol ? 1 : 0) + (g.doblete ? 2 : 0) + (g.triplete ? 3 : 0);
+
+     if (goles > 0) {
+       updates[`${path}.goals`] = increment(goles);
+     }
+     if (g.doblete) {
+       updates[`${path}.dobletes`] = increment(1);
+     }
+     if (g.triplete) {
+       updates[`${path}.hatTricks`] = increment(1);
+     }
+     if (g.expulsion) {
+       updates[`${path}.expulsiones`] = increment(1);
+     }
+
+     if (Object.keys(updates).length > 0) {
+       await updateDoc(statsRef, updates);
+     }
+   }
 
   return { id };
 };

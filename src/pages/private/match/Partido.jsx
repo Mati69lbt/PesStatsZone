@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { usePartido } from "../../../context/PartidoReducer";
 import { useLineups } from "../../../context/LineUpProvider";
 import useAuth from "../../../hooks/useAuth";
-import useUserData from "../../../hooks/useUserData";
+import { useUserData } from "../../../hooks/useUserData";
 import FechaInput from "./inputs/FechaInput";
 import RivalInput from "./inputs/RivalInput";
 import TorneoInput from "./inputs/TorneoInput";
@@ -18,13 +18,16 @@ import { useNavigate } from "react-router-dom";
 import handleSaveMatch from "./utils/handleSaveMatch";
 import ConditionInput from "./inputs/ConditionInput";
 import makeHandleChangeSubstitutes from "./utils/handleChangeSubstitutes";
+import GoleadoresActiveClub from "./inputs/GoleadoresActiveClub";
+import GoleadoresRivales from "./inputs/GoleadoresRivales";
+import Resumen from "./inputs/Resumen";
 
 // lc0001
 //lc@gmail.com
 
 const Partido = () => {
   const { state: matchState, dispatch: matchDispatch } = usePartido();
-  const { uid, isAuthenticated } = useAuth();
+  const { uid } = useAuth();
   const { state: lineupState } = useLineups();
   const { activeClub, lineups } = lineupState;
 
@@ -36,11 +39,6 @@ const Partido = () => {
     matchDispatch
   );
   const handleChangeSubstitutes = makeHandleChangeSubstitutes(matchDispatch);
-
-  const captains = (lineups?.[activeClub]?.formations || []).map(
-    (f) => f.captain
-  );
-  const players = lineups?.[activeClub]?.players || [];
 
   useUserData(uid, matchDispatch);
   return (
@@ -77,6 +75,7 @@ const Partido = () => {
         />
         <ConditionInput value={matchState.condition} onChange={handleChange} />
         <CaptainSelect
+          disabled={matchState.substitutes.length > 0}
           formations={lineups?.[activeClub]?.formations || []}
           value={matchState.captain}
           onChange={handleChangeCaptainSelect}
@@ -89,6 +88,17 @@ const Partido = () => {
           starters={matchState.starters}
           substitutes={matchState.substitutes}
         />
+        <GoleadoresActiveClub
+          state={matchState}
+          dispatch={matchDispatch}
+          disabled={!matchState.captain}
+        />
+        <GoleadoresRivales
+          state={matchState}
+          dispatch={matchDispatch}
+          disabled={!matchState.rival}
+        />
+        <Resumen state={matchState} activeClub={matchState.activeClub} />
         <GuardarPartidoButton
           disabled={
             !uid ||

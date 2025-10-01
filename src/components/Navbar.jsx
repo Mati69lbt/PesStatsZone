@@ -3,12 +3,21 @@ import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Notiflix from "notiflix";
 import useAuth from "../hooks/useAuth";
+import { usePartido } from "../context/PartidoReducer";
+import { fetchUserData } from "../hooks/useUserData";
 
 export default function Navbar() {
   const { user, handleLogout, uid, isAuthenticated } = useAuth();
   const location = useLocation();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [forzarHamburguesa, setForzarHamburguesa] = useState(false);
+  const { dispatch: matchDispatch } = usePartido();
+
+  const recargarDatos = async () => {
+    if (uid) {
+      await fetchUserData(uid, matchDispatch);
+    }
+  };
 
   useEffect(() => {
     const evaluarPantalla = () => {
@@ -67,13 +76,14 @@ export default function Navbar() {
     { path: "/formacion", label: "📝" },
   ];
 
-
-
   return (
     <nav className="bg-white shadow-md w-full sticky top-0 z-10">
       {!forzarHamburguesa && (
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <span className="text-xl font-bold text-blue-600 whitespace-nowrap">
+          <span
+            className="text-xl font-bold text-blue-600 whitespace-nowrap cursor-pointer"
+            onClick={recargarDatos}
+          >
             ⚽ Pes Stats Zone
           </span>
           <div className="space-x-2 text-sm flex">

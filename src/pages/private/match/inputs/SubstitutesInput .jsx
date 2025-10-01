@@ -36,6 +36,9 @@ const SubstitutesInput = ({
             </option>
           ))}
       </select>
+      <p className="text-xs text-gray-500">
+        Elegí de la lista los jugadores que ingresaron
+      </p>
 
       {/* listado horizontal de suplentes */}
       <ul className="flex flex-wrap gap-2 mt-2">
