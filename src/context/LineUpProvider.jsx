@@ -26,6 +26,7 @@ export const lineupInitialState = {
   activeClub: "",
   players: [],
   usedClub: false,
+  managedClubs: [],
 };
 
 export const LineupsContext = createContext();
@@ -39,7 +40,7 @@ export function useLineups() {
 export function lineupReducer(state, action) {
   switch (action.type) {
     case CLUB_RESET: {
-      return {      
+      return {
         activeClub: "",
         players: [],
         lineups: {},
@@ -254,10 +255,8 @@ export function lineupReducer(state, action) {
         return state;
       const club = normalizeName(action.payload.name);
       if (club === "") return state;
-      return {
-        ...state,
-        activeClub: club,
-      };
+      const set = new Set([...(state.managedClubs || []), club]);
+      return { ...state, activeClub: club, managedClubs: Array.from(set) };
     }
     case CLUB_LOAD_FROM_ACTIVE: {
       const club = normalizeName(state.activeClub || "");

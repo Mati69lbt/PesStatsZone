@@ -11,7 +11,19 @@ const handleSaveMatch = async ({
   matchDispatch,
   navigate,
 }) => {
-  // Suma de goles por banderas (x1, doblete=+2, triplete/hattrick=+3)
+  // --- Validación mínima antes de todo (evita errores opacos) ---
+  if (!uid) {
+    console.error("[handleSaveMatch] uid vacío; no se puede guardar.");
+    Notiflix.Notify.failure("No hay usuario autenticado (uid vacío).");
+    return;
+  }
+  if (!activeClub) {
+    console.warn("[handleSaveMatch] activeClub vacío; bloqueando guardado.");
+    Notiflix.Notify.warning("Elegí un club antes de guardar el partido.");
+    return;
+  }
+
+  // Suma de goles por banderas (x1, doblete=2, triplete/hattrick=3)
   const goalsFromFlags = (g) =>
     (g.gol ? 1 : 0) + (g.doblete ? 2 : 0) + (g.triplete || g.hattrick ? 3 : 0);
 
@@ -43,6 +55,18 @@ const handleSaveMatch = async ({
     message = `${pretty(activeClub)} ${ownGoals} - ${rivalGoals} ${rivalName}`;
   }
 
+  const diag = {
+    uid,
+    activeClub,
+    condition,
+    ownGoals,
+    rivalGoals,
+    ownScorers: own?.length ?? 0,
+    rivalScorers: rivals?.length ?? 0,
+    rivalName,
+  };
+
+
   // Confirm minimal
   Notiflix.Confirm.show(
     "Confirmar Resultado",
@@ -52,12 +76,42 @@ const handleSaveMatch = async ({
     async () => {
       try {
         Notiflix.Loading.standard("Guardando partido... ⚽");
-        await saveMatch({ uid, matchState, activeClub });
+        (await saveMatch({
+          uid,
+          activeClub,
+          matchState,
+          ownGoals,
+          rivalGoals,
+          condition,
+          rivalName,
+        }));
         Notiflix.Notify.success("Partido guardado correctamente ✅");
         matchDispatch({ type: "RESET_FORM" });
         navigate("/versus");
       } catch (e) {
-        Notiflix.Notify.failure("Error al guardar el partido ❌");
+        // --- Diagnóstico detallado del error ---
+        const info = {
+          name: e?.name,
+          code: e?.code,
+          message: e?.message,
+        };
+        console.error("[handleSaveMatch] Error al guardar", {
+          ...info,
+          stack: e?.stack,
+          context: diag,
+        });
+        Notiflix.Report.failure(
+          "Error al guardar",
+          [
+            info.code ? `Código: ${info.code}` : "",
+            info.name ? `Tipo: ${info.name}` : "",
+            info.message ? `Mensaje: ${info.message}` : "",
+            `Club: ${activeClub} | ${ownGoals}-${rivalGoals} vs ${rivalName}`,
+          ]
+            .filter(Boolean)
+            .join("\n"),
+          "Cerrar"
+        );
       } finally {
         Notiflix.Loading.remove();
       }

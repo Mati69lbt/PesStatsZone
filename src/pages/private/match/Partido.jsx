@@ -1,4 +1,4 @@
-// cspell: ignore Notiflix firestore notiflix estadisticas
+// cspell: ignore Notiflix firestore notiflix estadisticas trin formacion
 import React, { useEffect, useState } from "react";
 import { usePartido } from "../../../context/PartidoReducer";
 import { useLineups } from "../../../context/LineUpProvider";
@@ -14,16 +14,24 @@ import { pretty } from "./utils/pretty";
 import { makeHandleOnBlur } from "./utils/handleOnBlur";
 import makeHandleChangeCaptainSelect from "./utils/handleChangeCaptainSelect";
 import GuardarPartidoButton from "./button/GuardarPartidoButton";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import handleSaveMatch from "./utils/handleSaveMatch";
 import ConditionInput from "./inputs/ConditionInput";
 import makeHandleChangeSubstitutes from "./utils/handleChangeSubstitutes";
 import GoleadoresActiveClub from "./inputs/GoleadoresActiveClub";
 import GoleadoresRivales from "./inputs/GoleadoresRivales";
 import Resumen from "./inputs/Resumen";
+import useActiveClub from "./hook/useActiveClub";
+import { normalizeName } from "../../../utils/normalizeName";
 
 // lc0001
 //lc@gmail.com
+
+//trinche@gmail.com
+// trin001
+
+//mito@gmail.com
+//mito001
 
 const Partido = () => {
   const { state: matchState, dispatch: matchDispatch } = usePartido();
@@ -41,6 +49,20 @@ const Partido = () => {
   const handleChangeSubstitutes = makeHandleChangeSubstitutes(matchDispatch);
 
   useUserData(uid, matchDispatch);
+  useActiveClub({ activeClub, matchState, matchDispatch });
+
+  const rawClub = lineupState?.activeClub || matchState?.activeClub || "";
+  const clubKey = normalizeName ? normalizeName(rawClub) : rawClub;
+  const clubData = lineupState?.lineups?.[clubKey] || {};
+  const hasPlayers = (clubData.players?.length ?? 0) > 0;
+  const hasFormations = (clubData.formations?.length ?? 0) > 0;
+  const hasPlayerStats = clubData.playersStats
+    ? Object.keys(clubData.playersStats).length > 0
+    : false;
+  if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
+    return <Navigate to="/formacion" replace />;
+  }
+
   return (
     <div className="p-4 max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-4 text-center">Registrar Partido</h1>

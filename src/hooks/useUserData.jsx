@@ -3,6 +3,7 @@ import { doc, getDoc } from "firebase/firestore";
 import Notiflix from "notiflix";
 import React, { useEffect } from "react";
 import { db } from "../configuration/firebase";
+import { normalizeName } from "../utils/normalizeName";
 
 export const fetchUserData = async (uid, matchDispatch) => {
   if (!uid) return;
@@ -18,19 +19,31 @@ export const fetchUserData = async (uid, matchDispatch) => {
       console.log("[Partido] datos usuario:", data);
 
       // Guardar en el reducer de partido
+      const {
+        activeClub: _ignore, // ⬅️ NO hidratar activeClub aquí
+        lineups,
+        torneosIndex,
+        rivalesIndex,
+      } = data || {};
       matchDispatch({
         type: "HYDRATE_FROM_FIREBASE",
-        payload: data || {},
+        payload: { lineups, torneosIndex, rivalesIndex },
       });
-      if (data.matches && data.matches.length > 0) {
-        const lastDate = data.matches[data.matches.length - 1].fecha;
-        if (lastDate) {
-          matchDispatch({
-            type: "ACTUALIZAR_CAMPO",
-            campo: "fecha",
-            valor: lastDate,
-          });
-        }
+
+      const clubKey = normalizeName(data?.activeClub);
+      const dataMatches = data?.lineups?.[clubKey]?.matches || [];
+      const lastDate = dataMatches
+        .map((m) => m?.fecha)
+        .filter(Boolean)
+        .sort((a, b) => new Date(a) - new Date(b)) // asc
+        .at(-1);
+      if (lastDate) {
+        Notiflix.Notify.success("Info Sincronizado");
+        matchDispatch({
+          type: "ACTUALIZAR_CAMPO",
+          campo: "fecha",
+          valor: lastDate,
+        });
       }
     } else {
       console.warn("[Partido] no existe doc para uid:", uid);

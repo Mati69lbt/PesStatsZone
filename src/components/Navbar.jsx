@@ -1,17 +1,25 @@
-// cspell: ignore hamburguesa forzarHamburguesa Confirmacion analisis goleadoresxcampeonato formacion cerrarSesion Notiflix notiflix
+// cspell: ignore hamburguesa forzarHamburguesa Confirmacion analisis goleadoresxcampeonato formacion cerrarSesion Notiflix notiflix Firestore firestore
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Notiflix from "notiflix";
 import useAuth from "../hooks/useAuth";
 import { usePartido } from "../context/PartidoReducer";
 import { fetchUserData } from "../hooks/useUserData";
+import { useLineups } from "../context/LineUpProvider";
+import { pretty } from "../pages/private/match/utils/pretty";
+
+import { doc, setDoc } from "firebase/firestore";
+import {db} from "../configuration/firebase.js"
 
 export default function Navbar() {
   const { user, handleLogout, uid, isAuthenticated } = useAuth();
   const location = useLocation();
+
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [forzarHamburguesa, setForzarHamburguesa] = useState(false);
+
   const { dispatch: matchDispatch } = usePartido();
+  const { dispatch: lineupDispatch } = useLineups();
 
   const recargarDatos = async () => {
     if (uid) {
@@ -37,7 +45,49 @@ export default function Navbar() {
     }`;
 
   const mostrarConfirmacionReset = () => {
-    // cuando tenga informacion en el forebase, hacer este boton funcional
+    Notiflix.Confirm.show(
+      "Reiniciar",
+      "Esto borrará el club activo, la formación y el formulario del partido en esta sesión. ¿Continuar?",
+      "Sí",
+      "No",
+      async () => {
+        // ← ahora async
+        try {
+          // 1) Limpiar estado EN MEMORIA
+          lineupDispatch({ type: "CLUB_RESET" });
+          lineupDispatch({ type: "LINEUP_RESET" });
+          matchDispatch({
+            type: "ACTUALIZAR_CAMPO",
+            campo: "activeClub",
+            valor: "",
+          });
+          matchDispatch({ type: "RESET_FORM" });
+
+          // 2) Limpiar Firestore del usuario actual (campos en la raíz)
+          if (uid) {
+            const userRef = doc(db, "users", uid);
+            await setDoc(
+              userRef,
+              {
+                activeClub: "",
+                lineups: {},
+                players: [],
+                starters: [],
+                useClub: false,
+                // agrega aquí cualquier otro bucket que quieras vaciar
+                // playersStats: {},
+              },
+              { merge: true }
+            );
+          }
+
+          Notiflix.Notify.success("Listo: se reinició la sesión de trabajo.");
+        } catch (e) {
+          Notiflix.Notify.failure("No se pudo reiniciar.");
+        }
+      },
+      () => {}
+    );
   };
 
   const cerrarSesion = () => {
@@ -47,7 +97,26 @@ export default function Navbar() {
       "Sí",
       "No",
       async () => {
-        await handleLogout();
+        try {
+          // 1) Limpiar estados EN MEMORIA para evitar arrastre entre usuarios
+          // LineUps: limpia activeClub, players y lineups
+          lineupDispatch({ type: "CLUB_RESET" });
+
+          // Partido: dejar el formulario limpio y sin club activo
+          matchDispatch({
+            type: "ACTUALIZAR_CAMPO",
+            campo: "activeClub",
+            valor: "",
+          });
+          matchDispatch({ type: "RESET_FORM" });
+
+          // 2) Cerrar sesión (Auth)
+          await handleLogout();
+        } catch (e) {
+          Notiflix.Notify.failure("No se pudo cerrar sesión correctamente");
+          return;
+        }
+        Notiflix.Notify.success("Sesión cerrada");
       },
       () => {
         Notiflix.Notify.info("Sesión no cerrada");
@@ -100,7 +169,7 @@ export default function Navbar() {
               <div className="flex flex-col items-center justify-center border p-2 rounded-lg">
                 <label>Dt</label>
                 <span className="text-gray-700 font-semibold">
-                  {user.displayName}
+                  {pretty(user.displayName)}
                 </span>
               </div>
             )}
