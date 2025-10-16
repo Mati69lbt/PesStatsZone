@@ -7,6 +7,8 @@ const InputNewPlayer = ({
   players = [],
   dispatch,
   setValue,
+  activeClub,
+  lineups,
 }) => {
   return (
     <div>
@@ -23,13 +25,27 @@ const InputNewPlayer = ({
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              handleAddPlayer(form, players, dispatch, setValue);
+              handleAddPlayer({
+                name: form.playerName,
+                activeClub, // viene por props
+                lineups, // viene por props
+                dispatch, // viene por props
+                setValue,
+              });
             }
           }}
         />
         <button
           type="button"
-          onClick={() => handleAddPlayer(form, players, dispatch, setValue)}
+          onClick={() =>
+            handleAddPlayer({
+              name: form.playerName,
+              activeClub, // viene por props
+              lineups, // viene por props
+              dispatch, // viene por props
+              setValue,
+            })
+          }
           className="bg-blue-500 text-white  rounded"
         >
           Añadir Jugador

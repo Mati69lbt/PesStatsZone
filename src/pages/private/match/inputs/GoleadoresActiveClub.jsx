@@ -1,4 +1,4 @@
-//cspell: ignore hattrick
+//cspell: ignore hattrick autogolesFavor
 import React from "react";
 import { pretty } from "../utils/pretty";
 
@@ -11,6 +11,11 @@ const GoleadoresActiveClub = ({ state, dispatch, disabled }) => {
 
   const handleSelect = (e) => {
     const selected = e.target.value;
+    if (selected === "__OG__") {
+      dispatch({ type: "OWN_GOAL_FAVOR_INC" });
+      e.target.value = "";
+      return;
+    }
     const exists = state.goleadoresActiveClub.some(
       (g) => g.name === selected && g.activeClub === activeClub
     );
@@ -35,6 +40,7 @@ const GoleadoresActiveClub = ({ state, dispatch, disabled }) => {
         name="incidents"
       >
         <option value="">Lista de Jugadores</option>
+        <option value="__OG__">⚠️ Gol en contra (rival)</option>
         {plantel
           .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }))
           .map((player) => (
@@ -46,6 +52,26 @@ const GoleadoresActiveClub = ({ state, dispatch, disabled }) => {
       <p className="text-xs text-gray-500">
         Elegí de la lista los goleadores o jugadores que sufrieron una expulsion
       </p>
+      <div className="flex items-center gap-2 text-sm mt-2">
+        <span className="text-gray-700">Autogoles del rival:</span>
+        <button
+          type="button"
+          className="px-2 py-1 border rounded disabled:opacity-50"
+          disabled={disabled || (state.autogolesFavor || 0) === 0}
+          onClick={() => dispatch({ type: "OWN_GOAL_FAVOR_DEC" })}
+        >
+          −
+        </button>
+        <span className="min-w-6 text-center font-semibold">
+          {state.autogolesFavor || 0}
+        </span>
+        <button
+          type="button"
+          className="px-2 py-1 border rounded"
+          disabled={disabled}
+          onClick={() => dispatch({ type: "OWN_GOAL_FAVOR_INC" })}
+        >+</button>
+      </div>
       <ul className="flex flex-col gap-2 mt-2">
         {[...list].reverse().map((s) => (
           <li

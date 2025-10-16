@@ -1,22 +1,36 @@
 // cspell: ignore Notiflix lenght notiflix firestore
 import Notiflix from "notiflix";
 import { normalizeName } from "../../../../utils/normalizeName";
-import { PLAYERS_ADD } from "../../../../context/LineUpProvider";
+import { LINEUPS_UPSERT_BUCKET } from "../../../../context/LineUpProvider";
 
+const handleAddPlayer = ({ name, activeClub, lineups, dispatch, setValue }) => {
+  const clubKey = normalizeName(activeClub || "");
+  const n = normalizeName(name || "");
+  if (!clubKey || !n) return;
 
-const handleAddPlayer = (form, players, dispatch, setValue) => {
-  const name = normalizeName(form.playerName) || "";
-  if (name.length < 2) {
-    Notiflix.Notify.failure("Nombre Corto");
+  if (n.length < 2) {
+    Notiflix.Notify.failure("Nombre corto");
     return;
   }
-  if (players.some((j) => normalizeName(j) === name)) {
+
+  const current = (lineups?.[clubKey]?.players || []).map(normalizeName);
+  if (current.includes(n)) {
     Notiflix.Notify.failure("Jugador repetido");
     return;
   }
 
-  dispatch({ type: PLAYERS_ADD, payload: { name } });
-  setValue("playerName", "");
+  dispatch({
+    type: "LINEUPS_UPSERT_BUCKET",
+    payload: {
+      club: clubKey,
+      bucket: {
+        ...(lineups?.[clubKey] || {}),
+        players: [...current, n],
+      },
+    },
+  });
+
+  setValue?.("playerName", "");
   Notiflix.Notify.success("Jugador agregado");
 };
 

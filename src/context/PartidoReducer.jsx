@@ -1,4 +1,4 @@
-// cspell: ignore FORMACION hattrick
+// cspell: ignore FORMACION hattrick autogolesFavor
 import React, { createContext, useContext, useReducer } from "react";
 export const matchInitialState = {
   fecha: "2018-07-01",
@@ -17,6 +17,7 @@ export const matchInitialState = {
   substitutes: [],
   goleadoresActiveClub: [],
   goleadoresRivales: [],
+  autogolesFavor: 0,
 };
 
 export function partidoReducer(state, action) {
@@ -113,6 +114,16 @@ export function partidoReducer(state, action) {
         matches: state.matches,
         rivalesIndex: state.rivalesIndex,
       };
+
+    case "OWN_GOAL_FAVOR_INC":
+      return { ...state, autogolesFavor: (state.autogolesFavor || 0) + 1 };
+
+    case "OWN_GOAL_FAVOR_DEC":
+      return {
+        ...state,
+        autogolesFavor: Math.max(0, (state.autogolesFavor || 0) - 1),
+      };
+
     case "RIVAL_ADD": {
       const p = action.payload; // {name, club, gol, doblete, triplete, expulsion}
       const exists = state.goleadoresRivales.some(

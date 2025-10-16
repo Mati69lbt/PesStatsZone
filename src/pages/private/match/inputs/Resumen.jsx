@@ -1,4 +1,4 @@
-// cspell: ignore condicion hattrick
+// cspell: ignore condicion hattrick autogol
 import React from "react";
 import { pretty } from "../utils/pretty";
 
@@ -60,6 +60,7 @@ const Section = ({ title, children }) => (
 );
 
 const Resumen = ({ state, activeClub }) => {
+  
   const rivalName = state?.rival || "Rival";
 
   const torneoDisplay =
@@ -73,8 +74,13 @@ const Resumen = ({ state, activeClub }) => {
   const rivals = state?.goleadoresRivales || [];
 
   // goles
-  const ownGoals = own.reduce((acc, g) => acc + goalsFromFlags(g), 0);
+  const baseOwnGoals = own.reduce((acc, g) => acc + goalsFromFlags(g), 0);
   const rivalGoals = rivals.reduce((acc, g) => acc + goalsFromFlags(g), 0);
+
+  const ownGoalsFromOG = (rivals || []).filter(
+    (g) => g?.enContra || g?.autogol || g?.og || g?.ogContra
+  ).length;
+  const ownGoals = baseOwnGoals + ownGoalsFromOG;
 
   // condición
   const condition = (
@@ -91,7 +97,16 @@ const Resumen = ({ state, activeClub }) => {
 
   // textos de incidencias (como arrays para chips)
   const propiosArr = fmtScorers(own);
-  const rivalesArr = fmtScorers(rivals);
+  // mostramos al rival con sufijo " (EC)" si fue en contra
+  const rivalesArr = (Array.isArray(rivals) ? rivals : [])
+    .filter((g) => !(g.expulsion || g.expulsado))
+    .map((g) => {
+      const goles = goalsFromFlags(g);
+      const sufGoles = goles > 0 ? ` (${goles})` : "";
+      const sufOG =
+        g?.enContra || g?.autogol || g?.og || g?.ogContra ? " (EC)" : "";
+      return `${pretty(g.name)}${sufGoles}${sufOG}`;
+    });
   const expPropiosArr = fmtExpulsados(own);
   const expRivalesArr = fmtExpulsados(rivals);
 

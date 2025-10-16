@@ -7,6 +7,7 @@ import {
   PLAYERS_REMOVE,
 } from "../../../../context/LineUpProvider";
 import newLineup from "../util/newLineup";
+import { normalizeName } from "../../../../utils/normalizeName";
 
 const PlayersLists = ({
   players = [],
@@ -14,8 +15,11 @@ const PlayersLists = ({
   dispatch,
   teamName,
   setShowForm,
+  activeClub,
+  uid,
 }) => {
   if (!Array.isArray(players) || players.length === 0) return null;
+
   return (
     <div className="mt-4">
       <div className="flex items-baseline justify-between">
@@ -75,7 +79,10 @@ const PlayersLists = ({
       </div>
       <button
         type="button"
-        onClick={() => newLineup(teamName, setShowForm, dispatch)}
+        onClick={() => {
+          newLineup(teamName, setShowForm, dispatch);
+          Notiflix.Notify.info("Nueva formación");
+        }}
         className="bg-blue-500 text-white rounded w-full p-2 mt-2"
       >
         Nueva Formación

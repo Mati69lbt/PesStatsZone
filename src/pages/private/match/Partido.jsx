@@ -25,13 +25,13 @@ import useActiveClub from "./hook/useActiveClub";
 import { normalizeName } from "../../../utils/normalizeName";
 
 // lc0001
-//lc@gmail.com
+// lc@gmail.com lc
 
-//trinche@gmail.com
-// trin001
+// trinche@gmail.com
+// trin001  martin
 
-//mito@gmail.com
-//mito001
+// mito@gmail.com
+// mito001
 
 const Partido = () => {
   const { state: matchState, dispatch: matchDispatch } = usePartido();
@@ -54,8 +54,10 @@ const Partido = () => {
   const rawClub = lineupState?.activeClub || matchState?.activeClub || "";
   const clubKey = normalizeName ? normalizeName(rawClub) : rawClub;
   const clubData = lineupState?.lineups?.[clubKey] || {};
+  console.log(clubData);
+
   const hasPlayers = (clubData.players?.length ?? 0) > 0;
-  const hasFormations = (clubData.formations?.length ?? 0) > 0;
+  const hasFormations = (clubData.formations?.length ?? 0) > 0; 
   const hasPlayerStats = clubData.playersStats
     ? Object.keys(clubData.playersStats).length > 0
     : false;

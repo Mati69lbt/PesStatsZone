@@ -104,7 +104,9 @@ export function lineupReducer(state, action) {
         return state; //
       }
 
-      const nextPlayers = [...state.players];
+      const nextPlayers = Array.isArray(baseBucket.players)
+        ? [...baseBucket.players]
+        : [];
 
       const exists = baseBucket.formations.some((f) => f.id === id);
       if (exists) return state;
@@ -193,18 +195,39 @@ export function lineupReducer(state, action) {
       };
     }
 
+    case "SET_MANAGED_CLUBS": {
+      const seen = new Set();
+      const list = (action.payload?.clubs || [])
+        .map((k) => normalizeName(k))
+        .filter((k) => k && !seen.has(k) && seen.add(k));
+      return { ...state, managedClubs: list };
+    }
+
     case PLAYERS_ADD: {
       if (!action.payload || typeof action.payload.name !== "string")
         return state;
       const name = normalizeName(action.payload.name);
-      if (name === "" || state.players.includes(name)) {
-        return state;
-      }
-      const updated = [...state.players, name];
-      updated.sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+      if (name === "") return state;
+      const club = normalizeName(state.activeClub ?? "");
+      if (!club) return state;
+      const prevBucket = state.lineups?.[club] ?? {
+        label: club,
+        players: [],
+        formations: [],
+      };
+      const curr = Array.isArray(prevBucket.players) ? prevBucket.players : [];
+      if (curr.includes(name)) return state;
+      const nextPlayers = [...curr, name].sort((a, b) =>
+        a.localeCompare(b, "es", { sensitivity: "base" })
+      );
       return {
         ...state,
-        players: updated,
+        lineups: {
+          ...state.lineups,
+          [club]: { ...prevBucket, players: nextPlayers },
+        },
+        // espejo para compatibilidad (solo del club activo)
+        players: nextPlayers,
       };
     }
     case PLAYERS_REMOVE: {
@@ -282,26 +305,37 @@ export function lineupReducer(state, action) {
       }
     }
     case LINEUPS_UPSERT_BUCKET: {
-      const { club, bucket } = action.payload || {};
+   const { club, bucket } = action.payload || {};
+   if (!club || !bucket) return state;
+   const prev = state.lineups?.[club] ?? {
+     label: club,
+     players: [],
+     formations: [],
+   };
+  const active = normalizeName(state.activeClub ?? "");
+  const nextBucket = {
+    label: bucket.label ?? prev.label,
+    players: bucket.players ?? prev.players,
+    formations: bucket.formations ?? prev.formations,
+  };
+   return {
+     ...state,
+     lineups: {
+       ...state.lineups,
+      [club]: {
+        label: bucket.label ?? prev.label,
+        players: bucket.players ?? prev.players,
+        formations: bucket.formations ?? prev.formations,
+      },
+      [club]: nextBucket,
+     },
+    // espejo del club activo para compatibilidad
+    ...(club === active && 'players' in bucket
+      ? { players: nextBucket.players }
+      : null),
+   };
+ }
 
-      if (!club || !bucket) return state;
-      const prev = state.lineups?.[club] ?? {
-        label: club,
-        players: [],
-        formations: [],
-      };
-      return {
-        ...state,
-        lineups: {
-          ...state.lineups,
-          [club]: {
-            label: bucket.label ?? prev.label,
-            players: bucket.players ?? prev.players,
-            formations: bucket.formations ?? prev.formations,
-          },
-        },
-      };
-    }
 
     default:
       return state;

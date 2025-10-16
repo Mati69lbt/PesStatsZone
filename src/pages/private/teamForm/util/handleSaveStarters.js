@@ -14,8 +14,7 @@ const handleSaveStarters = async ({
   uid = "",
   dispatch,
   setShowForm,
-}) => { 
-
+}) => {
   if (!Array.isArray(starters) || starters.length !== 11) {
     Notiflix.Notify.failure("Debés elegir exactamente 11 titulares.");
     return false;
@@ -73,6 +72,7 @@ const handleSaveStarters = async ({
         captain,
         starters: startersPayload,
       },
+      [`lineups.${clubKey}.players`]: [...new Set(players.map(normalizeName))],
       [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
     });
 

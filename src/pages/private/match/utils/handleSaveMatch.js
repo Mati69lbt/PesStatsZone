@@ -1,4 +1,4 @@
-// cspell: ignore Notiflix notiflix condicion hattrick
+// cspell: ignore Notiflix notiflix condicion hattrick autogolesFavor
 import React from "react";
 import Notiflix from "notiflix";
 import saveMatch from "./saveMatch";
@@ -33,7 +33,8 @@ const handleSaveMatch = async ({
   );
   const rivals = matchState?.goleadoresRivales || [];
 
-  const ownGoals = own.reduce((acc, g) => acc + goalsFromFlags(g), 0);
+  const ownGoalsPlayers = own.reduce((acc, g) => acc + goalsFromFlags(g), 0);
+  const ownGoals = ownGoalsPlayers + (matchState?.autogolesFavor || 0);
   const rivalGoals = rivals.reduce((acc, g) => acc + goalsFromFlags(g), 0);
 
   const rivalName = matchState?.rival || "Rival";
@@ -60,12 +61,12 @@ const handleSaveMatch = async ({
     activeClub,
     condition,
     ownGoals,
+    ownGoalsFromOG: matchState?.autogolesFavor || 0,
     rivalGoals,
     ownScorers: own?.length ?? 0,
     rivalScorers: rivals?.length ?? 0,
     rivalName,
   };
-
 
   // Confirm minimal
   Notiflix.Confirm.show(
@@ -76,7 +77,7 @@ const handleSaveMatch = async ({
     async () => {
       try {
         Notiflix.Loading.standard("Guardando partido... ⚽");
-        (await saveMatch({
+        await saveMatch({
           uid,
           activeClub,
           matchState,
@@ -84,7 +85,8 @@ const handleSaveMatch = async ({
           rivalGoals,
           condition,
           rivalName,
-        }));
+          autogolesFavor: matchState?.autogolesFavor || 0,
+        });
         Notiflix.Notify.success("Partido guardado correctamente ✅");
         matchDispatch({ type: "RESET_FORM" });
         navigate("/versus");

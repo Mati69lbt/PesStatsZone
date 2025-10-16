@@ -21,15 +21,13 @@ import StartersList from "../components/StartersList";
 import Formations from "../components/Formations";
 import useClubSuggestions from "../hooks/useClubSuggestions";
 import loadClubOnBlur from "../util/loadClubOnBlur";
+import { normalizeName } from "../../../../utils/normalizeName";
 
 const TeamForm = () => {
   const { form, changed, setValue } = useForm();
   const { uid } = useAuth();
 
-
-
   const [teamName, setTeamName] = useState(form.teamName || "");
-
 
   const { state: lineupState, dispatch } = useLineups();
   const {
@@ -42,12 +40,17 @@ const TeamForm = () => {
     players = [],
   } = lineupState ?? {};
 
-
+  const clubKey = normalizeName(activeClub || "");
+  const clubPlayers = lineups?.[clubKey]?.players || []; 
 
   const [showForm, setShowForm] = useState(false);
 
-  const hydrated = useLineupsData(uid, dispatch);
-
+  const hydrated = useLineupsData(
+    uid,
+    dispatch,
+    lineupState.activeClub,
+    lineupState.managedClubs
+  );
 
   useSaveClub(lineups, activeClub, dispatch, hydrated);
 
@@ -55,10 +58,9 @@ const TeamForm = () => {
 
   const ordered = bucket(lineups, activeClub);
 
+  const { remaining, chosen } = usePartitionPlayers(clubPlayers, starters);
 
-  const { remaining, chosen } = usePartitionPlayers(players, starters);
-
-  useUpdateLineup(uid, activeClub, lineups, players);
+  useUpdateLineup(uid, activeClub, lineups, clubPlayers);
   useResetClubOnUidChange(uid, dispatch);
 
   const clubSuggestions = useClubSuggestions(
@@ -83,23 +85,27 @@ const TeamForm = () => {
               onConfirm={() =>
                 confirmClubSave({ uid, teamName, lineups, dispatch })
               }
-              disabled={players.length > 0}
+              disabled={clubPlayers.length > 0}
               suggestions={clubSuggestions}
             />
 
             <InputNewPlayer
+              activeClub={activeClub}
+              lineups={lineups}
               form={form}
               changed={changed}
-              players={players}
+              players={clubPlayers}
               dispatch={dispatch}
               setValue={setValue}
             />
 
             <PlayersLists
-              players={players}
+              players={clubPlayers}
               selectedOption={selectedOption}
               dispatch={dispatch}
               teamName={teamName}
+              activeClub={activeClub}
+              uid={uid}
               setShowForm={setShowForm} // ← aquí vive el botón "Nueva formación"
             />
           </div>
@@ -113,16 +119,16 @@ const TeamForm = () => {
                 <SelectCaptain
                   showForm={showForm}
                   selectMode={selectMode}
-                  players={players}
+                  players={clubPlayers}
                   selectedOption={selectedOption}
                   starters={starters}
                   dispatch={dispatch}
                 />
 
-                {selectMode === "starters" && players.length > 0 && (
+                {selectMode === "starters" && clubPlayers.length > 0 && (
                   <SelectStarters
                     selectedOption={selectedOption}
-                    players={players}
+                    players={clubPlayers}
                     starters={starters}
                     dispatch={dispatch}
                     remaining={remaining}
@@ -132,7 +138,7 @@ const TeamForm = () => {
 
                 <StartersList
                   captainName={captainName}
-                  players={players}
+                  players={clubPlayers}
                   starters={starters}
                   dispatch={dispatch}
                   activeClub={activeClub}
@@ -143,7 +149,7 @@ const TeamForm = () => {
               </>
             </div>
           ) : // Placeholder ligero cuando no hay formulario abierto (solo desktop)
-          players.length !== 0 ? (
+          clubPlayers.length !== 0 ? (
             <div className="hidden md:block text-xs text-gray-500">
               Tocá <strong>Nueva formación</strong> para empezar a armar el
               equipo.

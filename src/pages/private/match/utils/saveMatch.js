@@ -1,4 +1,4 @@
-// cspell: ignore Notiflix firestore notiflix
+// cspell: ignore Notiflix firestore notiflix autogolesFavor
 import React from "react";
 import Notiflix from "notiflix";
 import { db } from "../../../../configuration/firebase";
@@ -20,6 +20,7 @@ const saveMatch = async ({
   rivalGoals,
   condition,
   rivalName,
+  autogolesFavor = 0,
 }) => {
   if (!uid) throw new Error("UID no disponible; no se puede guardar.");
 
@@ -84,6 +85,7 @@ const saveMatch = async ({
     golContra: gc,
     dfGol: dfg,
     resultMatch: resultMatch,
+    autogolesFavor,
   };
 
   // guardamos todo en el doc de usuario
@@ -105,7 +107,7 @@ const saveMatch = async ({
   const statsRef = doc(db, "users", uid);
   // 🔹 Loop para goleadores
   for (const g of matchState.goleadoresActiveClub || []) {
-    const path = `lineups.${activeClub}.playersStats.${g.name}`;
+    const path = `lineups.${clubKey}.playersStats.${g.name}`;
     const updates = {};
     updates[`${path}.matchesPlayed`] = increment(1);
 
@@ -130,7 +132,7 @@ const saveMatch = async ({
   }
 
   for (const g of matchState.goleadoresRivales || []) {
-    const path = `lineups.${activeClub}.rivalsPlayers.${g.name}`;
+    const path = `lineups.${clubKey}.rivalsPlayers.${g.name}`;
     const updates = {};
     updates[`${path}.matchesPlayed`] = increment(1);
 

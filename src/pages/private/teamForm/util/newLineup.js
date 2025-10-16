@@ -2,7 +2,6 @@
 import Notiflix from "notiflix";
 import { LINEUP_RESET } from "../../../../context/LineUpProvider";
 
-
 const newLineup = (teamName, setShowForm, dispatch) => {
   if (!teamName) {
     Notiflix.Notify.failure("¿Que Equipo dirigís?");
@@ -10,7 +9,6 @@ const newLineup = (teamName, setShowForm, dispatch) => {
   }
   setShowForm(true);
   dispatch({ type: LINEUP_RESET });
-  Notiflix.Notify.info("Creando nueva formación");
 };
 
 export default newLineup;
