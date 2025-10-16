@@ -77,10 +77,12 @@ export function partidoReducer(state, action) {
           {
             name,
             activeClub,
-            gol: false,
-            doblete: false,
-            hattrick: false,
-            expulsion: false,
+            gol: !!action.payload.gol,
+            doblete: !!action.payload.doblete,
+            triplete: !!action.payload.triplete, 
+            hattrick: !!action.payload.hattrick, 
+            expulsion: !!action.payload.expulsion,
+            isOwnGoal: !!action.payload.isOwnGoal,
           },
         ],
       };

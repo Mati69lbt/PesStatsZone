@@ -60,7 +60,6 @@ const Section = ({ title, children }) => (
 );
 
 const Resumen = ({ state, activeClub }) => {
-  
   const rivalName = state?.rival || "Rival";
 
   const torneoDisplay =
@@ -96,7 +95,12 @@ const Resumen = ({ state, activeClub }) => {
       : `${pretty(activeClub)} ${ownGoals} - ${rivalGoals} ${rivalName}`;
 
   // textos de incidencias (como arrays para chips)
-  const propiosArr = fmtScorers(own);
+  const propiosArr = (own || []).map((g) => {
+    const goles = goalsFromFlags(g);
+    const label =
+      g.isOwnGoal || g.name === "__OG__" ? "Gol en contra" : pretty(g.name);
+    return goles > 1 ? `${label} (${goles})` : label;
+  });
   // mostramos al rival con sufijo " (EC)" si fue en contra
   const rivalesArr = (Array.isArray(rivals) ? rivals : [])
     .filter((g) => !(g.expulsion || g.expulsado))

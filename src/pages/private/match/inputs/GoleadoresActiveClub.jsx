@@ -11,8 +11,11 @@ const GoleadoresActiveClub = ({ state, dispatch, disabled }) => {
 
   const handleSelect = (e) => {
     const selected = e.target.value;
-    if (selected === "__OG__") {
-      dispatch({ type: "OWN_GOAL_FAVOR_INC" });
+    if (selected === "__OG__") {    
+      dispatch({
+        type: "ADD_GOLEADOR",
+        payload: { name: "__OG__", activeClub, gol: true, isOwnGoal: true },
+      });
       e.target.value = "";
       return;
     }
@@ -52,114 +55,114 @@ const GoleadoresActiveClub = ({ state, dispatch, disabled }) => {
       <p className="text-xs text-gray-500">
         Elegí de la lista los goleadores o jugadores que sufrieron una expulsion
       </p>
-      <div className="flex items-center gap-2 text-sm mt-2">
-        <span className="text-gray-700">Autogoles del rival:</span>
-        <button
-          type="button"
-          className="px-2 py-1 border rounded disabled:opacity-50"
-          disabled={disabled || (state.autogolesFavor || 0) === 0}
-          onClick={() => dispatch({ type: "OWN_GOAL_FAVOR_DEC" })}
-        >
-          −
-        </button>
-        <span className="min-w-6 text-center font-semibold">
-          {state.autogolesFavor || 0}
-        </span>
-        <button
-          type="button"
-          className="px-2 py-1 border rounded"
-          disabled={disabled}
-          onClick={() => dispatch({ type: "OWN_GOAL_FAVOR_INC" })}
-        >+</button>
-      </div>
       <ul className="flex flex-col gap-2 mt-2">
-        {[...list].reverse().map((s) => (
-          <li
-            key={`${s.name}-${s.activeClub}`}
-            className="border p-3 rounded-lg shadow-sm bg-white space-y-2"
-          >
-            {/* Fila superior */}
-            <div className="flex items-center justify-between">
-              {/* Columna izquierda */}
-              <span className="font-semibold text-blue-700 flex-1">
-                {pretty(s.name)}
-              </span>
+        {[...list].reverse().map((s) => {
+          const isOG = s.isOwnGoal || s.name === "__OG__";
+          const displayName = isOG ? "Gol en contra (rival)" : pretty(s.name);
 
-              {/* Columna centro */}
-              <label className="flex items-center gap-1 text-sm flex-1 justify-center">
-                <input
-                  type="checkbox"
-                  className="ml-4"
-                  checked={s.gol}
-                  onChange={() =>
-                    dispatch({
-                      type: "TOGGLE_EVENT",
-                      payload: { name: s.name, activeClub, event: "gol" },
-                    })
-                  }
-                />
-                Gol
-              </label>
+          return (
+            <li
+              key={`${s.name}-${s.activeClub}`}
+              className="border p-3 rounded-lg shadow-sm bg-white space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-blue-700 flex-1">
+                  {displayName}
+                </span>
 
-              {/* Columna derecha */}
-              <button
-                type="button"
-                className="text-red-500 hover:text-red-700 flex-1 text-right"
-                onClick={() =>
-                  dispatch({
-                    type: "REMOVE_GOLEADOR",
-                    payload: { name: s.name, activeClub },
-                  })
-                }
-              >
-                ❌
-              </button>
-            </div>
+                <label className="flex items-center gap-1 text-sm flex-1 justify-center">
+                  <input
+                    type="checkbox"
+                    className="ml-4"
+                    checked={s.gol}
+                    onChange={() =>
+                      dispatch({
+                        type: "TOGGLE_EVENT",
+                        payload: { name: s.name, activeClub, event: "gol" },
+                      })
+                    }
+                  />
+                  Gol
+                </label>
 
-            {/* Fila inferior */}
-            <div className="flex gap-4 items-center">
-              <label className="flex items-center gap-1 text-sm">
-                <input
-                  type="checkbox"
-                  checked={s.doblete}
-                  onChange={() =>
+                <button
+                  type="button"
+                  className="text-red-500 hover:text-red-700 flex-1 text-right"
+                  onClick={() =>
                     dispatch({
-                      type: "TOGGLE_EVENT",
-                      payload: { name: s.name, activeClub, event: "doblete" },
+                      type: "REMOVE_GOLEADOR",
+                      payload: { name: s.name, activeClub },
                     })
                   }
-                />
-                Doblete
-              </label>
-              <label className="flex items-center gap-1 text-sm">
-                <input
-                  type="checkbox"
-                  checked={s.triplete}
-                  onChange={() =>
-                    dispatch({
-                      type: "TOGGLE_EVENT",
-                      payload: { name: s.name, activeClub, event: "triplete" },
-                    })
-                  }
-                />
-                Hat Trick
-              </label>
-              <label className="flex items-center gap-1 text-sm">
-                <input
-                  type="checkbox"
-                  checked={s.expulsion}
-                  onChange={() =>
-                    dispatch({
-                      type: "TOGGLE_EVENT",
-                      payload: { name: s.name, activeClub, event: "expulsion" },
-                    })
-                  }
-                />
-                Expulsión
-              </label>
-            </div>
-          </li>
-        ))}
+                >
+                  ❌
+                </button>
+              </div>
+
+              <div className="flex gap-4 items-center">
+                {!isOG && (
+                  <label className="flex items-center gap-1 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={s.doblete}
+                      onChange={() =>
+                        dispatch({
+                          type: "TOGGLE_EVENT",
+                          payload: {
+                            name: s.name,
+                            activeClub,
+                            event: "doblete",
+                          },
+                        })
+                      }
+                    />
+                    Doblete
+                  </label>
+                )}
+
+                {!isOG && (
+                  <label className="flex items-center gap-1 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={s.triplete}
+                      onChange={() =>
+                        dispatch({
+                          type: "TOGGLE_EVENT",
+                          payload: {
+                            name: s.name,
+                            activeClub,
+                            event: "triplete",
+                          },
+                        })
+                      }
+                    />
+                    Hat Trick
+                  </label>
+                )}
+
+                {!isOG && (
+                  <label className="flex items-center gap-1 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={s.expulsion}
+                      onChange={() =>
+                        dispatch({
+                          type: "TOGGLE_EVENT",
+                          payload: {
+                            name: s.name,
+                            activeClub,
+                            event: "expulsion",
+                          },
+                        })
+                      }
+                    />
+                    Expulsión
+                  </label>
+                )}
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

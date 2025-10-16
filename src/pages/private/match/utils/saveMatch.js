@@ -105,9 +105,13 @@ const saveMatch = async ({
   });
 
   const statsRef = doc(db, "users", uid);
+  const isOwnGoalItem = (g) => g?.isOwnGoal || g?.name === "__OG__";
   // 🔹 Loop para goleadores
   for (const g of matchState.goleadoresActiveClub || []) {
-    const path = `lineups.${clubKey}.playersStats.${g.name}`;
+    if (isOwnGoalItem(g)) continue;
+    const player = normalizeName(g.name || "");
+    if (!player) continue;
+    const path = `lineups.${clubKey}.playersStats.${player}`;
     const updates = {};
     updates[`${path}.matchesPlayed`] = increment(1);
 
@@ -132,7 +136,10 @@ const saveMatch = async ({
   }
 
   for (const g of matchState.goleadoresRivales || []) {
-    const path = `lineups.${clubKey}.rivalsPlayers.${g.name}`;
+    if (isOwnGoalItem(g)) continue;
+    const player = normalizeName(g.name || "");
+    if (!player) continue;
+    const path = `lineups.${clubKey}.rivalsPlayers.${player}`;
     const updates = {};
     updates[`${path}.matchesPlayed`] = increment(1);
 
