@@ -1,4 +1,4 @@
-// cspell: ignore Notiflix firestore notiflix estadisticas trin formacion
+// cspell: ignore Notiflix firestore notiflix estadisticas trin formacion falci
 import React, { useEffect, useState } from "react";
 import { usePartido } from "../../../context/PartidoReducer";
 import { useLineups } from "../../../context/LineUpProvider";
@@ -33,6 +33,9 @@ import { normalizeName } from "../../../utils/normalizeName";
 // mito@gmail.com
 // mito001
 
+// Falcioni@gmail.com
+// falci001
+
 const Partido = () => {
   const { state: matchState, dispatch: matchDispatch } = usePartido();
   const { uid } = useAuth();
@@ -54,8 +57,6 @@ const Partido = () => {
   const rawClub = lineupState?.activeClub || matchState?.activeClub || "";
   const clubKey = normalizeName ? normalizeName(rawClub) : rawClub;
   const clubData = lineupState?.lineups?.[clubKey] || {};
-  console.log(clubData);
-
   const hasPlayers = (clubData.players?.length ?? 0) > 0;
   const hasFormations = (clubData.formations?.length ?? 0) > 0; 
   const hasPlayerStats = clubData.playersStats

@@ -4,7 +4,7 @@ import { pretty } from "../../match/utils/pretty";
 
 const Versus = () => {
   const { state } = usePartido();
-  console.log(state);
+  console.log("state", state);
 
   return (
     <div className="p-4 max-w-7xl mx-auto">

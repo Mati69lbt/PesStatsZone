@@ -1,52 +1,61 @@
 // cspell: ignore Notiflix lenght notiflix firestore
 import Notiflix from "notiflix";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { normalizeName } from "../../../../utils/normalizeName";
 import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "../../../../configuration/firebase";
 
 const useUpdateLineup = (uid, activeClub, lineups, players) => {
+  const lastSentRef = useRef({ clubKey: null, playersJson: "" });
+
   useEffect(() => {
-    if (!uid) return;
-    if (!activeClub) return;
+    if (!uid) {
+      console.log("[SYNC] skip: !uid");
+      return;
+    }
+    if (!activeClub) {
+      console.log("[SYNC] skip: !activeClub");
+      return;
+    }
 
     const clubKey = normalizeName(activeClub);
-    if (!clubKey) return;
+    if (!clubKey) {
+      console.log("[SYNC] skip: !clubKey (normalizeName dio vacío)");
+      return;
+    }
 
-    const bucket = lineups?.[clubKey];
-    if (!bucket) return;
-
-    if (!Array.isArray(players)) return;
+    if (!Array.isArray(players)) {
+      console.log("[SYNC] skip: !Array.isArray(players)", { players });
+      return;
+    }
 
     const playersNorm = [...new Set(players.map(normalizeName))];
-    const bucketPlayersNorm = [
-      ...new Set((bucket.players || []).map(normalizeName)),
-    ];
+    if (playersNorm.length === 0) {
+      console.log("[SYNC] skip: playersNorm vacío, no subo nada");
+      return;
+    }
 
-    // ⚠️ no subas vacíos si el bucket ya tenía jugadores (evita “limpiar” por el reset)
-    if (playersNorm.length === 0 && bucketPlayersNorm.length > 0) return;
+    const payloadJson = JSON.stringify(playersNorm);
+    const prev = lastSentRef.current;
+    if (prev.clubKey === clubKey && prev.playersJson === payloadJson) {
+      console.log("[SYNC] skip: mismo payload que el último write");
+      return;
+    }
 
-    // si no cambió nada, no escribas
-    const sameLen = playersNorm.length === bucketPlayersNorm.length;
-    const sameAll =
-      sameLen && playersNorm.every((p, i) => p === bucketPlayersNorm[i]);
-    if (sameAll) return;
-
-    const t = setTimeout(async () => {
-      try {
+    (async () => {
+      try {        
         await updateDoc(doc(db, "users", uid), {
           [`lineups.${clubKey}.players`]: playersNorm,
           [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
         });
-        Notiflix.Notify.success("Plantel sincronizado");
+        lastSentRef.current = { clubKey, playersJson: payloadJson };
+        Notiflix.Notify.success("Plantel sincronizado");      
       } catch (e) {
-        console.error(e);
+        console.log("[SYNC] FAIL", e);
         Notiflix.Notify.failure("No se pudo sincronizar el plantel");
       }
-    }, 400);
-
-    return () => clearTimeout(t);
-  }, [uid, activeClub, lineups, players]);
+    })();
+  }, [uid, activeClub, players]);
 };
 
 export default useUpdateLineup;
