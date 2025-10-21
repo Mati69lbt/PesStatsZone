@@ -42,8 +42,6 @@ const Partido = () => {
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
   const { activeClub, lineups } = lineupState;
 
-  console.log("lineupState", lineupState);
-
   const navigate = useNavigate();
   const handleChange = makeHandleChange(matchDispatch);
   const handleChangeCaptainSelect = makeHandleChangeCaptainSelect(
@@ -53,10 +51,8 @@ const Partido = () => {
   );
   const handleChangeSubstitutes = makeHandleChangeSubstitutes(matchDispatch);
 
-  useUserData(uid, matchDispatch, lineupDispatch);
+  // useUserData(uid, matchDispatch, lineupDispatch);
   useActiveClub({ activeClub, matchState, matchDispatch });
-
-  console.log("lineupState", lineupState, lineupDispatch);
 
   const rawClub = lineupState?.activeClub || matchState?.activeClub || "";
   const clubKey = normalizeName ? normalizeName(rawClub) : rawClub;
@@ -69,8 +65,6 @@ const Partido = () => {
   if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
     return <Navigate to="/formacion" replace />;
   }
-
-  console.log("rawClub", rawClub);
 
   return (
     <div className="p-4 max-w-md mx-auto">

@@ -18,6 +18,8 @@ Notiflix.Notify.init({
 });
 
 /**************** BORRAR PARA ABAJO ***********************/
+/*************** downloadLogs() */
+
 // --- Anti-duplicados + origen para console.* ---
 
 // Lee params desde ?... y también desde #...?... (HashRouter)

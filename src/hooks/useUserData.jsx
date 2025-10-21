@@ -6,6 +6,8 @@ import { db } from "../configuration/firebase";
 import { normalizeName } from "../utils/normalizeName";
 
 export const fetchUserData = async (uid, matchDispatch, lineupDispatch) => {
+  console.log("Tambien lo uso en versus");
+
   if (!uid) return;
 
   try {
@@ -32,19 +34,13 @@ export const fetchUserData = async (uid, matchDispatch, lineupDispatch) => {
         },
       });
 
-      console.log("lineupDispatch", lineupDispatch);
-      console.log("lineups", lineups);
-      console.log("typeof", typeof lineups);
-      console.log("[HYDRATE] lineups keys:", lineups && Object.keys(lineups));
-
-      // --- Hidratar Lineups: upsert por bucket (NO usamos REPLACE_ALL) ---
-      if (lineupDispatch && lineups && typeof lineups === "object") {
-        for (const [club, bucket] of Object.entries(lineups)) {
-          lineupDispatch({
-            type: "LINEUPS_UPSERT_BUCKET",
-            payload: { club, bucket },
-          });
-        }
+   if (lineupDispatch && lineups && typeof lineups === "object") {
+        // hidratar TODO el objeto lineups de una
+        lineupDispatch({ type: "LINEUPS_SET_ALL", payload: { lineups } });     
+        lineupDispatch({
+          type: "SET_MANAGED_CLUBS",
+          payload: { clubs: Object.keys(lineups) },
+        });
       }
 
       // const clubKey = normalizeName(data?.activeClub);

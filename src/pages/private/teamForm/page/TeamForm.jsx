@@ -40,8 +40,6 @@ const TeamForm = () => {
     players = [],
   } = lineupState ?? {};
 
-  console.log("[Datos Equipo]:", lineupState);
-
   const clubKey = normalizeName(activeClub || "");
   const clubPlayers = lineups?.[clubKey]?.players || [];
 

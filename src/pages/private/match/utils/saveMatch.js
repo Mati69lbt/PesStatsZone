@@ -213,12 +213,7 @@ const saveMatch = async ({
 
   if (Object.keys(appearancesUpdates).length > 0) {
     appearancesUpdates[`lineups.${clubKey}.updatedAt`] = serverTimestamp();
-    await updateDoc(userRef, appearancesUpdates);
-    console.log("[STATS] Apariciones OK", {
-      starters: startersSet.size,
-      subs: subsSet.size,
-      torneoKey,
-    });
+    await updateDoc(userRef, appearancesUpdates);   
   } else {
     console.log("[STATS] sin apariciones que sumar");
   }

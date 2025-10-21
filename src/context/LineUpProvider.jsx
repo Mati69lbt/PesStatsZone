@@ -16,6 +16,7 @@ export const LINEUP_DELETE_LOCAL = "LINEUP_DELETE_LOCAL";
 export const SAVE_CLUB_NAME = "SAVE_CLUB_NAME";
 export const CLUB_LOAD_FROM_ACTIVE = "CLUB_LOAD_FROM_ACTIVE";
 export const LINEUPS_UPSERT_BUCKET = "LINEUPS_UPSERT_BUCKET";
+export const LINEUPS_SET_ALL = "LINEUPS_SET_ALL";
 
 export const lineupInitialState = {
   captainName: null,
@@ -203,6 +204,16 @@ export function lineupReducer(state, action) {
       return { ...state, managedClubs: list };
     }
 
+    case "LINEUPS_SET_ALL": {
+      const incoming = action.payload?.lineups;
+      if (!incoming || typeof incoming !== "object") return state;
+      return {
+        ...state,
+        // merge superficial: trae TODOS los clubes del doc
+        lineups: { ...state.lineups, ...incoming },
+      };
+    }
+
     case PLAYERS_ADD: {
       if (!action.payload || typeof action.payload.name !== "string")
         return state;
@@ -306,19 +317,11 @@ export function lineupReducer(state, action) {
     }
     case LINEUPS_UPSERT_BUCKET: {
       const { club, bucket } = action.payload || {};
-      
-      // al inicio del case
-      console.log(
-        "[REDUCER][LINEUPS_UPSERT_BUCKET] club:",
-        club,
-        "bucket keys:",
-        Object.keys(bucket || {})
-      );
 
       if (!club || !bucket) return state;
 
       const prev = state.lineups?.[club] ?? {};
-      const nextBucket = { ...prev, ...bucket }; // ← hidrata TODO lo que venga (matches, playersStats, rivals..., etc.)
+      const nextBucket = { ...prev, ...bucket };
 
       const active = normalizeName(state.activeClub ?? "");
       const clubNorm = normalizeName(club);
