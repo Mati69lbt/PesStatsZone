@@ -113,7 +113,7 @@ const saveMatch = async ({
     if (!player) continue;
     const path = `lineups.${clubKey}.playersStats.${player}`;
     const updates = {};
-    updates[`${path}.matchesPlayed`] = increment(1);
+   
 
     const goles = (g.gol ? 1 : 0) + (g.doblete ? 2 : 0) + (g.triplete ? 3 : 0);
 
@@ -161,6 +161,66 @@ const saveMatch = async ({
     if (Object.keys(updates).length > 0) {
       await updateDoc(statsRef, updates);
     }
+  }
+
+  const torneoKey = (() => {
+    const norm = (s) =>
+      (s || "")
+        .toString()
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_|_$/g, "");
+    const nk = norm(name);
+    const yk = (year ?? "").toString().trim() || "s_a";
+    return `${nk}_${yk}`; // p.ej. "copa_de_la_liga_2025"
+  })();
+
+  const startersSet = new Set(
+    (starters || []).map((s) => normalizeName(s)).filter(Boolean)
+  );
+  if (captain) startersSet.add(normalizeName(captain));
+  const subsSet = new Set(
+    (substitutes || [])
+      .map((s) => normalizeName(s))
+      .filter((p) => p && !startersSet.has(p))
+  );
+  const appearancesUpdates = {};
+  const touchPlayer = (playerKey, { start = 0, sub = 0 }) => {
+    if (!playerKey) return;
+    const base = `lineups.${clubKey}.playersStats.${playerKey}`;
+    const total = `${base}.totals`;
+    const byT = `${base}.byTournament.${torneoKey}`;
+
+    // Todo el que juega (titular o suplente) suma partido
+    appearancesUpdates[`${total}.matchesPlayed`] = increment(1);
+    appearancesUpdates[`${byT}.matchesPlayed`] = increment(1);
+
+    if (start) {
+      appearancesUpdates[`${total}.starts`] = increment(1);
+      appearancesUpdates[`${byT}.starts`] = increment(1);
+    }
+    if (sub) {
+      appearancesUpdates[`${total}.subs`] = increment(1);
+      appearancesUpdates[`${byT}.subs`] = increment(1);
+    }
+  };
+
+  startersSet.forEach((p) => touchPlayer(p, { start: 1 }));
+  subsSet.forEach((p) => touchPlayer(p, { sub: 1 }));
+
+  if (Object.keys(appearancesUpdates).length > 0) {
+    appearancesUpdates[`lineups.${clubKey}.updatedAt`] = serverTimestamp();
+    await updateDoc(userRef, appearancesUpdates);
+    console.log("[STATS] Apariciones OK", {
+      starters: startersSet.size,
+      subs: subsSet.size,
+      torneoKey,
+    });
+  } else {
+    console.log("[STATS] sin apariciones que sumar");
   }
 
   return { id };

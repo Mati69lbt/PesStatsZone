@@ -5,7 +5,7 @@ import React, { useEffect } from "react";
 import { db } from "../configuration/firebase";
 import { normalizeName } from "../utils/normalizeName";
 
-export const fetchUserData = async (uid, matchDispatch) => {
+export const fetchUserData = async (uid, matchDispatch, lineupDispatch) => {
   if (!uid) return;
 
   try {
@@ -18,20 +18,37 @@ export const fetchUserData = async (uid, matchDispatch) => {
       const data = userSnap.data();
       console.log("[Partido] datos usuario:", data);
 
-      // Guardar en el reducer de partido
-      const {
-        activeClub: _ignore, // ⬅️ NO hidratar activeClub aquí
-        lineups,
-        torneosIndex,
-        rivalesIndex,
-      } = data || {};
+      const { lineups, torneosIndex, rivalesIndex } = data || {};
+      const clubKey = normalizeName(data?.activeClub);
+      const dataMatches = clubKey
+        ? data?.lineups?.[clubKey]?.matches || []
+        : [];
       matchDispatch({
         type: "HYDRATE_FROM_FIREBASE",
-        payload: { lineups, torneosIndex, rivalesIndex },
+        payload: {
+          torneosIndex,
+          rivalesIndex,
+          matches: dataMatches,
+        },
       });
 
-      const clubKey = normalizeName(data?.activeClub);
-      const dataMatches = data?.lineups?.[clubKey]?.matches || [];
+      console.log("lineupDispatch", lineupDispatch);
+      console.log("lineups", lineups);
+      console.log("typeof", typeof lineups);
+      console.log("[HYDRATE] lineups keys:", lineups && Object.keys(lineups));
+
+      // --- Hidratar Lineups: upsert por bucket (NO usamos REPLACE_ALL) ---
+      if (lineupDispatch && lineups && typeof lineups === "object") {
+        for (const [club, bucket] of Object.entries(lineups)) {
+          lineupDispatch({
+            type: "LINEUPS_UPSERT_BUCKET",
+            payload: { club, bucket },
+          });
+        }
+      }
+
+      // const clubKey = normalizeName(data?.activeClub);
+      // const dataMatches = data?.lineups?.[clubKey]?.matches || [];
       const lastDate = dataMatches
         .map((m) => m?.fecha)
         .filter(Boolean)
@@ -56,8 +73,8 @@ export const fetchUserData = async (uid, matchDispatch) => {
   }
 };
 
-export const useUserData = (uid, matchDispatch) => {
+export const useUserData = (uid, matchDispatch, lineupDispatch) => {
   useEffect(() => {
-    fetchUserData(uid, matchDispatch);
+    fetchUserData(uid, matchDispatch, lineupDispatch);
   }, [uid]);
 };

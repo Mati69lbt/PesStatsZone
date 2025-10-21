@@ -1,10 +1,16 @@
 import React from "react";
 import { usePartido } from "../../../../context/PartidoReducer";
 import { pretty } from "../../match/utils/pretty";
+import { useLineups } from "../../../../context/LineUpProvider";
+import { normalizeName } from "../../../../utils/normalizeName";
 
 const Versus = () => {
-  const { state } = usePartido();
-  console.log("state", state);
+  const { state: lineupState } = useLineups();
+
+  console.log("[CHECK][Partido] state:", lineupState);
+  const clubKey = normalizeName(lineupState?.activeClub || "");
+  const bucket = clubKey ? lineupState?.lineups?.[clubKey] : undefined;
+  console.log("[CHECK][Lineups] bucket completo:", bucket);
 
   return (
     <div className="p-4 max-w-7xl mx-auto">

@@ -43,7 +43,7 @@ export function partidoReducer(state, action) {
         ...state,
         activeClub: data.activeClub ?? state.activeClub,
         torneosIndex: Array.isArray(data.torneosIndex) ? data.torneosIndex : [],
-        matches: Array.isArray(data.matches) ? data.matches : [],
+        matches: Array.isArray(data.matches) ? data.matches : state.matches,
         rivalesIndex: Array.isArray(data.rivalesIndex) ? data.rivalesIndex : [],
         goleadoresActiveClub: Array.isArray(data.goleadoresActiveClub)
           ? data.goleadoresActiveClub
@@ -79,8 +79,8 @@ export function partidoReducer(state, action) {
             activeClub,
             gol: !!action.payload.gol,
             doblete: !!action.payload.doblete,
-            triplete: !!action.payload.triplete, 
-            hattrick: !!action.payload.hattrick, 
+            triplete: !!action.payload.triplete,
+            hattrick: !!action.payload.hattrick,
             expulsion: !!action.payload.expulsion,
             isOwnGoal: !!action.payload.isOwnGoal,
           },

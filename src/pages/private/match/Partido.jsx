@@ -37,10 +37,12 @@ import { normalizeName } from "../../../utils/normalizeName";
 // falci001
 
 const Partido = () => {
-  const { state: matchState, dispatch: matchDispatch } = usePartido();
   const { uid } = useAuth();
-  const { state: lineupState } = useLineups();
+  const { state: matchState, dispatch: matchDispatch } = usePartido();
+  const { state: lineupState, dispatch: lineupDispatch } = useLineups();
   const { activeClub, lineups } = lineupState;
+
+  console.log("lineupState", lineupState);
 
   const navigate = useNavigate();
   const handleChange = makeHandleChange(matchDispatch);
@@ -51,20 +53,24 @@ const Partido = () => {
   );
   const handleChangeSubstitutes = makeHandleChangeSubstitutes(matchDispatch);
 
-  useUserData(uid, matchDispatch);
+  useUserData(uid, matchDispatch, lineupDispatch);
   useActiveClub({ activeClub, matchState, matchDispatch });
+
+  console.log("lineupState", lineupState, lineupDispatch);
 
   const rawClub = lineupState?.activeClub || matchState?.activeClub || "";
   const clubKey = normalizeName ? normalizeName(rawClub) : rawClub;
   const clubData = lineupState?.lineups?.[clubKey] || {};
   const hasPlayers = (clubData.players?.length ?? 0) > 0;
-  const hasFormations = (clubData.formations?.length ?? 0) > 0; 
+  const hasFormations = (clubData.formations?.length ?? 0) > 0;
   const hasPlayerStats = clubData.playersStats
     ? Object.keys(clubData.playersStats).length > 0
     : false;
   if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
     return <Navigate to="/formacion" replace />;
   }
+
+  console.log("rawClub", rawClub);
 
   return (
     <div className="p-4 max-w-md mx-auto">

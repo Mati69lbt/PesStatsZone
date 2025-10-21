@@ -305,37 +305,36 @@ export function lineupReducer(state, action) {
       }
     }
     case LINEUPS_UPSERT_BUCKET: {
-   const { club, bucket } = action.payload || {};
-   if (!club || !bucket) return state;
-   const prev = state.lineups?.[club] ?? {
-     label: club,
-     players: [],
-     formations: [],
-   };
-  const active = normalizeName(state.activeClub ?? "");
-  const nextBucket = {
-    label: bucket.label ?? prev.label,
-    players: bucket.players ?? prev.players,
-    formations: bucket.formations ?? prev.formations,
-  };
-   return {
-     ...state,
-     lineups: {
-       ...state.lineups,
-      [club]: {
-        label: bucket.label ?? prev.label,
-        players: bucket.players ?? prev.players,
-        formations: bucket.formations ?? prev.formations,
-      },
-      [club]: nextBucket,
-     },
-    // espejo del club activo para compatibilidad
-    ...(club === active && 'players' in bucket
-      ? { players: nextBucket.players }
-      : null),
-   };
- }
+      const { club, bucket } = action.payload || {};
+      
+      // al inicio del case
+      console.log(
+        "[REDUCER][LINEUPS_UPSERT_BUCKET] club:",
+        club,
+        "bucket keys:",
+        Object.keys(bucket || {})
+      );
 
+      if (!club || !bucket) return state;
+
+      const prev = state.lineups?.[club] ?? {};
+      const nextBucket = { ...prev, ...bucket }; // ← hidrata TODO lo que venga (matches, playersStats, rivals..., etc.)
+
+      const active = normalizeName(state.activeClub ?? "");
+      const clubNorm = normalizeName(club);
+
+      return {
+        ...state,
+        lineups: {
+          ...state.lineups,
+          [club]: nextBucket, // una sola asignación
+        },
+        // espejo del club activo (opcional, como ya tenías)
+        ...(clubNorm === active && nextBucket.players
+          ? { players: nextBucket.players }
+          : null),
+      };
+    }
 
     default:
       return state;

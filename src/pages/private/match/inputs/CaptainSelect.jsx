@@ -2,7 +2,21 @@ import React from "react";
 import { pretty } from "../utils/pretty";
 
 const CaptainSelect = ({ formations = [], value, onChange, disabled }) => {
-  const captains = formations.map((f) => f.captain);
+  const list = Array.isArray(formations)
+    ? formations
+    : formations && typeof formations === "object"
+    ? Object.values(formations)
+    : [];
+
+  const captains = Array.from(
+    new Set(
+      list
+        .map((f) => f?.captain)
+        .filter((c) => typeof c === "string" && c.trim() !== "")
+    )
+  );
+
+  // const captains = formations.map((f) => f.captain);
   return (
     <div className="space-y-1">
       <label className="block text-sm text-gray-600">Capitán</label>
