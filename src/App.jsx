@@ -1,4 +1,4 @@
-// cspell: ignore Notiflix notiflix useAuth logueado formacion
+// cspell: ignore Notiflix notiflix useAuth logueado formacion analisis
 
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -11,6 +11,8 @@ import TeamForm from "./pages/private/teamForm/page/TeamForm";
 import useAuth from "./hooks/useAuth";
 import { usePartido } from "./context/PartidoReducer";
 import { useLineups } from "./context/LineUpProvider";
+import Campeonatos from "./pages/private/campeonatos/page/Campeonatos";
+import Analysis from "./pages/private/analisis/page/Analysis";
 
 function Hydrator() {
   const { uid } = useAuth();
@@ -32,6 +34,8 @@ const App = () => {
           <Route path="/registrar-partido" element={<Partido />} />
           <Route path="/formacion" element={<TeamForm />} />
           <Route path="/versus" element={<Versus />} />
+          <Route path="/campeonatos" element={<Campeonatos />} />
+          <Route path="/analisis" element={<Analysis />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -33,8 +33,6 @@ const Versus = () => {
 
   const [data, setData] = useState(null);
 
-  console.log("data", data);
-
   const clubs = Object.keys(lineupState?.lineups || []);
   const [selectedClub, setSelectedClub] = useState(
     lineupState?.activeClub || clubs[0] || ""
@@ -63,6 +61,8 @@ const Versus = () => {
     ordenCampo,
     ordenDireccion
   );
+
+  console.log("versus data", data);
 
   const columnas = useMemo(
     () => ["general", "local", "visitante", ...captains],

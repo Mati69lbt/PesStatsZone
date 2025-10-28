@@ -9,7 +9,7 @@ import { useLineups } from "../context/LineUpProvider";
 import { pretty } from "../pages/private/match/utils/pretty";
 
 import { doc, setDoc } from "firebase/firestore";
-import {db} from "../configuration/firebase.js"
+import { db } from "../configuration/firebase.js";
 
 export default function Navbar() {
   const { user, handleLogout, uid, isAuthenticated } = useAuth();
@@ -133,10 +133,10 @@ export default function Navbar() {
   };
 
   const links = [
+    { path: "/analisis", label: "📈 " },
+    { path: "/campeonatos", label: "🏆" },
     { path: "versus", label: "🆚" },
     { path: "/registrar-partido", label: "🏠" },
-    // { path: "/campeonatos", label: "🏆 Camp" },
-    // { path: "/analisis", label: "📈 Análisis" },
     // { path: "/Temporadas", label: "🗓️ Temp" },
     // { path: "/goleadores", label: "⚽ Gol" },
     // { path: "/goleadoresxcampeonato", label: "⚽ GxC" },

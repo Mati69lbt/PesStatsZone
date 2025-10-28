@@ -6,7 +6,6 @@ import { db } from "../configuration/firebase";
 import { normalizeName } from "../utils/normalizeName";
 
 export const fetchUserData = async (uid, matchDispatch, lineupDispatch) => {
-  console.log("Tambien lo uso en versus");
 
   if (!uid) return;
 
