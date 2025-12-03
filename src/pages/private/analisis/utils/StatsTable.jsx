@@ -2,7 +2,7 @@ import React from "react";
 import { pretty } from "../../match/utils/pretty";
 
 const StatsTable = ({ title, rows, colorize = true }) => {
-  const order = ["General", "Local", "Visitante"];
+  const order = ["General", "Local", "Visitante", "Neutral"];
 
   // === Reglas del semáforo (como en tu Analisis viejo) ===
   function getRowBg({ g = 0, e = 0, p = 0 }) {

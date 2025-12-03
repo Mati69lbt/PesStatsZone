@@ -42,18 +42,14 @@ const Analysis = () => {
     General: triple?.General || emptyRow(),
     Local: triple?.Local || emptyRow(),
     Visitante: triple?.Visitante || emptyRow(),
+    Neutral: triple?.Neutral || emptyRow(),
   });
 
   const visibleClub = selectedClub;
-
-  console.log("data", data);
-
-  console.log("matches", matches);
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      {/* Header + selector de club (si hay más de uno) */}
       <div className="flex items-center gap-3 mb-4">
-        <h1 className="text-2xl font-bold">📊 Análisis</h1>
+        <h1 className="text-2xl font-bold text-center">📊 Análisis</h1>
         {clubs.length > 1 && (
           <div className="ml-auto flex items-center gap-2">
             <span className="text-sm text-gray-600">Club:</span>

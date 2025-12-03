@@ -13,6 +13,7 @@ import { usePartido } from "./context/PartidoReducer";
 import { useLineups } from "./context/LineUpProvider";
 import Campeonatos from "./pages/private/campeonatos/page/Campeonatos";
 import Analysis from "./pages/private/analisis/page/Analysis";
+import Season from "./pages/private/temporada/page/Season";
 
 function Hydrator() {
   const { uid } = useAuth();
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="/versus" element={<Versus />} />
           <Route path="/campeonatos" element={<Campeonatos />} />
           <Route path="/analisis" element={<Analysis />} />
+          <Route path="/temporadas" element={<Season />} />
         </Route>
       </Routes>
     </BrowserRouter>

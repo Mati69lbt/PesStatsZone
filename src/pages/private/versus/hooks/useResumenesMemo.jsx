@@ -39,9 +39,11 @@ const useResumenesMemo = (matches = []) => {
         box.gf += gf;
         box.gc += gc;
       };
-
-      actualizar(res[rival].general);
-      actualizar(res[rival][ambito]);
+      
+      actualizar(res[rival].general);    
+      if (ambito !== "general") {
+        actualizar(res[rival][ambito]);
+      }
       if (captain) {
         if (!res[rival][captain]) res[rival][captain] = emptyBox();
         actualizar(res[rival][captain]);

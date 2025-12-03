@@ -62,8 +62,6 @@ const Versus = () => {
     ordenDireccion
   );
 
-  console.log("versus data", data);
-
   const columnas = useMemo(
     () => ["general", "local", "visitante", ...captains],
     [captains]

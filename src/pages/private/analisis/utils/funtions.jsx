@@ -11,6 +11,7 @@ export const emptyTriple = () => ({
   General: emptyRow(),
   Local: emptyRow(),
   Visitante: emptyRow(),
+  Neutral: emptyRow(),
 });
 
 export function sumInto(dst, m) {
@@ -30,10 +31,18 @@ export function addMatchToTriple(triple, m) {
   sumInto(triple.General, m);
 
   // normaliza condition
-  const cond = String(m?.condition || "").toLowerCase();
-  if (cond === "local") sumInto(triple.Local, m);
-  else if (cond === "visitante") sumInto(triple.Visitante, m);
-  // si es "neutral" => ya quedó sólo en General (pedido tuyo)
+  const cond = String(m?.condition || "")
+    .trim()
+    .toLowerCase();
+  if (cond === "local") {
+    sumInto(triple.Local, m);
+  } else if (cond === "visitante") {
+    sumInto(triple.Visitante, m);
+  } else if (cond === "neutro" || cond === "neutral") {
+    sumInto(triple.Neutral, m);
+  } else {
+    // valores inesperados: también sólo General (fail-safe)
+  }
 }
 
 /** Devuelve un array de { captain, total: triple, byTournament: { [torneoDisplay]: triple } } */

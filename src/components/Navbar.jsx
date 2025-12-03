@@ -133,11 +133,11 @@ export default function Navbar() {
   };
 
   const links = [
+    { path: "/temporadas", label: "🗓️" },
     { path: "/analisis", label: "📈 " },
     { path: "/campeonatos", label: "🏆" },
     { path: "versus", label: "🆚" },
     { path: "/registrar-partido", label: "🏠" },
-    // { path: "/Temporadas", label: "🗓️ Temp" },
     // { path: "/goleadores", label: "⚽ Gol" },
     // { path: "/goleadoresxcampeonato", label: "⚽ GxC" },
     // { path: "/villanos", label: "😈 Villanos" },
