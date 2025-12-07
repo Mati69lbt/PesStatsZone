@@ -140,13 +140,11 @@ export default function Navbar() {
     { path: "/campeonatos", label: "🏆" },
     { path: "/goleadores", label: "⚽" },
     { path: "/formacion", label: "📝" },
-    // { path: "/goleadoresxcampeonato", label: "⚽ GxC" },
-    // { path: "/villanos", label: "😈 Villanos" },
-    // { path: "/palmares", label: "👑 Palmares" },
+    { path: "/palmares", label: "👑" },
   ];
 
   return (
-    <nav className="bg-white shadow-md w-full sticky top-0 z-10">
+    <nav className="bg-white shadow-md w-full sticky top-0 z-0">
       {!forzarHamburguesa && (
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span
@@ -229,14 +227,14 @@ export default function Navbar() {
                   to={path}
                   className={`${linkClass(
                     path
-                  )} flex items-center gap-1 text-right w-full`}
+                  )} flex items-center gap-1 justify-end text-right w-full`}
                   onClick={() => setMenuAbierto(false)}
                 >
                   {label}
                 </Link>
               ))}
               {user && (
-                <div className="flex items-center gap-2 text-right w-full text-gray-700">
+                <div className="flex items-center gap-2  justify-end  text-right w-full text-gray-700">
                   <label className="font-semibold">Dt</label>
                   <span>{user.displayName}</span>
                 </div>
@@ -246,7 +244,7 @@ export default function Navbar() {
                   setMenuAbierto(false);
                   mostrarConfirmacionReset();
                 }}
-                className="text-red-600 hover:underline flex items-center gap-1 mt-4 text-right w-full"
+                className="text-red-600 hover:underline flex items-center gap-1 justify-end  mt-4 text-right w-full"
               >
                 🗑️ Reiniciar
               </button>
@@ -255,7 +253,7 @@ export default function Navbar() {
                   setMenuAbierto(false);
                   cerrarSesion();
                 }}
-                className="text-red-600 hover:underline flex items-center gap-1 mt-4 text-right w-full"
+                className="text-red-600 hover:underline flex items-center gap-1 justify-end  mt-4 text-right w-full"
               >
                 Salir
               </button>
