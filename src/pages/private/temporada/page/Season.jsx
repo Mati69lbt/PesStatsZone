@@ -13,11 +13,41 @@ import {
   renderBloques,
   renderBloquesDe,
   metricas,
-  BloqueHeader, // <<< NUEVO
+  BloqueHeader,
   FilaDatos,
+  getColorSegunResultado,
+  getColorSegunDiferenciaDeGol,
 } from "../utils/Funciones";
 import { pretty } from "../../match/utils/pretty";
 import TopGoleadores from "./Goleadores";
+
+const metricToKey = {
+  PJ: "pj",
+  G: "g",
+  E: "e",
+  P: "p",
+  GF: "gf",
+  GC: "gc",
+  DF: "df",
+};
+
+// Celdas para mobile: usa mismos colores que el resto de la app
+const renderStatsCells = (stats = {}) =>
+  metricas.map((m) => {
+    const prop = metricToKey[m];
+    const val = stats?.[prop] ?? 0;
+
+    const colorClass =
+      m === "DF"
+        ? getColorSegunDiferenciaDeGol(stats?.df ?? 0)
+        : getColorSegunResultado(stats);
+
+    return (
+      <td key={m} className={`px-2 py-1 text-center ${colorClass}`}>
+        {val}
+      </td>
+    );
+  });
 
 const Season = () => {
   const { uid } = useAuth();
@@ -27,8 +57,6 @@ const Season = () => {
   useUserData(uid, matchDispatch, lineupDispatch);
 
   const [data, setData] = useState(null);
-
-  console.log(data);
 
   const clubs = Object.keys(lineupState?.lineups || []);
   const [selectedClub, setSelectedClub] = useState(
@@ -46,12 +74,15 @@ const Season = () => {
 
   const matches = Array.isArray(data?.matches) ? data.matches : [];
 
-  // NUEVO: obtener resumen de temporadas con los matches actuales
+  // Resumen por temporada
   const { temporadasOrdenadas, resumenPorTemporada, captainsOrdenados } =
     useResumenTemporada(matches);
 
-  // NUEVO: convertir a formato "legacy" para el widget de últimos 10
+  // Últimos 10 para el widget
   const partidosLegacy = usePartidosLegacy(matches);
+
+  // Ordenar temporadas de la más reciente a la más vieja
+  const temporadasDesc = [...(temporadasOrdenadas || [])].reverse();
 
   const visibleClub = selectedClub;
 
@@ -60,7 +91,7 @@ const Season = () => {
 
   return (
     <div className="p-4 max-w-screen-2xl mx-auto">
-      {/* Header centrado  selector derecha */}
+      {/* Header + selector de club */}
       <div className="mb-4">
         <h1 className="text-2xl font-bold text-center">📆 Temporadas</h1>
         {clubs.length > 0 && (
@@ -80,129 +111,255 @@ const Season = () => {
           </div>
         )}
       </div>
-      {/* Últimos 10 resultados (general y por "equipo/capitán") */}
-      <Ultimos10Resultados partidos={partidosLegacy} /> {/* CAMBIO */}
-      {/* Tabla por temporada */}
-      {temporadasOrdenadas.map((temp) => {
+
+      {/* Últimos 10 resultados */}
+      <Ultimos10Resultados partidos={partidosLegacy} />
+
+      {/* Tabla por temporada (Season) */}
+      {temporadasDesc.map((temp) => {
         const rTemp = resumenPorTemporada[temp];
         if (!rTemp) return null;
 
         const caps = Array.isArray(captainsOrdenados) ? captainsOrdenados : [];
+        const tripleSeason = rTemp.general || emptyTriple();
 
         return (
-          <div
-            key={temp}
-            className="mb-8 border rounded shadow overflow-x-auto"
-          >
-            <table className="mx-auto w-full min-w-[860px] text-[11px] md:text-sm border">
-              <thead>
-                <tr className="bg-blue-200">
-                  <th className="border px-2 py-1 w-40">Temporada</th>
-                  <th className="border px-2 py-1 text-center" colSpan={14}>
-                    {/* Fila 1: general(neutro) => 2 bloques de 7 */}
-                    {/* encabezo con 'metricas' por bloque */}
-                    {/* Se verá la segunda fila de headers con métricas */}
-                  </th>
-                </tr>
-                {/* Fila 1 (B→H general, I→O neutral): headers métricas */}
-                <tr className="bg-blue-100">
-                  <th className="border px-2 py-1 text-center"></th>
-                  {metricas.map((m) => (
-                    <th key={`G-${m}`} className="border px-2 py-1 text-center">
-                      {m}
+          <div key={temp} className="mb-8 space-y-3">
+            {/* MOBILE: layout apilado (md:hidden) */}
+            <div className="md:hidden max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
+              <table className="w-full text-[11px] border-collapse">
+                <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
+                  <tr>
+                    <th className="px-3 py-2 text-left border-b border-slate-200">
+                      Temporada
                     </th>
-                  ))}
-                  {metricas.map((m) => (
-                    <th key={`N-${m}`} className="border px-2 py-1 text-center">
-                      {m} N
+                    {metricas.map((m) => (
+                      <th
+                        key={`head-${m}`}
+                        className="px-2 py-2 text-center border-b border-slate-200"
+                      >
+                        {m}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* ---- Bloque temporada (General / Local / Visitante / Neutral) ---- */}
+
+                  {/* General: fila 2 */}
+                  <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
+                    <td className="px-3 py-1.5 font-semibold text-left text-slate-800">
+                      {temp}
+                    </td>
+                    {renderStatsCells(tripleSeason.General)}
+                  </tr>
+
+                  {/* Local */}
+                  <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                    <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                      Local
+                    </td>
+                    {renderStatsCells(tripleSeason.Local)}
+                  </tr>
+
+                  {/* Visitante */}
+                  <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                    <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                      Visitante
+                    </td>
+                    {renderStatsCells(tripleSeason.Visitante)}
+                  </tr>
+
+                  {/* Neutral */}
+                  <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                    <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                      Neutral
+                    </td>
+                    {renderStatsCells(tripleSeason.Neutral)}
+                  </tr>
+
+                  {/* ---- Bloques por capitán ---- */}
+                  {caps.map((cap) => {
+                    const tripleCap = rTemp.capitanes?.[cap] || emptyTriple();
+
+                    return (
+                      <React.Fragment key={`${temp}-${cap}`}>
+                        {/* Capitán - General */}
+                        <tr className="border-t border-slate-200 bg-white hover:bg-slate-50/80 transition-colors">
+                          <td className="px-3 py-1.5 font-semibold text-left text-slate-800">
+                            {pretty(cap)}
+                          </td>
+                          {renderStatsCells(tripleCap.General)}
+                        </tr>
+
+                        {/* Capitán - Local */}
+                        <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                          <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                            Local
+                          </td>
+                          {renderStatsCells(tripleCap.Local)}
+                        </tr>
+
+                        {/* Capitán - Visitante */}
+                        <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                          <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                            Visitante
+                          </td>
+                          {renderStatsCells(tripleCap.Visitante)}
+                        </tr>
+
+                        {/* Capitán - Neutral */}
+                        <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                          <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                            Neutral
+                          </td>
+                          {renderStatsCells(tripleCap.Neutral)}
+                        </tr>
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* DESKTOP/TABLET: tabla completa (hidden en mobile) */}
+            <div className="hidden md:block max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
+              <table className="mx-auto w-full min-w-[860px] text-[11px] md:text-sm border-collapse">
+                <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] md:text-xs uppercase tracking-wide">
+                  <tr>
+                    <th className="px-2 py-2 w-40 text-center border-b border-slate-200">
+                      Temporada
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {/* Fila 2: valores de temporada (General  Neutral) */}
-                <tr className="bg-white">
-                  <td className="border font-semibold text-center">{temp}</td>
-                  <FilaDatos
-                    triple={rTemp.general}
-                    orden={["General", "Neutral"]}
-                  />
-                </tr>
-
-                {/* Fila 3: títulos Local  Visitante */}
-                <tr className="bg-blue-50">
-                  <td className="border px-2 py-1 text-center"></td>
-                  {metricas.map((m) => (
-                    <th key={`L-${m}`} className="border px-2 py-1 text-center">
-                      {m} L
+                    <th
+                      className="px-2 py-2 text-center border-b border-slate-200"
+                      colSpan={14}
+                    >
+                      General / Neutral
                     </th>
-                  ))}
-                  {metricas.map((m) => (
-                    <th key={`V-${m}`} className="border px-2 py-1 text-center">
-                      {m} V
-                    </th>
-                  ))}
-                </tr>
+                  </tr>
+                  <tr>
+                    <th className="px-2 py-1 text-center border-b border-slate-200"></th>
+                    {metricas.map((m) => (
+                      <th
+                        key={`G-${m}`}
+                        className="px-2 py-1 text-center border-b border-slate-200"
+                      >
+                        {m}
+                      </th>
+                    ))}
+                    {metricas.map((m) => (
+                      <th
+                        key={`N-${m}`}
+                        className="px-2 py-1 text-center border-b border-slate-200"
+                      >
+                        {m} N
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Temporada: General / Neutral */}
+                  <tr className="bg-white border-t border-slate-100 hover:bg-slate-50/70 transition-colors">
+                    <td className="border-r border-slate-200 font-semibold text-center">
+                      {temp}
+                    </td>
+                    <FilaDatos
+                      triple={rTemp.general}
+                      orden={["General", "Neutral"]}
+                    />
+                  </tr>
 
-                {/* Fila 4: valores de temporada (Local  Visitante) */}
-                <tr className="bg-white">
-                  <td className="border font-semibold text-center"></td>
-                  <FilaDatos
-                    triple={rTemp.general}
-                    orden={["Local", "Visitante"]}
-                  />
-                </tr>
+                  {/* Headers Local / Visitante */}
+                  <tr className="bg-slate-50">
+                    <td className="border-r border-slate-200 px-2 py-1 text-center text-[10px] uppercase text-slate-600">
+                      Condición
+                    </td>
+                    {metricas.map((m) => (
+                      <th
+                        key={`L-${m}`}
+                        className="border-b border-t border-slate-200 px-2 py-1 text-center text-[10px]"
+                      >
+                        {m} L
+                      </th>
+                    ))}
+                    {metricas.map((m) => (
+                      <th
+                        key={`V-${m}`}
+                        className="border-b border-t border-slate-200 px-2 py-1 text-center text-[10px]"
+                      >
+                        {m} V
+                      </th>
+                    ))}
+                  </tr>
 
-                {/* Bloques de capitanes (se repiten 4 filas por cada capitán) */}
-                {caps.map((cap) => {
-                  const tripleCap = rTemp.capitanes?.[cap] || emptyTriple();
-                  return (
-                    <React.Fragment key={`${temp}-${cap}`}>
-                      {/* Título capitán (columna A)  headers G/N (B→O) */}
-                      <tr className="bg-blue-200">
-                        <td className="border font-semibold px-2 py-1">
-                          {pretty(cap)}
-                        </td>
-                        <BloqueHeader
-                          etiquetas={["General", "Neutral"]}
-                          sufijos={["", " N"]}
-                        />
-                      </tr>
-                      {/* Datos capitán G/N */}
-                      <tr className="bg-white">
-                        <td className="border px-2 py-1"></td>
-                        <FilaDatos
-                          triple={tripleCap}
-                          orden={["General", "Neutral"]}
-                        />
-                      </tr>
-                      {/* Headers L/V */}
-                      <tr className="bg-blue-50">
-                        <td className="border px-2 py-1"></td>
-                        <BloqueHeader
-                          etiquetas={["Local", "Visitante"]}
-                          sufijos={[" L", " V"]}
-                        />
-                      </tr>
-                      {/* Datos capitán L/V */}
-                      <tr className="bg-white">
-                        <td className="border px-2 py-1"></td>
-                        <FilaDatos
-                          triple={tripleCap}
-                          orden={["Local", "Visitante"]}
-                        />
-                      </tr>
-                    </React.Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
+                  {/* Temporada: Local / Visitante */}
+                  <tr className="bg-white border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
+                    <td className="border-r border-slate-200 px-2 py-1 text-center text-[10px] uppercase text-slate-600">
+                      Totales
+                    </td>
+                    <FilaDatos
+                      triple={rTemp.general}
+                      orden={["Local", "Visitante"]}
+                    />
+                  </tr>
 
-            {/* Sección GOLEADORES (dos filas: posgoles / nombre) */}
+                  {/* Bloques por capitán */}
+                  {caps.map((cap) => {
+                    const tripleCap = rTemp.capitanes?.[cap] || emptyTriple();
+                    return (
+                      <React.Fragment key={`${temp}-${cap}`}>
+                        {/* Header capitán (G/N) */}
+                        <tr className="bg-slate-100 border-t border-slate-200">
+                          <td className="border-r border-slate-200 font-semibold px-2 py-1 text-left">
+                            {pretty(cap)}
+                          </td>
+                          <BloqueHeader
+                            etiquetas={["General", "Neutral"]}
+                            sufijos={["", " N"]}
+                          />
+                        </tr>
+
+                        {/* Datos capitán G/N */}
+                        <tr className="bg-white hover:bg-slate-50/70 transition-colors">
+                          <td className="border-r border-slate-200 px-2 py-1"></td>
+                          <FilaDatos
+                            triple={tripleCap}
+                            orden={["General", "Neutral"]}
+                          />
+                        </tr>
+
+                        {/* Headers L/V */}
+                        <tr className="bg-slate-50">
+                          <td className="border-r border-slate-200 px-2 py-1 text-[10px] uppercase text-slate-600">
+                            Detalle
+                          </td>
+                          <BloqueHeader
+                            etiquetas={["Local", "Visitante"]}
+                            sufijos={[" L", " V"]}
+                          />
+                        </tr>
+
+                        {/* Datos capitán L/V */}
+                        <tr className="bg-white border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
+                          <td className="border-r border-slate-200 px-2 py-1"></td>
+                          <FilaDatos
+                            triple={tripleCap}
+                            orden={["Local", "Visitante"]}
+                          />
+                        </tr>
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* GOLEADORES de esa temporada */}
             <TopGoleadores playersStats={data?.playersStats} topN={7} />
           </div>
         );
       })}
+      {/* FIN Tabla por temporada */}
     </div>
   );
 };

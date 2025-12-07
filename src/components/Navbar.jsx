@@ -133,16 +133,16 @@ export default function Navbar() {
   };
 
   const links = [
+    { path: "/registrar-partido", label: "🏠" },
+    { path: "versus", label: "🆚" },
     { path: "/temporadas", label: "🗓️" },
     { path: "/analisis", label: "📈 " },
     { path: "/campeonatos", label: "🏆" },
-    { path: "versus", label: "🆚" },
-    { path: "/registrar-partido", label: "🏠" },
-    // { path: "/goleadores", label: "⚽ Gol" },
+    { path: "/goleadores", label: "⚽" },
+    { path: "/formacion", label: "📝" },
     // { path: "/goleadoresxcampeonato", label: "⚽ GxC" },
     // { path: "/villanos", label: "😈 Villanos" },
     // { path: "/palmares", label: "👑 Palmares" },
-    { path: "/formacion", label: "📝" },
   ];
 
   return (
