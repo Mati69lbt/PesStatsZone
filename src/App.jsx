@@ -24,10 +24,10 @@ function Hydrator() {
   useUserData(uid, matchDispatch, lineupDispatch);
   return null;
 }
-
+const repoName = "pesstatszone";
 const App = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={`/${repoName}/`}>
       <Routes>
         <Route element={<Public />}>
           <Route path="/" element={<Login />} />
