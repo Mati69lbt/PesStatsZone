@@ -144,7 +144,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-white shadow-md w-full sticky top-0 z-0">
+    <nav className="bg-white shadow-md w-full sticky top-0 z-50">
       {!forzarHamburguesa && (
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span
@@ -190,7 +190,7 @@ export default function Navbar() {
       {forzarHamburguesa && (
         <button
           type="button"
-          className="fixed top-3 right-3 bg-white rounded-full shadow-md p-2 text-gray-700 text-2xl z-20"
+          className="fixed top-3 right-3 bg-white rounded-full shadow-md p-2 text-gray-700 text-2xl z-40"
           onClick={() => setMenuAbierto(!menuAbierto)}
           aria-label="Abrir menú"
           style={{ minWidth: "48px", minHeight: "48px" }}

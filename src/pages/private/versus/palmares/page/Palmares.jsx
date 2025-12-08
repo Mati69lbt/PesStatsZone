@@ -144,7 +144,7 @@ const Palmares = () => {
         grupos.map(({ year, campeonatos }) => (
           <section key={year} className="mb-6">
             {/* Encabezado de año */}
-            <div className="flex items-center gap-2 mb-2">
+            <div className="w-full max-w-sm md:max-w-md mx-auto flex items-center gap-2 mb-2">
               <div className="w-8 h-px bg-slate-300 md:w-12" />
               <h2 className="text-sm md:text-base font-semibold text-slate-700">
                 {Number.isNaN(parseInt(String(year), 10)) ? String(year) : year}
@@ -157,7 +157,7 @@ const Palmares = () => {
               {campeonatos.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-baseline justify-between gap-3 px-3 py-2 rounded-lg bg-white border border-slate-100 shadow-sm"
+                  className="w-full max-w-sm md:max-w-md mx-auto flex items-baseline justify-between gap-3 px-3 py-2 rounded-lg bg-white border border-slate-100 shadow-sm"
                 >
                   <div className="flex flex-col">
                     <span className="text-[12px] md:text-sm font-medium text-slate-900">
