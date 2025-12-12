@@ -39,10 +39,15 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", evaluarPantalla);
   }, []);
 
-  const linkClass = (path) =>
-    `block px-4 py-2 rounded hover:bg-blue-100 transition ${
-      location.pathname === path ? "font-bold text-blue-700" : "text-gray-700"
+  const isActivePath = (path) =>
+    location.pathname === path || location.pathname.startsWith(path + "/");
+
+  const iconClass = (path) =>
+    `inline-block origin-center transition-transform duration-150 ${
+      isActivePath(path) ? "scale-150" : "scale-100"
     }`;
+
+  const linkClass = () => "block px-4 py-2 rounded transition text-gray-700";
 
   const mostrarConfirmacionReset = () => {
     Notiflix.Confirm.show(
@@ -134,7 +139,7 @@ export default function Navbar() {
 
   const links = [
     { path: "/registrar-partido", label: "🏠" },
-    { path: "versus", label: "🆚" },
+    { path: "/versus", label: "🆚" },
     { path: "/temporadas", label: "🗓️" },
     { path: "/analisis", label: "📈 " },
     { path: "/campeonatos", label: "🏆" },
@@ -160,7 +165,7 @@ export default function Navbar() {
                 to={path}
                 className={`${linkClass(path)} flex items-center gap-1 text-xl`}
               >
-                {label}
+                <span className={iconClass(path)}>{label}</span>
               </Link>
             ))}
             {user && (
@@ -220,43 +225,56 @@ export default function Navbar() {
                 ×
               </button>
             </div>
-            <div className="flex flex-col gap-2 w-full items-end">
+
+            <div className="w-full grid grid-cols-3 gap-4">
               {links.map(({ path, label }) => (
                 <Link
                   key={path}
                   to={path}
                   className={`${linkClass(
                     path
-                  )} flex items-center gap-1 justify-end text-right w-full`}
+                  )} flex items-center justify-center rounded-xl p-3 text-3xl`}
                   onClick={() => setMenuAbierto(false)}
+                  aria-label={path}
+                  title={path}
                 >
-                  {label}
+                  <span className={iconClass(path)}>{label}</span>
                 </Link>
               ))}
+
               {user && (
-                <div className="flex items-center gap-2  justify-end  text-right w-full text-gray-700">
-                  <label className="font-semibold">Dt</label>
-                  <span>{user.displayName}</span>
+                <div className="flex flex-col items-center justify-center rounded-xl p-3 border text-center">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    DT
+                  </span>
+                  <span className="text-sm font-semibold text-gray-800 break-words">
+                    {pretty(user.displayName)}
+                  </span>
                 </div>
               )}
+
               <button
                 onClick={() => {
                   setMenuAbierto(false);
                   mostrarConfirmacionReset();
                 }}
-                className="text-red-600 hover:underline flex items-center gap-1 justify-end  mt-4 text-right w-full"
+                className="flex flex-col items-center justify-center rounded-xl p-3 text-red-600"
               >
-                🗑️ Reiniciar
+                <span className="text-s mt-1">Reiniciar</span>
               </button>
+
               <button
                 onClick={() => {
                   setMenuAbierto(false);
                   cerrarSesion();
                 }}
-                className="text-red-600 hover:underline flex items-center gap-1 justify-end  mt-4 text-right w-full"
+                className="flex flex-col items-center justify-center rounded-xl p-3 text-red-600"
               >
-                Salir
+                <span className="text-s mt-1">Salir</span>
               </button>
+              <div className="flex flex-col items-center justify-center rounded-xl border text-center">
+                <span>Versión: 12/12</span>
+              </div>
             </div>
           </div>
         </div>
