@@ -3,22 +3,27 @@
 ### Navbar
 
 - ✅ Poner el Navbar Active
-- [ ] Poner los iconos mas grandes en pantallas pequeñas
+- ✅ Poner los iconos mas grandes en pantallas pequeñas
+
+## Estadísticas del equipo
+
+- ✅ Arreglando la tabla
 
 ### Análisis
 
-- [ ] Centrar análisis
+- ✅ Centrar análisis
+- [ ] Solamente general, ver los partidos jugados, ganados, empatados, perdidos, goles, etc de cada jugador
 
 ### Campeonato
 
-- [ ] Achicar las tablas
-- [ ] Poner los años de los campeonatos
+- ✅ Achicar las tablas
+- ✅ Poner los años de los campeonatos
 
 ### Goleadores de equipo
 
-- [ ] Mejorar visibilidad de la tabla
+- ✅ Mejorar visibilidad de la tabla
+- ✅ Poner los expulsados
 - [ ] Revisar los pj
-- [ ] Poner los expulsados
 
 ### Goleadores de equipo por campeonato
 

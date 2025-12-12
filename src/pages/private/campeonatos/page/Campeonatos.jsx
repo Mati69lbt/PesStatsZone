@@ -69,8 +69,8 @@ const Campeonatos = () => {
 
       {/* Tabla */}
       {/* Vista MOBILE: layout apilado (sm:hidden) */}
-      <div className="md:hidden max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
-        <table className="w-full text-[11px] md:text-sm border-collapse">
+      <div className="md:hidden max-h-[75vh]  overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
+        <table className="w-full  text-[12px]  md:text-sm border-collapse">
           <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
             <tr>
               <th className="px-3 py-2 text-left border-b border-slate-200">
@@ -231,8 +231,8 @@ const Campeonatos = () => {
       </div>
 
       {/* Vista DESKTOP/TABLET: tabla completa (hidden en mobile) */}
-      <div className="hidden md:block max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
-        <table className="mx-auto w-full min-w-[900px] text-[11px] md:text-sm border-collapse">
+      <div className="hidden md:block max-h-[75vh] overflow-auto">
+        <table className="mx-auto w-max table-auto text-[11px] md:text-sm border-collapse">
           <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] md:text-xs uppercase tracking-wide">
             <tr>
               <th className="px-3 py-2 text-left border-b border-slate-200">

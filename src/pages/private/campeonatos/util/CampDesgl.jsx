@@ -12,6 +12,20 @@ import {
 import Notiflix from "notiflix";
 
 // Opciones del select "Resultado" del campeonato
+
+const formatDDMM = (m) => {
+  const raw = m?.fecha || m?.createdAt;
+  if (!raw) return "—";
+
+  const d =
+    typeof raw === "string" ? new Date(`${raw}T00:00:00`) : new Date(raw);
+  if (Number.isNaN(d.getTime())) return "—";
+
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  return `${dd}/${mm}`;
+};
+
 const RESULT_OPTIONS = [
   { value: "", label: "Sin definir" },
   { value: "campeon", label: "Campeón" },
@@ -305,116 +319,127 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
   return (
     <div className="mt-8">
       <h2 className="text-lg md:text-xl font-bold mb-4 text-center">
-        📋 Detalle de partidos por campeonato
+        📋 Detalle de Partidos por Campeonato
       </h2>
 
       {campeonatos.map((camp) => {
         const torneoKey = camp.nombre;
         const valorSelect = resumenResultados[torneoKey] || "";
-
+        const year = getYearFromCamp(camp);
+        const tituloCamp = `${prettySafe(camp.nombre)}${
+          year ? ` ${year}` : ""
+        }`;
         return (
-          <div
-            key={torneoKey}
-            className="mb-6 border border-slate-200 rounded-lg bg-white shadow-sm"
-          >
-            {/* Header del campeonato + select Resultado */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50">
-              <div>
-                <h3 className="font-semibold text-sm md:text-base text-slate-800">
-                  {prettySafe(camp.nombre)}
-                </h3>
-                <p className="text-[11px] text-slate-500">
-                  {camp.matches.length} partido
-                  {camp.matches.length !== 1 ? "s" : ""} jugado
-                  {camp.matches.length !== 1 ? "s" : ""} en este campeonato.
-                </p>
+          <div key={torneoKey} className="mb-6">
+            <div className="w-full lg:w-[80%] mx-auto">
+              {/* Header del campeonato + select Resultado */}
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50">
+                <div>
+                  <h3 className="font-semibold text-sm md:text-base text-slate-800">
+                    {tituloCamp}
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    {camp.matches.length} partido
+                    {camp.matches.length !== 1 ? "s" : ""} jugado
+                    {camp.matches.length !== 1 ? "s" : ""} en este campeonato.
+                  </p>
+                </div>
+
+                <div className="text-[11px] md:text-sm">
+                  <label className="mr-2 font-medium">Resultado:</label>
+                  <select
+                    className="border border-slate-300 rounded px-2 py-1 text-[11px] md:text-sm bg-white"
+                    value={valorSelect}
+                    onChange={(e) =>
+                      handleResultadoChange(camp, e.target.value)
+                    }
+                  >
+                    {RESULT_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div className="text-[11px] md:text-sm">
-                <label className="mr-2 font-medium">Resultado:</label>
-                <select
-                  className="border border-slate-300 rounded px-2 py-1 text-[11px] md:text-sm bg-white"
-                  value={valorSelect}
-                  onChange={(e) => handleResultadoChange(camp, e.target.value)}
-                >
-                  {RESULT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Tabla de partidos de ese campeonato */}
-            <div className="overflow-x-auto text-[11px] md:text-xs">
-              <table className="w-full table-auto border-collapse">
-                <thead>
-                  <tr className="bg-slate-100 text-slate-700">
-                    <th className="border border-slate-200 px-2 py-1 text-left">
-                      Rival
-                    </th>
-                    <th className="border border-slate-200 px-2 py-1 text-center">
-                      Resultado
-                    </th>
-                    <th className="border border-slate-200 px-2 py-1 text-center">
-                      Condición
-                    </th>
-                    <th className="border border-slate-200 px-2 py-1 text-left">
-                      Capitán
-                    </th>
-                    <th className="border border-slate-200 px-2 py-1 text-left">
-                      Goleadores propios
-                    </th>
-                    <th className="border border-slate-200 px-2 py-1 text-center">
-                      Goles rival
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {camp.matches.map((m) => (
-                    <tr
-                      key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
-                      className="even:bg-slate-50"
-                    >
-                      {/* Rival */}
-                      <td className="border border-slate-200 px-2 py-1 text-left">
-                        {prettySafe(m.rival || "")}
-                      </td>
-
-                      {/* Resultado del partido (pintado por final) */}
-                      <td className="border border-slate-200 px-2 py-1 text-left">
-                        <span
-                          className={
-                            "inline-block px-2 py-0.5 rounded-full text-[10px] " +
-                            getResultadoPartidoClasses(m.final)
-                          }
-                        >
-                          {prettySafe(m.resultMatch || "")}
-                        </span>
-                      </td>
-
-                      {/* Condición */}
-                      <td className="border border-slate-200 px-2 py-1 text-center">
-                        <CondicionBadge condition={m.condition} />
-                      </td>
-
-                      {/* Capitán */}
-                      <td className="border border-slate-200 px-2 py-1 text-left">
-                        {m.captain ? prettySafe(m.captain) : "—"}
-                      </td>
-
-                      {/* Goleadores propios */}
-                      <td className="border border-slate-200 px-2 py-1 text-left">
-                        {getGoleadoresPropiosTexto(m)}
-                      </td>
-                      <td className="border border-slate-200 px-2 py-1 text-left">
-                        {getGoleadoresRivalesTexto(m)}
-                      </td>
+              {/* Tabla de partidos de ese campeonato */}
+              <div className="overflow-x-auto text-[11px] md:text-xs">
+                <table className="w-full table-auto border-collapse border border-slate-200 rounded-lg bg-white shadow-sm">
+                  <thead>
+                    <tr className="bg-slate-100 text-slate-700">
+                      <th className="border border-slate-200 px-2 py-1 text-center">
+                        Fecha
+                      </th>
+                      <th className="border border-slate-200 px-2 py-1 text-left  lg:w-[150px]">
+                        Rival
+                      </th>
+                      <th className="border border-slate-200 px-2 py-1 text-center  lg:w-[250px]">
+                        Resultado
+                      </th>
+                      <th className="border border-slate-200 px-2 py-1 text-center  lg:w-[80px]">
+                        Condición
+                      </th>
+                      <th className="border border-slate-200 px-2 py-1 text-left">
+                        Capitán
+                      </th>
+                      <th className="border border-slate-200 px-2 py-1 text-left">
+                        Goleadores propios
+                      </th>
+                      <th className="border border-slate-200 px-2 py-1 text-center">
+                        Goles rival
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {camp.matches.map((m) => (
+                      <tr
+                        key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
+                        className="even:bg-slate-50"
+                      >
+                        <td className="border border-slate-200 px-2 py-1 text-center tabular-nums">
+                          {formatDDMM(m)}
+                        </td>
+
+                        {/* Rival */}
+                        <td className="border border-slate-200 px-2 py-1 text-left">
+                          {prettySafe(m.rival || "")}
+                        </td>
+
+                        {/* Resultado del partido (pintado por final) */}
+                        <td className="border border-slate-200 px-2 py-1 text-left">
+                          <span
+                            className={
+                              "inline-block px-2 py-0.5 rounded-full text-[10px] " +
+                              getResultadoPartidoClasses(m.final)
+                            }
+                          >
+                            {prettySafe(m.resultMatch || "")}
+                          </span>
+                        </td>
+
+                        {/* Condición */}
+                        <td className="border border-slate-200 px-2 py-1 text-center">
+                          <CondicionBadge condition={m.condition} />
+                        </td>
+
+                        {/* Capitán */}
+                        <td className="border border-slate-200 px-2 py-1 text-left">
+                          {m.captain ? prettySafe(m.captain) : "—"}
+                        </td>
+
+                        {/* Goleadores propios */}
+                        <td className="border border-slate-200 px-2 py-1 text-left">
+                          {getGoleadoresPropiosTexto(m)}
+                        </td>
+                        <td className="border border-slate-200 px-2 py-1 text-left">
+                          {getGoleadoresRivalesTexto(m)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         );

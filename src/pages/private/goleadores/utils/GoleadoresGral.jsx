@@ -192,34 +192,51 @@ const GoleadoresGral = ({ matches }) => {
       </div>
 
       {/* Tabla */}
-      <div className="overflow-x-auto text-[11px] md:text-sm">
-        <table className="table-auto border-collapse border mx-auto min-w-[700px]">
-          <thead>
-            <tr className="bg-slate-100">
+      <div className="max-h-[80vh] overflow-auto ">
+        <table className="table-fixed border-collapse mx-auto min-w-[680px] md:min-w-[780px] text-[11px] md:text-sm tabular-nums">
+          <thead className="sticky top-0 z-20">
+            <tr className="bg-slate-100 text-slate-700">
+              {/* NUEVO: índice */}
               <th
                 rowSpan={2}
-                className="border px-1 py-1 text-center sticky left-0 bg-slate-100 z-10 w-12"
+                className="border px-2 py-2 text-center sticky left-0 bg-slate-100 z-20 w-10"
+              >
+                #
+              </th>
+
+              {/* Jugador (corrida a la derecha por el índice) */}
+              <th
+                rowSpan={2}
+                className="border px-2 py-2 text-left sticky left-10 bg-slate-100 z-20 w-28 sm:w-20 md:w-20 lg:w-20 overflow-hidden"
               >
                 Jugador
               </th>
-              <th colSpan={5} className="border px-2 py-1 text-center">
+
+              <th
+                colSpan={5}
+                className="border px-2 py-2 text-center font-semibold"
+              >
                 General
               </th>
-              <th colSpan={5} className="border px-2 py-1 text-center">
+              <th
+                colSpan={5}
+                className="border px-2 py-2 text-center font-semibold"
+              >
                 Local
               </th>
-              <th colSpan={5} className="border px-2 py-1 text-center">
+              <th
+                colSpan={5}
+                className="border px-2 py-2 text-center font-semibold"
+              >
                 Visitante
               </th>
-              <th colSpan={5} className="border px-2 py-1 text-center">
-                Neutral
-              </th>
             </tr>
-            <tr className="bg-slate-50">
+
+            <tr className="bg-slate-50 text-slate-600 text-[10px] md:text-xs">
               {["PJ", "G", "⚽x2", "⚽x3", "P"].map((t, i) => (
                 <th
                   key={`gen-${i}`}
-                  className="border px-1 py-1 w-8 text-center"
+                  className="border px-2 py-2 w-10 text-center"
                 >
                   {t}
                 </th>
@@ -227,7 +244,7 @@ const GoleadoresGral = ({ matches }) => {
               {["PJ", "G", "⚽x2", "⚽x3", "P"].map((t, i) => (
                 <th
                   key={`loc-${i}`}
-                  className="border px-1 py-1 w-8 text-center"
+                  className="border px-2 py-2 w-10 text-center"
                 >
                   {t}
                 </th>
@@ -235,76 +252,67 @@ const GoleadoresGral = ({ matches }) => {
               {["PJ", "G", "⚽x2", "⚽x3", "P"].map((t, i) => (
                 <th
                   key={`vis-${i}`}
-                  className="border px-1 py-1 w-8 text-center"
-                >
-                  {t}
-                </th>
-              ))}
-              {["PJ", "G", "⚽x2", "⚽x3", "P"].map((t, i) => (
-                <th
-                  key={`neu-${i}`}
-                  className="border px-1 py-1 w-8 text-center"
+                  className="border px-2 py-2 w-10 text-center"
                 >
                   {t}
                 </th>
               ))}
             </tr>
           </thead>
+
           <tbody>
-            {goleadoresOrdenados.map((g) => (
-              <tr key={g.nombre} className="even:bg-slate-50">
-                <td className="border px-1 py-1 text-left font-medium sticky left-0 bg-white w-12 whitespace-nowrap overflow-hidden text-ellipsis">
+            {goleadoresOrdenados.map((g, idx) => (
+              <tr
+                key={g.nombre}
+                className="even:bg-slate-50 hover:bg-slate-100/70 transition-colors"
+              >
+                {/* NUEVO: índice */}
+                <td className="border px-2 py-2 text-center sticky left-0 bg-white z-10 w-10">
+                  {idx + 1}
+                </td>
+
+                {/* Jugador corrido */}
+                <td className="border px-2 py-2 text-left font-semibold sticky left-10 bg-white z-10 w-28 sm:w-20 md:w-20 lg:w-20 max-w-[112px] sm:max-w-[128px] md:max-w-[80px] lg:max-w-[160px] whitespace-nowrap overflow-hidden text-ellipsis">
                   {prettySafe(g.nombre)}
                 </td>
 
                 {/* General */}
-                <td className="border px-1 py-1 text-center">{g.general.pj}</td>
-                <td className="border px-1 py-1 text-center">
+                <td className="border px-2 py-2 text-center">{g.general.pj}</td>
+                <td className="border px-2 py-2 text-center">
                   {g.general.goles}
                 </td>
-                <td className="border px-1 py-1 text-center">{g.general.x2}</td>
-                <td className="border px-1 py-1 text-center">{g.general.x3}</td>
-                <td className="border px-1 py-1 text-center">
+                <td className="border px-2 py-2 text-center">{g.general.x2}</td>
+                <td className="border px-2 py-2 text-center">{g.general.x3}</td>
+                <td className="border px-2 py-2 text-center">
                   {formatProm(g.general.prom)}
                 </td>
 
                 {/* Local */}
-                <td className="border px-1 py-1 text-center">{g.local.pj}</td>
-                <td className="border px-1 py-1 text-center">
+                <td className="border px-2 py-2 text-center">{g.local.pj}</td>
+                <td className="border px-2 py-2 text-center">
                   {g.local.goles}
                 </td>
-                <td className="border px-1 py-1 text-center">{g.local.x2}</td>
-                <td className="border px-1 py-1 text-center">{g.local.x3}</td>
-                <td className="border px-1 py-1 text-center">
+                <td className="border px-2 py-2 text-center">{g.local.x2}</td>
+                <td className="border px-2 py-2 text-center">{g.local.x3}</td>
+                <td className="border px-2 py-2 text-center">
                   {formatProm(g.local.prom)}
                 </td>
 
                 {/* Visitante */}
-                <td className="border px-1 py-1 text-center">
+                <td className="border px-2 py-2 text-center">
                   {g.visitante.pj}
                 </td>
-                <td className="border px-1 py-1 text-center">
+                <td className="border px-2 py-2 text-center">
                   {g.visitante.goles}
                 </td>
-                <td className="border px-1 py-1 text-center">
+                <td className="border px-2 py-2 text-center">
                   {g.visitante.x2}
                 </td>
-                <td className="border px-1 py-1 text-center">
+                <td className="border px-2 py-2 text-center">
                   {g.visitante.x3}
                 </td>
-                <td className="border px-1 py-1 text-center">
+                <td className="border px-2 py-2 text-center">
                   {formatProm(g.visitante.prom)}
-                </td>
-
-                {/* Neutral */}
-                <td className="border px-1 py-1 text-center">{g.neutro.pj}</td>
-                <td className="border px-1 py-1 text-center">
-                  {g.neutro.goles}
-                </td>
-                <td className="border px-1 py-1 text-center">{g.neutro.x2}</td>
-                <td className="border px-1 py-1 text-center">{g.neutro.x3}</td>
-                <td className="border px-1 py-1 text-center">
-                  {formatProm(g.neutro.prom)}
                 </td>
               </tr>
             ))}

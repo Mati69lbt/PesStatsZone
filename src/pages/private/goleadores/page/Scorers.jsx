@@ -7,6 +7,8 @@ import { normalizeName } from "../../../../utils/normalizeName";
 import GoleadoresPorCampeonato from "../utils/GoleadoresPorCampeonato";
 import GoleadoresGral from "../utils/GoleadoresGral";
 import Villanos from "../utils/Villanos";
+import Expulsados from "../utils/Expulsados";
+import Carniceros from "../utils/Carniceros";
 
 const prettySafe = (str) => {
   if (!str) return "";
@@ -87,6 +89,16 @@ const Scorers = () => {
           Goleadores por campeonato
         </button>
         <button
+          onClick={() => setView("expulsados")}
+          className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
+            view === "expulsados"
+              ? "bg-blue-600 text-white border-blue-700 shadow"
+              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+          }`}
+        >
+          Expulsados
+        </button>
+        <button
           onClick={() => setView("villanos")}
           className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
             view === "villanos"
@@ -96,12 +108,24 @@ const Scorers = () => {
         >
           Villanos
         </button>
+        <button
+          onClick={() => setView("carniceros")}
+          className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
+            view === "carniceros"
+              ? "bg-blue-600 text-white border-blue-700 shadow"
+              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+          }`}
+        >
+          Carniceros
+        </button>
       </div>
 
       {/* Contenido según vista */}
       {view === "goleadores" && <GoleadoresGral matches={matches} />}
       {view === "campeonatos" && <GoleadoresPorCampeonato matches={matches} />}
       {view === "villanos" && <Villanos matches={matches} />}
+      {view === "expulsados" && <Expulsados matches={matches} />}
+      {view === "carniceros" && <Carniceros matches={matches} />}
     </div>
   );
 };

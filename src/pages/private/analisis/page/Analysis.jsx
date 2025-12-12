@@ -48,10 +48,12 @@ const Analysis = () => {
   const visibleClub = selectedClub;
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      <div className="flex items-center gap-3 mb-4">
-        <h1 className="text-2xl font-bold text-center">📊 Análisis</h1>
+      <div className="grid grid-cols-3 items-center mb-4">
+        <h1 className="text-2xl font-bold text-center col-start-2">
+          📊 Análisis
+        </h1>
         {clubs.length > 1 && (
-          <div className="ml-auto flex items-center gap-2">
+          <div className="justify-self-end flex items-center gap-2">
             <span className="text-sm text-gray-600">Club:</span>
             <select
               className="border rounded px-2 py-1 text-sm"
