@@ -2,14 +2,30 @@ import React, { useMemo } from "react";
 import { prettySafe } from "../../campeonatos/util/funtions";
 
 const GoleadoresPorCampeonato = ({ matches }) => {
+  const golesDelEvento = (g) => {
+    if (!g) return 0;
+    if (g.dobleHattrick) return 6;
+    if (g.manito) return 5;
+    if (g.poker) return 4;
+    if (g.hattrick || g.triplete) return 3;
+    if (g.doblete) return 2;
+    return g.gol ? 1 : 0;
+  };
+
   const torneosOrdenados = useMemo(() => {
     const torneos = {};
 
     matches.forEach((match) => {
-      const { torneoDisplay, torneoName, torneoYear, goleadoresActiveClub } =
-        match || {};
+      const {
+        torneoDisplay,
+        torneoName,
+        torneoYear,
+        goleadoresActiveClub,
+        starters,
+        substitutes,
+      } = match || {};
 
-      if (!torneoYear || !Array.isArray(goleadoresActiveClub)) return;
+      if (!torneoYear) return;
 
       const label = torneoDisplay || `${torneoName ?? "Torneo"} ${torneoYear}`;
       const key = `${torneoName ?? label}-${torneoYear}`;
@@ -22,33 +38,55 @@ const GoleadoresPorCampeonato = ({ matches }) => {
         };
       }
 
-      goleadoresActiveClub.forEach((g) => {
+      // ---------- A) PJ por participación (starters + substitutes) ----------
+      const startersArr = Array.isArray(starters) ? starters : [];
+      const subsArr = Array.isArray(substitutes) ? substitutes : [];
+
+      const participantesUnicos = [
+        ...new Set(
+          [...startersArr, ...subsArr]
+            .map((n) => (n ?? "").toString().trim())
+            .filter(Boolean)
+        ),
+      ];
+
+      participantesUnicos.forEach((rawName) => {
+        const slug = rawName.toLowerCase();
+        if (!torneos[key].jugadores[slug]) {
+          torneos[key].jugadores[slug] = {
+            nombre: prettySafe(rawName),
+            pj: 0,
+            goles: 0,
+            x2: 0,
+            x3: 0,
+          };
+        }
+        torneos[key].jugadores[slug].pj += 1;
+      });
+
+      // ---------- B) Goles / x2 / x3 por eventos (goleadoresActiveClub) ----------
+      const goleadoresArr = Array.isArray(goleadoresActiveClub)
+        ? goleadoresActiveClub
+        : [];
+
+      goleadoresArr.forEach((g) => {
         if (!g) return;
 
-        const slug = (g.slug ?? g.id ?? g.name ?? g.nombre ?? "")
-          .toString()
-          .trim()
-          .toLowerCase();
-        if (!slug) return;
-
-        const golesEnPartido = Number(g.goals ?? g.goles ?? g.cantidad ?? 1);
-
-        // Nombre "crudo" del jugador
         const rawName =
-          g.pretty ??
-          g.prettyName ??
-          g.displayName ??
-          g.nombre ??
-          g.name ??
-          slug;
+          g.pretty ?? g.prettyName ?? g.displayName ?? g.nombre ?? g.name ?? "";
 
-        // Aplicamos prettySafe al nombre
-        const nombrePretty = prettySafe(rawName);
+        const rawNameClean = rawName.toString().trim();
+        if (!rawNameClean) return;
+
+        // ✅ Excluir gol en contra (tu "__og__")
+        if (g.isOwnGoal === true || rawNameClean === "__og__") return;
+
+        const slug = rawNameClean.toLowerCase();
 
         if (!torneos[key].jugadores[slug]) {
           torneos[key].jugadores[slug] = {
-            nombre: nombrePretty,
-            pj: 0,
+            nombre: prettySafe(rawNameClean),
+            pj: 0, // ojo: si no jugó (raro), queda 0; pero normalmente ya lo sumó arriba
             goles: 0,
             x2: 0,
             x3: 0,
@@ -56,15 +94,12 @@ const GoleadoresPorCampeonato = ({ matches }) => {
         }
 
         const stats = torneos[key].jugadores[slug];
+        const golesEnPartido = golesDelEvento(g);
 
-        // Jugó este partido
-        stats.pj += 1;
-        // Goles totales
         stats.goles += golesEnPartido;
 
-        // Eventos especiales por partido
-        if (golesEnPartido === 2) stats.x2 += 1;
-        else if (golesEnPartido === 3) stats.x3 += 1;
+        if (g.doblete) stats.x2 += 1;
+        if (g.hattrick || g.triplete) stats.x3 += 1;
       });
     });
 
@@ -94,9 +129,11 @@ const GoleadoresPorCampeonato = ({ matches }) => {
       </h2>
 
       {torneosOrdenados.map((torneo) => {
-        const jugadoresOrdenados = Object.values(torneo.jugadores).sort(
-          (a, b) => b.goles - a.goles || a.nombre.localeCompare(b.nombre)
-        );
+        const jugadoresOrdenados = Object.values(torneo.jugadores)
+          .filter((j) => j.goles > 0)
+          .sort(
+            (a, b) => b.goles - a.goles || a.nombre.localeCompare(b.nombre)
+          );
 
         return (
           <div

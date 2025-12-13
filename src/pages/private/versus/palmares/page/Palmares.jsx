@@ -1,5 +1,6 @@
 // cspell: ignore Palmares
 import React, { useEffect, useMemo, useState } from "react";
+import { pretty } from "../../../match/utils/pretty";
 
 import { collection, getDocs, query, where } from "firebase/firestore";
 import useAuth from "../../../../../hooks/useAuth";
@@ -165,7 +166,7 @@ const Palmares = () => {
                     </span>
                     {item.clubName && (
                       <span className="text-[10px] md:text-xs text-slate-500">
-                        {item.clubName}
+                        {pretty(item.clubName)}
                       </span>
                     )}
                     {item.matchesCount != null && (

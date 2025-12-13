@@ -23,19 +23,19 @@
 
 - ✅ Mejorar visibilidad de la tabla
 - ✅ Poner los expulsados
-- [ ] Revisar los pj
+- ✅ Revisar los pj
 
 ### Goleadores de equipo por campeonato
 
-- [ ] Sacar _og_
+- ✅ Sacar _og_
 
 ### Goleadores rivales
 
-- [ ] separar goles de expulsados
+- ✅ separar goles de expulsados
 
 ### Palmares
 
-- [ ] Poner pretty para los equipos
+- ✅ Poner pretty para los equipos
 
 ### Formulario
 

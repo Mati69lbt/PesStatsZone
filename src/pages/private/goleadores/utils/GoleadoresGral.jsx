@@ -2,6 +2,8 @@ import React, { useMemo, useState } from "react";
 import { prettySafe } from "../../campeonatos/util/funtions";
 
 const GoleadoresGral = ({ matches }) => {
+  console.log(matches);
+
   const safeMatches = Array.isArray(matches) ? matches : [];
 
   const [ordenAmbito, setOrdenAmbito] = useState("general");
@@ -21,6 +23,9 @@ const GoleadoresGral = ({ matches }) => {
       if (g.gol) return 1;
       return 0;
     };
+
+    const esOG = (nombre) =>
+      !nombre ? false : String(nombre).toLowerCase().includes("__og__");
 
     safeMatches.forEach((p) => {
       // Determinar ámbitos del partido
@@ -45,15 +50,15 @@ const GoleadoresGral = ({ matches }) => {
       // Para evitar contar PJ más de una vez por jugador/ámbito en el mismo partido
       const pjPorJugadorEnPartido = {};
 
-      listaRaw.forEach((g) => {
-        const nombre = g?.name?.toString().trim();
-        if (!nombre) return;
+      // ✅ PJ debe salir de participación (starters + substitutes), no de goles
+      const participantes = [
+        ...(Array.isArray(p?.starters) ? p.starters : []),
+        ...(Array.isArray(p?.substitutes) ? p.substitutes : []),
+      ];
 
-        // Excluir goles en contra
-        if (g.isOwnGoal) return;
-
-        const goles = computeGolesEvento(g);
-        if (!goles) return;
+      participantes.forEach((raw) => {
+        const nombre = raw?.toString().trim();
+        if (!nombre || esOG(nombre)) return;
 
         if (!resumen[nombre]) {
           resumen[nombre] = {
@@ -68,15 +73,31 @@ const GoleadoresGral = ({ matches }) => {
           pjPorJugadorEnPartido[nombre] = new Set();
         }
 
+        ambitos.forEach((amb) => pjPorJugadorEnPartido[nombre].add(amb));
+      });
+
+      // ✅ Goles / dobletes / tripletes salen de goleadoresActiveClub
+      listaRaw.forEach((g) => {
+        const nombre = (g?.name || g?.nombre || "").toString().trim();
+        if (!nombre || esOG(nombre)) return;
+
+        const goles = computeGolesEvento(g);
+        if (!goles) return;
+
+        // asegurar estructura aunque no esté en starters/substitutes
+        if (!resumen[nombre]) {
+          resumen[nombre] = {
+            general: { pj: 0, goles: 0, x2: 0, x3: 0 },
+            local: { pj: 0, goles: 0, x2: 0, x3: 0 },
+            visitante: { pj: 0, goles: 0, x2: 0, x3: 0 },
+            neutro: { pj: 0, goles: 0, x2: 0, x3: 0 },
+          };
+        }
+
         ambitos.forEach((amb) => {
-          const slot = resumen[nombre][amb];
-
-          slot.goles += goles;
-
-          if (g.doblete) slot.x2 += 1;
-          if (g.hattrick || g.triplete) slot.x3 += 1;
-
-          pjPorJugadorEnPartido[nombre].add(amb);
+          resumen[nombre][amb].goles += goles;
+          if (goles === 2) resumen[nombre][amb].x2 += 1;
+          if (goles === 3) resumen[nombre][amb].x3 += 1;
         });
       });
 
@@ -158,7 +179,6 @@ const GoleadoresGral = ({ matches }) => {
             <option value="general">General</option>
             <option value="local">Local</option>
             <option value="visitante">Visitante</option>
-            <option value="neutro">Neutral</option>
           </select>
         </div>
 
