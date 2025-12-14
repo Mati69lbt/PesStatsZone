@@ -18,6 +18,14 @@ const Villanos = ({ matches }) => {
 
         if (!rawName) return;
 
+        const nameLower = rawName.toLowerCase();
+
+        // ✅ sacar goles "en contra"
+        if (g.isOwnGoal === true) return;
+        if (g.gol === false) return;
+        if (nameLower.includes("__og__")) return;
+        if (nameLower.includes("en contra")) return;
+
         const key = `${rawName.toLowerCase()}|${rawClub.toLowerCase()}`;
 
         if (!mapa[key]) {
@@ -68,7 +76,13 @@ const Villanos = ({ matches }) => {
       })
       .sort(
         (a, b) =>
-          b.goles - a.goles || a.nombrePretty.localeCompare(b.nombrePretty)
+          b.goles - a.goles ||
+          a.clubPretty.localeCompare(b.clubPretty, "es", {
+            sensitivity: "base",
+          }) ||
+          a.nombrePretty.localeCompare(b.nombrePretty, "es", {
+            sensitivity: "base",
+          })
       );
   }, [matches]);
 

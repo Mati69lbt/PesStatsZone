@@ -34,7 +34,9 @@ const Carniceros = ({ matches = [] }) => {
       })
       .sort(
         (a, b) =>
-          b.expulsiones - a.expulsiones || a.nombre.localeCompare(b.nombre)
+          b.expulsiones - a.expulsiones ||
+          a.club.localeCompare(b.club, "es", { sensitivity: "base" }) ||
+          a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" })
       );
   }, [matches]);
 

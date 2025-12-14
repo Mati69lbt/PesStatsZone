@@ -1,16 +1,59 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { pretty } from "../utils/pretty";
+import useAuth from "../../../../hooks/useAuth";
+import { usePartido } from "../../../../context/PartidoReducer";
+import { useLineups } from "../../../../context/LineUpProvider";
+import { useUserData } from "../../../../hooks/useUserData";
+import { normalizeName } from "../../../../utils/normalizeName";
 
 const GoleadoresRivales = ({ state, dispatch, disabled }) => {
+  /* ------ Rivales Sugeridos ------------ */
+  const { uid } = useAuth();
+  const { state: matchState, dispatch: matchDispatch } = usePartido();
+  const { state: lineupState, dispatch: lineupDispatch } = useLineups();
+  useUserData(uid, matchDispatch, lineupDispatch);
+  const [data, setData] = useState(null);
+  const clubs = Object.keys(lineupState?.lineups || []);
+  const [selectedClub, setSelectedClub] = useState(
+    lineupState?.activeClub || clubs[0] || ""
+  );
+  const clubKey = normalizeName(selectedClub || "");
+  const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
+  useEffect(() => {
+    if (!bucket) return;
+    if (Object.keys(bucket).length === 0) return;
+    setData(bucket);
+  }, [bucket]);
+  const matches = Array.isArray(data?.matches) ? data.matches : [];
+  console.log("matches", matches);
+  /* ------ Rivales Sugeridos ------------ */
+
   const rival = state.rival?.trim() || "";
   const enabled = !!rival && !disabled;
 
-  const suggestions = useMemo(() => {
-    const names = (state.goleadoresRivales || []).map((g) => g.name);
-    return Array.from(new Set(names)).sort((a, b) =>
-      a.localeCompare(b, "es", { sensitivity: "base" })
+const suggestions = useMemo(() => {
+  // 1) Sugerencias desde lo que YA cargaste en este formulario (no lo rompemos)
+  const fromState = (state.goleadoresRivales || [])
+    .map((g) => (g?.name || "").toString().trim())
+    .filter(Boolean);
+
+  // 2) Sugerencias desde historial: matches donde match.rival == rival actual
+  const rivalKey = normalizeName(rival || "");
+
+  const fromMatches = (matches || [])
+    .filter((m) => normalizeName(m?.rival || "") === rivalKey)
+    .flatMap((m) =>
+      (m?.goleadoresRivales || [])
+        .map((gr) => (gr?.name || "").toString().trim())
+        .filter(Boolean)
     );
-  }, [state.goleadoresRivales]);
+
+  // 3) Unificamos + ordenamos
+  return Array.from(new Set([...fromMatches, ...fromState])).sort((a, b) =>
+    a.localeCompare(b, "es", { sensitivity: "base" })
+  );
+}, [state.goleadoresRivales, matches, rival]);
+
 
   const [value, setValue] = useState("");
 
