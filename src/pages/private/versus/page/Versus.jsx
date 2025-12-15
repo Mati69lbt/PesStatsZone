@@ -10,6 +10,7 @@ import useAuth from "../../../../hooks/useAuth";
 import { usePartido } from "../../../../context/PartidoReducer";
 import { useUserData } from "../../../../hooks/useUserData";
 import { pretty } from "../../match/utils/pretty";
+import { Navigate } from "react-router-dom";
 
 const prettySafe = (s) =>
   typeof s === "string" && s.trim() ? pretty(s) : String(s ?? "");
@@ -40,6 +41,17 @@ const Versus = () => {
 
   const clubKey = normalizeName(selectedClub || "");
   const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
+
+  const clubData = lineupState?.lineups?.[clubKey] || {};
+  const hasPlayers = (clubData.players?.length ?? 0) > 0;
+  const hasFormations = (clubData.formations?.length ?? 0) > 0;
+  const hasPlayerStats = clubData.playersStats
+    ? Object.keys(clubData.playersStats).length > 0
+    : false;
+
+  if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
+    return <Navigate to="/formacion" replace />;
+  }
 
   useEffect(() => {
     if (!bucket) return;
@@ -179,6 +191,19 @@ const Versus = () => {
 
                     const dfTxt =
                       df > 0 ? `${df}` : df < 0 ? `${Math.abs(df)}` : "0";
+
+                    if (box.pj === 0) {
+                      return (
+                        <td
+                          key={col}
+                          className={`border px-1 py-1 text-center align-middle ${rowBg}`}
+                        >
+                          <span className="text-xl font-black text-gray-900 leading-none">
+                            —
+                          </span>
+                        </td>
+                      );
+                    }
 
                     return (
                       <td

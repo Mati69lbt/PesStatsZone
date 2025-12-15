@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { prettySafe } from "../util/funtions";
+import { borrarPartido, prettySafe } from "../util/funtions";
 import { db } from "../../../../configuration/firebase";
 import {
   collection,
@@ -105,7 +105,9 @@ const getGoleadoresPropiosTexto = (match) => {
     .map((g) => {
       const goles = calcularGolesGoleador(g);
       if (!g.name || goles <= 0) return null;
-      return `${prettySafe(g.name)} (${goles})`;
+      return goles === 1
+        ? `${prettySafe(g.name)}`
+        : `${prettySafe(g.name)} (${goles})`;
     })
     .filter(Boolean);
 
@@ -123,7 +125,9 @@ const getGoleadoresRivalesTexto = (match) => {
     .map((g) => {
       const goles = calcularGolesGoleador(g);
       if (!g.name || goles <= 0) return null;
-      return `${prettySafe(g.name)} (${goles})`;
+      return goles === 1
+        ? `${prettySafe(g.name)}`
+        : `${prettySafe(g.name)} (${goles})`;
     })
     .filter(Boolean);
 
@@ -316,6 +320,8 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
     return null;
   }
 
+  console.log(matches);
+
   return (
     <div className="mt-8">
       <h2 className="text-lg md:text-xl font-bold mb-4 text-center">
@@ -377,6 +383,13 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                       <th className="border border-slate-200 px-2 py-1 text-center  lg:w-[250px]">
                         Resultado
                       </th>
+                      <th className="border border-slate-200 px-2 py-1 text-center  lg:w-[60px]">
+                        <img
+                          src="penc.png"
+                          alt="Editar"
+                          className="inline-block h-10 w-10"
+                        />
+                      </th>
                       <th className="border border-slate-200 px-2 py-1 text-center  lg:w-[80px]">
                         Condición
                       </th>
@@ -388,6 +401,13 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                       </th>
                       <th className="border border-slate-200 px-2 py-1 text-center">
                         Goles rival
+                      </th>
+                      <th className="border border-slate-200 px-2 py-1 text-center">
+                        <img
+                          src="basu.png"
+                          alt="Borrar"
+                          className="inline-block h-10 w-10 align-middle"
+                        />
                       </th>
                     </tr>
                   </thead>
@@ -417,6 +437,15 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                             {prettySafe(m.resultMatch || "")}
                           </span>
                         </td>
+                        <td className="border border-slate-200 px-2 py-1 text-center">
+                          <button>
+                            <img
+                              src="pencil.png"
+                              alt="Editar"
+                              className="inline-block h-6 w-6"
+                            />
+                          </button>
+                        </td>
 
                         {/* Condición */}
                         <td className="border border-slate-200 px-2 py-1 text-center">
@@ -434,6 +463,22 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                         </td>
                         <td className="border border-slate-200 px-2 py-1 text-left">
                           {getGoleadoresRivalesTexto(m)}
+                        </td>
+                        <td className="border border-slate-200 px-2 py-1 text-center">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              borrarPartido({ match: m, uid, clubKey })
+                            }
+                            className="inline-flex items-center justify-center"
+                            title="Borrar partido"
+                          >
+                            <img
+                              src="bas.png"
+                              alt="Borrar"
+                              className="inline-block h-6 w-6"
+                            />
+                          </button>
                         </td>
                       </tr>
                     ))}

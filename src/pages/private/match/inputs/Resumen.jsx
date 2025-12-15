@@ -109,7 +109,7 @@ const Resumen = ({ state, activeClub }) => {
     .filter((g) => !(g.expulsion || g.expulsado))
     .map((g) => {
       const goles = goalsFromFlags(g);
-      const sufGoles = goles > 0 ? ` (${goles})` : "";
+      const sufGoles = goles > 1 ? ` (${goles})` : "";
       const sufOG =
         g?.enContra || g?.autogol || g?.og || g?.ogContra ? " (EC)" : "";
       return `${pretty(g.name)}${sufGoles}${sufOG}`;

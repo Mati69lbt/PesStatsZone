@@ -1,4 +1,7 @@
 import { pretty } from "../../match/utils/pretty";
+import Notiflix from "notiflix";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../configuration/firebase";
 
 // cspell: ignore Segun Yefectividad anio
 export const prettySafe = (s) =>
@@ -54,4 +57,43 @@ export function puntosYefectividad(box) {
   const posibles = box.pj * 3;
   const efectividad = posibles > 0 ? (puntos / posibles).toFixed(2) : "0.00";
   return { puntos, efectividad };
+}
+
+export function borrarPartido({ match, uid, clubKey }) {
+  if (!match?.id) {
+    Notiflix.Notify.failure("No se encontró el ID del partido.");
+    return;
+  }
+
+  Notiflix.Confirm.show(
+    "Borrar Partido",
+    `¿Estás seguro de borrar el partido de ${match.condition} vs ${prettySafe(
+      match.rival || ""
+    )}?`,
+    "Sí",
+    "No",
+    async () => {
+      try {
+        const userRef = doc(db, "users", uid);
+
+        const snap = await getDoc(userRef);
+        const data = snap.data() || {};
+
+        const key = clubKey || match.club; // usamos el mismo clubKey que ya le pasás desde CampDesgl
+        const current = data?.lineups?.[key]?.matches || [];
+
+        const next = current.filter((m) => m?.id !== match.id);
+
+        await updateDoc(userRef, {
+          [`lineups.${key}.matches`]: next,
+        });
+
+        Notiflix.Notify.success("Partido borrado con éxito.");
+      } catch (e) {
+        console.error(e);
+        Notiflix.Notify.failure("No se pudo borrar el partido.");
+      }
+    },
+    () => Notiflix.Notify.info("El partido no se borró")
+  );
 }

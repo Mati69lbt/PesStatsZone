@@ -29,6 +29,27 @@ const TeamForm = () => {
 
   const [teamName, setTeamName] = useState(form.teamName || "");
 
+  // ✅ Valor controlado solo para el input de "playerName" (sin sacar useForm)
+  const [playerName, setPlayerName] = useState(form.playerName || "");
+
+  // form “compat” que ve InputNewPlayer
+  const formNewPlayer = { ...form, playerName };
+
+  // wrappers (InputNewPlayer sigue recibiendo las mismas props)
+  const changedNewPlayer = (e) => {
+    if (e?.target?.name === "playerName") {
+      setPlayerName(e.target.value);
+    }
+    changed(e); // seguimos usando useForm
+  };
+
+  const setValueNewPlayer = (field, value) => {
+    if (field === "playerName") {
+      setPlayerName(value ?? "");
+    }
+    setValue(field, value); // seguimos usando useForm
+  };
+
   const { state: lineupState, dispatch } = useLineups();
   const {
     captainName = "",
@@ -92,11 +113,11 @@ const TeamForm = () => {
             <InputNewPlayer
               activeClub={activeClub}
               lineups={lineups}
-              form={form}
-              changed={changed}
+              form={formNewPlayer}
+              changed={changedNewPlayer}
               players={clubPlayers}
               dispatch={dispatch}
-              setValue={setValue}
+              setValue={setValueNewPlayer}
             />
 
             <PlayersLists

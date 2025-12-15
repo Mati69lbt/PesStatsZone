@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import handleAddPlayer from "../util/handleAddPlayer";
 
 const InputNewPlayer = ({
@@ -10,6 +10,13 @@ const InputNewPlayer = ({
   activeClub,
   lineups,
 }) => {
+  const [localPlayerName, setLocalPlayerName] = useState(
+    form?.playerName || ""
+  );
+
+  useEffect(() => {
+    setLocalPlayerName(form?.playerName || "");
+  }, [form?.playerName]);
   return (
     <div>
       <label htmlFor="playerName">Jugadores</label>
@@ -18,20 +25,24 @@ const InputNewPlayer = ({
           type="text"
           name="playerName"
           id="playerName"
-          value={form.playerName || ""}
-          onChange={changed}
+          value={localPlayerName}
+          onChange={(e) => {
+            setLocalPlayerName(e.target.value);
+            changed?.(e); // seguimos llamando tu useForm
+          }}
           className="w-full p-2 border rounded"
           placeholder="Añadir jugador"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
               handleAddPlayer({
-                name: form.playerName,
+                name: localPlayerName,
                 activeClub, // viene por props
                 lineups, // viene por props
                 dispatch, // viene por props
                 setValue,
               });
+              setLocalPlayerName(""); // opcional: limpiar visual
             }
           }}
         />
@@ -39,7 +50,7 @@ const InputNewPlayer = ({
           type="button"
           onClick={() =>
             handleAddPlayer({
-              name: form.playerName,
+              name: localPlayerName,
               activeClub, // viene por props
               lineups, // viene por props
               dispatch, // viene por props

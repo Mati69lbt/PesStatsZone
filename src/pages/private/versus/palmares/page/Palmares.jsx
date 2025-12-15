@@ -1,10 +1,15 @@
 // cspell: ignore Palmares
 import React, { useEffect, useMemo, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { pretty } from "../../../match/utils/pretty";
 
 import { collection, getDocs, query, where } from "firebase/firestore";
 import useAuth from "../../../../../hooks/useAuth";
 import { db } from "../../../../../configuration/firebase";
+import { useLineups } from "../../../../../context/LineUpProvider";
+import { useLineupsData } from "../../../../../hooks/useLineupsData";
+import { usePartido } from "../../../../../context/PartidoReducer";
+import { normalizeName } from "../../../../../utils/normalizeName";
 
 // Badge de color según resultado del campeonato
 const getResultadoBadgeClasses = (resultado) => {
@@ -49,6 +54,21 @@ const Palmares = () => {
   const { uid } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const { state: matchState, dispatch: matchDispatch } = usePartido();
+  const { state: lineupState, dispatch: lineupDispatch } = useLineupsData();
+  const rawClub = lineupState?.activeClub || matchState?.activeClub || "";
+  const clubKey = normalizeName ? normalizeName(rawClub) : rawClub;
+  const clubData = lineupState?.lineups?.[clubKey] || {};
+  const hasPlayers = (clubData.players?.length ?? 0) > 0;
+  const hasFormations = (clubData.formations?.length ?? 0) > 0;
+  const hasPlayerStats = clubData.playersStats
+    ? Object.keys(clubData.playersStats).length > 0
+    : false;
+
+  if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
+    return <Navigate to="/formacion" replace />;
+  }
 
   // Traer palmarés de Firebase para el usuario logueado
   useEffect(() => {

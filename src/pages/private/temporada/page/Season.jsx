@@ -20,6 +20,7 @@ import {
 } from "../utils/Funciones";
 import { pretty } from "../../match/utils/pretty";
 import TopGoleadores from "./Goleadores";
+import { Navigate } from "react-router-dom";
 
 const metricToKey = {
   PJ: "pj",
@@ -65,6 +66,17 @@ const Season = () => {
 
   const clubKey = normalizeName(selectedClub || "");
   const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
+
+  const clubData = lineupState?.lineups?.[clubKey] || {};
+  const hasPlayers = (clubData.players?.length ?? 0) > 0;
+  const hasFormations = (clubData.formations?.length ?? 0) > 0;
+  const hasPlayerStats = clubData.playersStats
+    ? Object.keys(clubData.playersStats).length > 0
+    : false;
+
+  if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
+    return <Navigate to="/formacion" replace />;
+  }
 
   useEffect(() => {
     if (!bucket) return;
@@ -234,7 +246,7 @@ const Season = () => {
                       className="px-2 py-2 text-center border-b border-slate-200"
                       colSpan={14}
                     >
-                      General / Neutral
+                      {clubKey}
                     </th>
                   </tr>
                   <tr>
@@ -331,7 +343,7 @@ const Season = () => {
                         {/* Headers L/V */}
                         <tr className="bg-slate-50">
                           <td className="border-r border-slate-200 px-2 py-1 text-[10px] uppercase text-slate-600">
-                            Detalle
+                            Condición
                           </td>
                           <BloqueHeader
                             etiquetas={["Local", "Visitante"]}

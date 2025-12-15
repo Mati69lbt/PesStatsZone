@@ -7,6 +7,7 @@ import useAuth from "../../../../hooks/useAuth";
 import { buildBreakdown, emptyRow, emptyTriple } from "../utils/funtions";
 import StatsTable from "../utils/StatsTable";
 import { pretty } from "../../match/utils/pretty";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const Analysis = () => {
   const { uid } = useAuth();
@@ -32,6 +33,20 @@ const Analysis = () => {
   }, [bucket]);
 
   const matches = Array.isArray(data?.matches) ? data.matches : [];
+
+ 
+
+  const clubData = lineupState?.lineups?.[clubKey] || {};
+  const hasPlayers = (clubData.players?.length ?? 0) > 0;
+  const hasFormations = (clubData.formations?.length ?? 0) > 0;
+  const hasPlayerStats = clubData.playersStats
+    ? Object.keys(clubData.playersStats).length > 0
+    : false;
+
+  if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
+    return <Navigate to="/formacion" replace />;
+  }
+
 
   const { captains, tournamentsOrdered } = useMemo(
     () => buildBreakdown(matches),

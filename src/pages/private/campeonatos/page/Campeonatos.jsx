@@ -13,6 +13,7 @@ import {
   puntosYefectividad,
 } from "../util/funtions";
 import CampDesgl from "../util/CampDesgl";
+import { Navigate } from "react-router-dom";
 
 const Campeonatos = () => {
   const { uid } = useAuth();
@@ -32,6 +33,17 @@ const Campeonatos = () => {
 
   const resumenes = useRessumenesMemo(matches);
   const clavesOrdenadas = useClavesOrdenadasMemo(resumenes, orden);
+
+    const clubData = lineupState?.lineups?.[clubKey] || {};
+    const hasPlayers = (clubData.players?.length ?? 0) > 0;
+    const hasFormations = (clubData.formations?.length ?? 0) > 0;
+    const hasPlayerStats = clubData.playersStats
+      ? Object.keys(clubData.playersStats).length > 0
+      : false;
+
+    if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
+      return <Navigate to="/formacion" replace />;
+    }
 
   return (
     <div className="p-4 max-w-screen-2xl mx-auto">

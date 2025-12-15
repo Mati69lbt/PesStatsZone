@@ -9,6 +9,7 @@ import GoleadoresGral from "../utils/GoleadoresGral";
 import Villanos from "../utils/Villanos";
 import Expulsados from "../utils/Expulsados";
 import Carniceros from "../utils/Carniceros";
+import { Navigate } from "react-router-dom";
 
 const prettySafe = (str) => {
   if (!str) return "";
@@ -35,6 +36,17 @@ const Scorers = () => {
 
   const clubKey = normalizeName(selectedClub || "");
   const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
+
+  const clubData = lineupState?.lineups?.[clubKey] || {};
+  const hasPlayers = (clubData.players?.length ?? 0) > 0;
+  const hasFormations = (clubData.formations?.length ?? 0) > 0;
+  const hasPlayerStats = clubData.playersStats
+    ? Object.keys(clubData.playersStats).length > 0
+    : false;
+
+  if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
+    return <Navigate to="/formacion" replace />;
+  }
 
   useEffect(() => {
     if (!bucket) return;

@@ -44,3 +44,9 @@
 ### Importante
 
 - [ ] Revisar como se suman los partidos jugados de los jugadores propios
+- [ ] Poner para borrar partidos
+- [ ] Poner para editar partidos
+
+
+mati69@hotmail.com
+matias
