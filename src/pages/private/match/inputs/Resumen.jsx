@@ -82,8 +82,7 @@ const Section = ({ title, children }) => (
   </div>
 );
 
-const Resumen = ({ state, activeClub }) => {
-  console.log("state", state);
+const Resumen = ({ state, activeClub }) => { 
   const rivalName = state?.rival || "Rival";
 
   const torneoDisplay =

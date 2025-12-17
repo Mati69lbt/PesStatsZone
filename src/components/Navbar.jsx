@@ -31,12 +31,16 @@ export default function Navbar() {
     const evaluarPantalla = () => {
       const ancho = window.innerWidth;
       const alto = window.innerHeight;
-      setForzarHamburguesa(ancho < 933 || alto < 431);
+      setForzarHamburguesa(ancho < 1024 || alto < 432);
     };
 
     evaluarPantalla(); // al cargar
     window.addEventListener("resize", evaluarPantalla);
-    return () => window.removeEventListener("resize", evaluarPantalla);
+    window.addEventListener("orientationchange", evaluarPantalla);
+    return () => {
+      window.removeEventListener("resize", evaluarPantalla);
+      window.removeEventListener("orientationchange", evaluarPantalla);
+    };
   }, []);
 
   const isActivePath = (path) =>
@@ -160,7 +164,7 @@ export default function Navbar() {
           >
             ⚽ Pes Stats Zone
           </span>
-          <div className="space-x-2 text-sm flex">
+         <div className="text-sm flex flex-wrap gap-2">
             {links.map(({ path, label }) => (
               <Link
                 key={path}
@@ -275,7 +279,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 006.02</span>
+                <span>Versión: 006.04</span>
               </div>
             </div>
           </div>
@@ -284,6 +288,3 @@ export default function Navbar() {
     </nav>
   );
 }
-
-
-

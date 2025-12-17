@@ -10,35 +10,35 @@ const useUpdateLineup = (uid, activeClub, lineups, players) => {
 
   useEffect(() => {
     if (!uid) {
-      console.log("[SYNC] skip: !uid");
+      console.debug("[SYNC] skip: !uid");
       return;
     }
     if (!activeClub) {
-      console.log("[SYNC] skip: !activeClub");
+      console.debug("[SYNC] skip: !activeClub");
       return;
     }
 
     const clubKey = normalizeName(activeClub);
     if (!clubKey) {
-      console.log("[SYNC] skip: !clubKey (normalizeName dio vacío)");
+      console.debug("[SYNC] skip: !clubKey (normalizeName dio vacío)");
       return;
     }
 
     if (!Array.isArray(players)) {
-      console.log("[SYNC] skip: !Array.isArray(players)", { players });
+      console.debug("[SYNC] skip: !Array.isArray(players)", { players });
       return;
     }
 
     const playersNorm = [...new Set(players.map(normalizeName))];
     if (playersNorm.length === 0) {
-      console.log("[SYNC] skip: playersNorm vacío, no subo nada");
+      console.debug("[SYNC] skip: playersNorm vacío, no subo nada");
       return;
     }
 
     const payloadJson = JSON.stringify(playersNorm);
     const prev = lastSentRef.current;
     if (prev.clubKey === clubKey && prev.playersJson === payloadJson) {
-      console.log("[SYNC] skip: mismo payload que el último write");
+      console.debug("[SYNC] skip: mismo payload que el último write");
       return;
     }
 
@@ -51,7 +51,7 @@ const useUpdateLineup = (uid, activeClub, lineups, players) => {
         lastSentRef.current = { clubKey, playersJson: payloadJson };
         Notiflix.Notify.success("Plantel sincronizado");      
       } catch (e) {
-        console.log("[SYNC] FAIL", e);
+        console.debug("[SYNC] FAIL", e);
         Notiflix.Notify.failure("No se pudo sincronizar el plantel");
       }
     })();

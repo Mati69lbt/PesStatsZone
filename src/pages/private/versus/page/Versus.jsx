@@ -245,7 +245,7 @@ const Versus = () => {
                               <span className="text-gray-400">·</span>
                               <span>GC</span>
                               <span className="text-gray-400">·</span>
-                              <span className>DF</span>
+                              <span>DF</span>
                             </div>
                             <div className="font-bold tabular-nums flex items-center gap-2 lg:gap-4">
                               <span>{box.pj}</span>
