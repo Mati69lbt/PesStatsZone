@@ -91,7 +91,7 @@ const TeamForm = () => {
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Columna 1: Header  Club  Jugadores  Nueva formación */}
         <div className="space-y-2">
           <div className="bg-white shadow-md rounded-xl p-6 space-y-4">

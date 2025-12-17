@@ -43,8 +43,10 @@ export default function Navbar() {
     location.pathname === path || location.pathname.startsWith(path + "/");
 
   const iconClass = (path) =>
-    `inline-block origin-center transition-transform duration-150 ${
-      isActivePath(path) ? "scale-150" : "scale-100"
+    `inline-flex items-center justify-center w-14 h-14 rounded-full transition-all duration-150 ${
+      isActivePath(path)
+        ? "ring-3 ring-blue-900 ring-offset-2 ring-offset-white"
+        : "ring-0"
     }`;
 
   const linkClass = () => "block px-4 py-2 rounded transition text-gray-700";
@@ -153,7 +155,7 @@ export default function Navbar() {
       {!forzarHamburguesa && (
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <span
-            className="text-xl font-bold text-blue-600 whitespace-nowrap cursor-pointer"
+            className="text-3xl font-bold text-blue-600 whitespace-nowrap cursor-pointer"
             onClick={recargarDatos}
           >
             ⚽ Pes Stats Zone
@@ -214,7 +216,7 @@ export default function Navbar() {
             className="bg-white w-full h-full p-6 shadow-lg flex flex-col items-end overflow-y-auto max-h-screen"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-6 text-xl font-bold text-blue-600 flex items-center gap-2 w-full justify-end">
+            <div className="mb-6 text-2xl font-bold text-blue-600 flex items-center gap-2 w-full justify-end">
               ⚽ Pes Stats Zone
               <button
                 className="ml-2 text-gray-400 text-2xl"
@@ -282,3 +284,6 @@ export default function Navbar() {
     </nav>
   );
 }
+
+
+

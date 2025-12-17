@@ -1,54 +1,22 @@
+
 # TODO
-
-### Navbar
-
-- ✅ Poner el Navbar Active
-- ✅ Poner los iconos mas grandes en pantallas pequeñas
-
-## Estadísticas del equipo
-
-- ✅ Arreglando la tabla
-
-### Análisis
-
-- ✅ Centrar análisis
-
-### Campeonato
-
-- ✅ Achicar las tablas
-- ✅ Poner los años de los campeonatos
-
-### Goleadores de equipo
-
-- ✅ Mejorar visibilidad de la tabla
-- ✅ Poner los expulsados
-- ✅ Revisar los pj
-
-### Goleadores de equipo por campeonato
-
-- ✅ Sacar _og_
-
-### Goleadores rivales
-
-- ✅ separar goles de expulsados
-
-### Palmares
-
-- ✅ Poner pretty para los equipos
-
-### Formulario
-
-- ✅ Revisar los jugadores rivales predictivos, no salen
 
 ### Importante
 
-- ✅ Revisar como se suman los partidos jugados de los jugadores propios
-- ✅Poner para borrar partidos
-- [ ] Poner para editar partidos
+- [ ] Editar formulario
 
-### Temporadas
-- [] 
+### Navbar
+- ✅ Poner un circulo indicando el navbar activo
 
+### /Formación
+- [ ] que se vea bien en el celular apaisado
+
+### /Temporadas
+- [ ] Arreglar el cuadro para q se vea bien en celulares
+
+### /Goleadores
+- [ ] Sacar los jugadores q no marcaron goles
+- [ ] Si los jugadores tienen la misma cantidad de goles, q se ordenen alfabeticamente
 
 mati69@hotmail.com
 matias
