@@ -171,7 +171,7 @@ const TeamForm = () => {
             </div>
           ) : // Placeholder ligero cuando no hay formulario abierto (solo desktop)
           clubPlayers.length !== 0 ? (
-            <div className="hidden md:block text-xs text-gray-500">
+            <div className="hidden lg:block text-xs text-gray-500">
               Tocá <strong>Nueva formación</strong> para empezar a armar el
               equipo.
             </div>
