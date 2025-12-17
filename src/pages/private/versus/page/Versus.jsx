@@ -136,6 +136,7 @@ const Versus = () => {
             <option value="p">P</option>
             <option value="gf">GF</option>
             <option value="gc">GC</option>
+            <option value="df">DF</option>
           </select>
         </div>
 
@@ -171,86 +172,103 @@ const Versus = () => {
             </tr>
           </thead>
           <tbody>
-            {estadisticas.map(([rival, stats], index) => {
-              const rowBg = index % 2 === 0 ? "bg-white" : "bg-gray-200";
-              return (
-                <tr key={rival} className={rowBg}>
-                  <td className="border px-2 py-2 font-semibold text-left">
-                    <div title={rival}>{rival}</div>
-                  </td>
-                  {columnas.map((col) => {
-                    const box = stats[col] || emptyBox();
-                    const bg = box.pj > 0 ? getColorSegunResultado(box) : rowBg;
-                    const df = box.gf - box.gc;
-                    const dfClass =
-                      df > 0
-                        ? "text-green-800"
-                        : df < 0
-                        ? "text-red-800"
-                        : "text-gray-700";
+            {!Array.isArray(estadisticas) || estadisticas.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={1 + columnas.length}
+                  className="border px-3 py-6 text-center text-gray-500 font-semibold"
+                >
+                  Sin datos
+                </td>
+              </tr>
+            ) : (
+              estadisticas.map(([rival, stats], index) => {
+                const rowBg = index % 2 === 0 ? "bg-white" : "bg-gray-200";
+                return (
+                  <tr key={rival} className={rowBg}>
+                    <td className="border px-2 py-2 font-semibold text-left">
+                      <div title={rival}>{rival}</div>
+                    </td>
+                    {columnas.map((col) => {
+                      const box = stats[col] || emptyBox();
+                      const bg =
+                        box.pj > 0 ? getColorSegunResultado(box) : rowBg;
+                      const df = box.gf - box.gc;
+                      const dfClass =
+                        df > 0
+                          ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500"
+                          : df < 0
+                          ? "bg-rose-50 text-rose-800 ring-1 ring-rose-500"
+                          : "bg-slate-50 text-slate-700 ring-1 ring-slate-200";
 
-                    const dfTxt =
-                      df > 0 ? `${df}` : df < 0 ? `${Math.abs(df)}` : "0";
+                      const dfTxt =
+                        df > 0 ? `${df}` : df < 0 ? `${Math.abs(df)}` : "0";
 
-                    if (box.pj === 0) {
+                      if (box.pj === 0) {
+                        return (
+                          <td
+                            key={col}
+                            className={`border px-1 py-1 text-center align-middle ${rowBg}`}
+                          >
+                            <span className="text-xl font-black text-gray-900 leading-none">
+                              —
+                            </span>
+                          </td>
+                        );
+                      }
+
                       return (
                         <td
                           key={col}
-                          className={`border px-1 py-1 text-center align-middle ${rowBg}`}
+                          className={`border px-1 py-1 whitespace-pre-line text-center align-top ${bg}`}
                         >
-                          <span className="text-xl font-black text-gray-900 leading-none">
-                            —
-                          </span>
+                          <div className="flex flex-col items-center leading-tight">
+                            {/* Línea 1: G-E-P grande */}
+                            <div className="text-[12px] text-gray-500 flex items-center gap-3 lg:gap-5">
+                              <span>G</span>
+                              <span className="text-gray-400">·</span>
+                              <span>E</span>
+                              <span className="text-gray-400">·</span>
+                              <span>P</span>
+                            </div>
+                            <div className="font-bold tabular-nums flex items-center gap-3 lg:gap-4">
+                              <span>{box.g}</span>
+                              <span className="text-gray-400">·</span>
+                              <span>{box.e}</span>
+                              <span className="text-gray-400">·</span>
+                              <span>{box.p}</span>
+                            </div>
+                            <div className="text-[12px] text-gray-500 flex items-center gap-1 lg:gap-3">
+                              <span>PJ</span>
+                              <span className="text-gray-400">·</span>
+                              <span>GF</span>
+                              <span className="text-gray-400">·</span>
+                              <span>GC</span>
+                              <span className="text-gray-400">·</span>
+                              <span className>DF</span>
+                            </div>
+                            <div className="font-bold tabular-nums flex items-center gap-2 lg:gap-4">
+                              <span>{box.pj}</span>
+                              <span className="text-gray-400">·</span>
+                              <span>{box.gf}</span>
+                              <span className="text-gray-400">·</span>
+                              <span>{box.gc}</span>
+                              <span className="text-gray-400">·</span>
+                              <span
+                                className={`px-1 py-0.5 rounded-full font-semibold tabular-nums ${dfClass}`}
+                              >
+                                {df > 0 ? "+" : ""}
+                                {df}
+                              </span>
+                            </div>
+                          </div>
                         </td>
                       );
-                    }
-
-                    return (
-                      <td
-                        key={col}
-                        className={`border px-1 py-1 whitespace-pre-line text-center align-top ${bg}`}
-                      >
-                        <div className="flex flex-col items-center leading-tight">
-                          {/* Línea 1: G-E-P grande */}
-                          <div className="text-[12px] text-gray-500 flex items-center gap-3 lg:gap-5">
-                            <span>G</span>
-                            <span className="text-gray-400">·</span>
-                            <span>E</span>
-                            <span className="text-gray-400">·</span>
-                            <span>P</span>
-                          </div>
-                          <div className="font-bold tabular-nums flex items-center gap-3 lg:gap-4">
-                            <span>{box.g}</span>
-                            <span className="text-gray-400">·</span>
-                            <span>{box.e}</span>
-                            <span className="text-gray-400">·</span>
-                            <span>{box.p}</span>
-                          </div>
-                          <div className="text-[12px] text-gray-500 flex items-center gap-1 lg:gap-3">
-                            <span>PJ</span>
-                            <span className="text-gray-400">·</span>
-                            <span>GF</span>
-                            <span className="text-gray-400">·</span>
-                            <span>GC</span>
-                            <span className="text-gray-400">·</span>
-                            <span className>DF</span>
-                          </div>
-                          <div className="font-bold tabular-nums flex items-center gap-2 lg:gap-4">
-                            <span>{box.pj}</span>
-                            <span className="text-gray-400">·</span>
-                            <span>{box.gf}</span>
-                            <span className="text-gray-400">·</span>
-                            <span>{box.gc}</span>
-                            <span className="text-gray-400">·</span>
-                            <span className={dfClass}>{dfTxt}</span>
-                          </div>
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
+                    })}
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

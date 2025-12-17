@@ -204,7 +204,7 @@ const saveResultadoEnPalmares = async ({ uid, clubKey, camp, value }) => {
     await setDoc(ref, payload, { merge: true });
 
     Notiflix.Notify.success("Palmarés guardado");
-    console.log("Guardado en palmares:", payload);
+
   } catch (error) {
     Notiflix.Notify.failure("Error al guardar palmarés");
     console.log("error: ", error);
@@ -319,8 +319,6 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
   if (!matches.length) {
     return null;
   }
-
-  console.log(matches);
 
   return (
     <div className="mt-8">

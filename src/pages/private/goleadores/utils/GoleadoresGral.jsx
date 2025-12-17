@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import { prettySafe } from "../../campeonatos/util/funtions";
 
 const GoleadoresGral = ({ matches }) => {
-  console.log(matches);
 
   const safeMatches = Array.isArray(matches) ? matches : [];
 

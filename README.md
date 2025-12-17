@@ -12,7 +12,6 @@
 ### Análisis
 
 - ✅ Centrar análisis
-- [ ] Solamente general, ver los partidos jugados, ganados, empatados, perdidos, goles, etc de cada jugador
 
 ### Campeonato
 
@@ -39,13 +38,16 @@
 
 ### Formulario
 
-- [ ] Revisar los jugadores rivales predictivos, no salen
+- ✅ Revisar los jugadores rivales predictivos, no salen
 
 ### Importante
 
-- [ ] Revisar como se suman los partidos jugados de los jugadores propios
-- [ ] Poner para borrar partidos
+- ✅ Revisar como se suman los partidos jugados de los jugadores propios
+- ✅Poner para borrar partidos
 - [ ] Poner para editar partidos
+
+### Temporadas
+- [] 
 
 
 mati69@hotmail.com

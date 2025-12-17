@@ -16,8 +16,7 @@ export const fetchUserData = async (uid, matchDispatch, lineupDispatch) => {
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-      const data = userSnap.data();
-      console.log("[Partido] datos usuario:", data);
+      const data = userSnap.data();   
 
       const { lineups, torneosIndex, rivalesIndex } = data || {};
       const clubKey = normalizeName(data?.activeClub);

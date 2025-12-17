@@ -50,6 +50,29 @@ const Chips = ({ items, tone = "slate" }) => {
   );
 };
 
+function fmtDateDMY(v) {
+  if (!v) return "";
+  const s = String(v).trim();
+  const datePart = s.split("T")[0]; // por si viene ISO
+
+  // YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+    const [y, m, d] = datePart.split("-");
+    return `${d}/${m}/${y}`;
+  }
+
+  // YYYY/MM/DD
+  if (/^\d{4}\/\d{2}\/\d{2}$/.test(datePart)) {
+    const [y, m, d] = datePart.split("/");
+    return `${d}/${m}/${y}`;
+  }
+
+  // ya viene DD/MM/YYYY
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(datePart)) return datePart;
+
+  return s; // fallback
+}
+
 const Section = ({ title, children }) => (
   <div className="space-y-1.5">
     <div className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
@@ -60,6 +83,7 @@ const Section = ({ title, children }) => (
 );
 
 const Resumen = ({ state, activeClub }) => {
+  console.log("state", state);
   const rivalName = state?.rival || "Rival";
 
   const torneoDisplay =
@@ -89,10 +113,35 @@ const Resumen = ({ state, activeClub }) => {
   ).toLowerCase();
 
   // línea de resultado (solo texto)
-  const resultado =
-    condition === "visitante"
-      ? `${rivalName} ${rivalGoals} - ${ownGoals} ${pretty(activeClub)}`
-      : `${pretty(activeClub)} ${ownGoals} - ${rivalGoals} ${rivalName}`;
+  const isVisitante = condition === "visitante";
+  const activeName = pretty(activeClub);
+
+  const localTeam = isVisitante ? rivalName : activeName;
+  const awayTeam = isVisitante ? activeName : rivalName;
+
+  const localGoals = isVisitante ? rivalGoals : ownGoals;
+  const awayGoals = isVisitante ? ownGoals : rivalGoals;
+
+  const marcador = (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+      {/* Local arriba */}
+      <div className="text-center text-xl font-semibold text-slate-800">
+        {localTeam}
+      </div>
+
+      {/* Resultado */}
+      <div className="my-2 text-center">
+        <div className="text-4xl font-bold tabular-nums text-slate-900">
+          {localGoals} - {awayGoals}
+        </div>
+      </div>
+
+      {/* Visitante abajo */}
+      <div className="text-center text-xl font-semibold text-slate-800">
+        {awayTeam}
+      </div>
+    </div>
+  );
 
   // textos de incidencias (como arrays para chips)
   const propiosArr = (own || [])
@@ -103,7 +152,7 @@ const Resumen = ({ state, activeClub }) => {
         g.isOwnGoal || g.name === "__OG__" ? "Gol en contra" : pretty(g.name);
       return goles > 1 ? `${label} (${goles})` : label;
     });
-    
+
   // mostramos al rival con sufijo " (EC)" si fue en contra
   const rivalesArr = (Array.isArray(rivals) ? rivals : [])
     .filter((g) => !(g.expulsion || g.expulsado))
@@ -117,46 +166,77 @@ const Resumen = ({ state, activeClub }) => {
   const expPropiosArr = fmtExpulsados(own);
   const expRivalesArr = fmtExpulsados(rivals);
 
+  const fechaDisplay = fmtDateDMY(
+    state?.fecha || state?.date || state?.fechaPartido || ""
+  );
+  const captain = state?.captain || state?.capitan || "";
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm space-y-5">
-      {/* Torneo arriba */}
-      {torneoDisplay ? (
-        <div className="flex items-center justify-between">
-          <span className="text-xs px-2 py-1 rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-200">
-            {pretty(torneoDisplay)}
-          </span>
+      <div className="w-full grid grid-cols-2 gap-2">
+        {/* Izquierda: Torneo arriba / Fecha abajo */}
+        <div className="flex flex-col gap-2 items-start min-w-0">
+          {torneoDisplay ? (
+            <span className="text-xs px-2 py-1 rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-200">
+              {pretty(torneoDisplay)}
+            </span>
+          ) : null}
+
+          {fechaDisplay ? (
+            <span className="text-xs px-2 py-1 rounded-full bg-slate-50 text-slate-700 ring-1 ring-slate-200">
+              {fechaDisplay}
+            </span>
+          ) : null}
         </div>
-      ) : null}
-      {/* Header resultado */}
-      <div className="flex items-center justify-between">
-        <div className="text-xl sm:text-2xl font-bold text-slate-800">
-          {resultado}
-        </div>
-        {condition !== "neutro" && (
+
+        {/* Derecha: Condición arriba / Capitán abajo */}
+        <div className="flex flex-col gap-2 items-end min-w-0">
           <span className="text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-200">
-            {condition === "visitante" ? "Visitante" : "Local"}
+            {condition !== "neutro"
+              ? condition === "visitante"
+                ? "Visitante"
+                : "Local"
+              : "Neutro"}
           </span>
-        )}
+
+          {captain ? (
+            <span className="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+              Capitán: {pretty(captain)}
+            </span>
+          ) : null}
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Section title={`Goleadores ${pretty(activeClub)}`}>
-          <Chips items={propiosArr} />
-        </Section>
+      {marcador}
 
-        <Section title={`Goleadores ${rivalName}`}>
-          <Chips items={rivalesArr} />
-        </Section>
+      {/* GOLEADORES (fila 1) */}
+      <div className="grid grid-cols-2 gap-6 items-stretch">
+        <div className="h-full">
+          <Section title={`Goleadores ${pretty(activeClub)}`}>
+            <Chips items={propiosArr} />
+          </Section>
+        </div>
+
+        <div className="h-full">
+          <Section title={`Goleadores ${rivalName}`}>
+            <Chips items={rivalesArr} />
+          </Section>
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Section title={`Expulsados ${pretty(activeClub)}`}>
-          <Chips items={expPropiosArr} tone="red" />
-        </Section>
+      {/* EXPULSADOS (fila 2) */}
+      <div className="grid grid-cols-2  gap-6 items-stretch">
+        <div className="h-full">
+          <Section title={`Expulsados ${pretty(activeClub)}`}>
+            <Chips items={expPropiosArr} tone="red" />
+          </Section>
+        </div>
 
-        <Section title={`Expulsados ${rivalName}`}>
-          <Chips items={expRivalesArr} tone="red" />
-        </Section>
+        <div className="h-full">
+          <Section title={`Expulsados ${rivalName}`}>
+            <Chips items={expRivalesArr} tone="red" />
+          </Section>
+        </div>
       </div>
     </div>
   );

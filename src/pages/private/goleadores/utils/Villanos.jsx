@@ -2,6 +2,8 @@ import React, { useMemo } from "react";
 import { prettySafe } from "../../campeonatos/util/funtions";
 
 const Villanos = ({ matches }) => {
+
+
   const villanos = useMemo(() => {
     const mapa = {};
 
@@ -22,7 +24,8 @@ const Villanos = ({ matches }) => {
 
         // ✅ sacar goles "en contra"
         if (g.isOwnGoal === true) return;
-        if (g.gol === false) return;
+        const hizoAlgoDeGol = !!(g.gol || g.doblete || g.triplete);
+        if (!hizoAlgoDeGol) return;
         if (nameLower.includes("__og__")) return;
         if (nameLower.includes("en contra")) return;
 

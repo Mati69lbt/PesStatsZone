@@ -25,7 +25,7 @@ const GoleadoresRivales = ({ state, dispatch, disabled }) => {
     setData(bucket);
   }, [bucket]);
   const matches = Array.isArray(data?.matches) ? data.matches : [];
-  console.log("matches", matches);
+
   /* ------ Rivales Sugeridos ------------ */
 
   const rival = state.rival?.trim() || "";
@@ -98,14 +98,21 @@ const suggestions = useMemo(() => {
         className="w-full border rounded p-2"
         autoComplete="off"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (suggestions.includes(v)) return;
+          setValue(v);
+        }}
         onKeyDown={(e) => {
-          if (e.key === "Enter") handleAdd(value);
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleAdd(value);
+          }
         }}
         onInput={(e) => {
-          // Si elige del datalist
-          if (suggestions.includes(e.currentTarget.value)) {
-            handleAdd(e.currentTarget.value);
+          const v = e.currentTarget.value;   
+          if (suggestions.includes(v)) {
+            handleAdd(v);
           }
         }}
       />
