@@ -292,7 +292,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 8</span>
+                <span>Versión: 8.001</span>
               </div>
             </div>
           </div>

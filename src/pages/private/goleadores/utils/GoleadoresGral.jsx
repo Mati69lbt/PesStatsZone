@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import { prettySafe } from "../../campeonatos/util/funtions";
 
 const GoleadoresGral = ({ matches }) => {
-
   const safeMatches = Array.isArray(matches) ? matches : [];
 
   const [ordenAmbito, setOrdenAmbito] = useState("general");
@@ -121,28 +120,39 @@ const GoleadoresGral = ({ matches }) => {
       };
     };
 
-    const lista = Object.entries(resumen).map(([nombre, data]) => ({
-      nombre,
-      general: buildAmb(data.general),
-      local: buildAmb(data.local),
-      visitante: buildAmb(data.visitante),
-      neutro: buildAmb(data.neutro),
-    }));
+    const lista = Object.entries(resumen)
+      .map(([nombre, data]) => ({
+        nombre,
+        general: buildAmb(data.general),
+        local: buildAmb(data.local),
+        visitante: buildAmb(data.visitante),
+        neutro: buildAmb(data.neutro),
+      }))
+      .filter((x) => (x[ordenAmbito]?.goles ?? 0) > 0);
 
-    const sorted = lista.sort((a, b) => {
-      if (ordenCampo === "nombre") {
-        const valA = a.nombre.toLowerCase();
-        const valB = b.nombre.toLowerCase();
-        return ordenDireccion === "asc"
-          ? valA.localeCompare(valB)
-          : valB.localeCompare(valA);
-      } else {
-        const amb = ordenAmbito;
-        const valA = a[amb]?.[ordenCampo] ?? 0;
-        const valB = b[amb]?.[ordenCampo] ?? 0;
-        return ordenDireccion === "asc" ? valA - valB : valB - valA;
-      }
-    });
+   const sorted = lista.sort((a, b) => {
+     // helper nombre normalizado
+     const nameA = a.nombre.toLowerCase();
+     const nameB = b.nombre.toLowerCase();
+
+     if (ordenCampo === "nombre") {
+       return ordenDireccion === "asc"
+         ? nameA.localeCompare(nameB)
+         : nameB.localeCompare(nameA);
+     }
+
+     const amb = ordenAmbito;
+     const valA = a[amb]?.[ordenCampo] ?? 0;
+     const valB = b[amb]?.[ordenCampo] ?? 0;
+
+     // 1) criterio principal (numérico)
+     const diff = ordenDireccion === "asc" ? valA - valB : valB - valA;
+     if (diff !== 0) return diff;
+
+     // 2) desempate alfabético siempre ascendente
+     return nameA.localeCompare(nameB);
+   });
+
 
     return sorted;
   }, [safeMatches, ordenAmbito, ordenCampo, ordenDireccion]);

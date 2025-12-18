@@ -204,7 +204,6 @@ const saveResultadoEnPalmares = async ({ uid, clubKey, camp, value }) => {
     await setDoc(ref, payload, { merge: true });
 
     Notiflix.Notify.success("Palmarés guardado");
-
   } catch (error) {
     Notiflix.Notify.failure("Error al guardar palmarés");
     console.log("error: ", error);
@@ -334,12 +333,13 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
           year ? ` ${year}` : ""
         }`;
         return (
-          <div key={torneoKey} className="mb-6">
-            <div className="w-full lg:w-[80%] mx-auto">
+          <div key={torneoKey} className="mb-6 flex justify-center">
+            {/* Card única: header + tabla comparten ancho */}
+            <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-max ">
               {/* Header del campeonato + select Resultado */}
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50">
-                <div>
-                  <h3 className="font-semibold text-sm md:text-base text-slate-800">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50 rounded-t-lg">
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-sm md:text-base text-slate-800 truncate">
                     {tituloCamp}
                   </h3>
                   <p className="text-[11px] text-slate-500">
@@ -349,7 +349,7 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                   </p>
                 </div>
 
-                <div className="text-[11px] md:text-sm">
+                <div className="text-[11px] md:text-sm shrink-0">
                   <label className="mr-2 font-medium">Resultado:</label>
                   <select
                     className="border border-slate-300 rounded px-2 py-1 text-[11px] md:text-sm bg-white"
@@ -367,121 +367,114 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                 </div>
               </div>
 
-              {/* Tabla de partidos de ese campeonato */}
-              <div className="overflow-x-auto text-[11px] md:text-xs">
-                <table className="w-full table-auto border-collapse border border-slate-200 rounded-lg bg-white shadow-sm">
-                  <thead>
-                    <tr className="bg-slate-100 text-slate-700">
-                      <th className="border border-slate-200 px-2 py-1 text-center">
-                        Fecha
-                      </th>
-                      <th className="border border-slate-200 px-2 py-1 text-left  lg:w-[150px]">
-                        Rival
-                      </th>
-                      <th className="border border-slate-200 px-2 py-1 text-center  lg:w-[250px]">
-                        Resultado
-                      </th>
-                      <th className="border border-slate-200 px-2 py-1 text-center  lg:w-[60px]">
-                        <img
-                          src="penc.png"
-                          alt="Editar"
-                          className="inline-block h-10 w-10"
-                        />
-                      </th>
-                      <th className="border border-slate-200 px-2 py-1 text-center  lg:w-[80px]">
-                        Condición
-                      </th>
-                      <th className="border border-slate-200 px-2 py-1 text-left">
-                        Capitán
-                      </th>
-                      <th className="border border-slate-200 px-2 py-1 text-left">
-                        Goleadores propios
-                      </th>
-                      <th className="border border-slate-200 px-2 py-1 text-center">
-                        Goles rival
-                      </th>
-                      <th className="border border-slate-200 px-2 py-1 text-center">
-                        <img
-                          src="basu.png"
-                          alt="Borrar"
-                          className="inline-block h-10 w-10 align-middle"
-                        />
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {camp.matches.map((m) => (
-                      <tr
-                        key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
-                        className="even:bg-slate-50"
-                      >
-                        <td className="border border-slate-200 px-2 py-1 text-center tabular-nums">
-                          {formatDDMM(m)}
-                        </td>
+              {/* Tabla */}
+              <div className="overflow-x-auto">
+                <div className="flex justify-center">
+                  <table className="w-max min-w-[980px] table-auto border-collapse text-[11px] md:text-xs">
+                    <thead className="bg-slate-100 text-slate-700">
+                      <tr>
+                        <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-20">
+                          Fecha
+                        </th>
 
-                        {/* Rival */}
-                        <td className="border border-slate-200 px-2 py-1 text-left">
-                          {prettySafe(m.rival || "")}
-                        </td>
+                        <th className="border border-slate-200 px-2 py-2 text-center w-[360px]">
+                          Resultado
+                        </th>
 
-                        {/* Resultado del partido (pintado por final) */}
-                        <td className="border border-slate-200 px-2 py-1 text-left">
-                          <span
-                            className={
-                              "inline-block px-2 py-0.5 rounded-full text-[10px] " +
-                              getResultadoPartidoClasses(m.final)
-                            }
-                          >
-                            {prettySafe(m.resultMatch || "")}
-                          </span>
-                        </td>
-                        <td className="border border-slate-200 px-2 py-1 text-center">
-                          <button>
-                            <img
-                              src="pencil.png"
-                              alt="Editar"
-                              className="inline-block h-6 w-6"
-                            />
-                          </button>
-                        </td>
+                        <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-14">
+                          <img
+                            src="penc.png"
+                            alt="Editar"
+                            className="inline-block h-5 w-5 align-middle"
+                          />
+                        </th>
 
-                        {/* Condición */}
-                        <td className="border border-slate-200 px-2 py-1 text-center">
-                          <CondicionBadge condition={m.condition} />
-                        </td>
+                        <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap w-36">
+                          Capitán
+                        </th>
 
-                        {/* Capitán */}
-                        <td className="border border-slate-200 px-2 py-1 text-left">
-                          {m.captain ? prettySafe(m.captain) : "—"}
-                        </td>
+                        <th className="border border-slate-200 px-2 py-2 text-left min-w-[200px]">
+                          Goleadores Propios
+                        </th>
 
-                        {/* Goleadores propios */}
-                        <td className="border border-slate-200 px-2 py-1 text-left">
-                          {getGoleadoresPropiosTexto(m)}
-                        </td>
-                        <td className="border border-slate-200 px-2 py-1 text-left">
-                          {getGoleadoresRivalesTexto(m)}
-                        </td>
-                        <td className="border border-slate-200 px-2 py-1 text-center">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              borrarPartido({ match: m, uid, clubKey })
-                            }
-                            className="inline-flex items-center justify-center"
-                            title="Borrar partido"
-                          >
-                            <img
-                              src="bas.png"
-                              alt="Borrar"
-                              className="inline-block h-6 w-6"
-                            />
-                          </button>
-                        </td>
+                        <th className="border border-slate-200 px-2 py-2 text-left min-w-[200px]">
+                          Goles del Rival
+                        </th>
+
+                        <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-14">
+                          <img
+                            src="basu.png"
+                            alt="Borrar"
+                            className="inline-block h-5 w-5 align-middle"
+                          />
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+
+                    <tbody>
+                      {camp.matches.map((m) => (
+                        <tr
+                          key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
+                          className="even:bg-slate-50"
+                        >
+                          <td className="border border-slate-200 px-2 py-2 text-center tabular-nums">
+                            {formatDDMM(m)}
+                          </td>
+
+                          <td className="border border-slate-200 px-2 py-2 text-left">
+                            <span
+                              className={
+                                "inline-block px-2 py-0.5 rounded-full text-[12px] whitespace-nowrap " +
+                                getResultadoPartidoClasses(m.final)
+                              }
+                            >
+                              {prettySafe(m.resultMatch || "")}
+                            </span>
+                          </td>
+
+                          <td className="border border-slate-200 px-2 py-2 text-center">
+                            <button type="button">
+                              <img
+                                src="pencil.png"
+                                alt="Editar"
+                                className="inline-block h-6 w-6"
+                              />
+                            </button>
+                          </td>
+
+                          <td className="border border-slate-200 px-2 py-2 text-left">
+                            {m.captain ? prettySafe(m.captain) : "—"}
+                          </td>
+
+                          <td className="border border-slate-200 px-2 py-2 text-left">
+                            {getGoleadoresPropiosTexto(m)}
+                          </td>
+
+                          <td className="border border-slate-200 px-2 py-2 text-left">
+                            {getGoleadoresRivalesTexto(m)}
+                          </td>
+
+                          <td className="border border-slate-200 px-2 py-2 text-center">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                borrarPartido({ match: m, uid, clubKey })
+                              }
+                              className="inline-flex items-center justify-center"
+                              title="Borrar partido"
+                            >
+                              <img
+                                src="bas.png"
+                                alt="Borrar"
+                                className="inline-block h-6 w-6"
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>

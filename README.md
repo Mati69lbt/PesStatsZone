@@ -20,8 +20,8 @@
 
 ### /Goleadores
 
-- [ ] Sacar los jugadores q no marcaron goles
-- [ ] Si los jugadores tienen la misma cantidad de goles, q se ordenen alfabeticamente
+- ✅ Sacar los jugadores q no marcaron goles
+- ✅ Si los jugadores tienen la misma cantidad de goles, q se ordenen alfabeticamente
 
 mati69@hotmail.com
 matias
