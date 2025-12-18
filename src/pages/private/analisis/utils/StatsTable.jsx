@@ -48,7 +48,7 @@ const StatsTable = ({ title, rows, colorize = true }) => {
       </div>
 
       {/* Tabla */}
-      <table className="w-full border-collapse text-sm">
+      <table className="w-full text-sm border-separate border-spacing-px bg-white">
         <thead className="bg-blue-100">
           <tr>
             <th className="px-2.5 py-1.5 text-left border-b border-gray-300">

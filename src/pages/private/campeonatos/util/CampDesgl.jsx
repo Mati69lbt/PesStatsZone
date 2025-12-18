@@ -337,9 +337,9 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
             {/* Card única: header + tabla comparten ancho */}
             <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-max ">
               {/* Header del campeonato + select Resultado */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50 rounded-t-lg">
+              <div className="flex flex-col md:flex-row md:items-center  sm:flex-row sm:items-center justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50 rounded-t-lg">
                 <div className="min-w-0">
-                  <h3 className="font-semibold text-sm md:text-base text-slate-800 truncate">
+                  <h3 className="font-semibold text-sm lg:text-base text-slate-800 truncate">
                     {tituloCamp}
                   </h3>
                   <p className="text-[11px] text-slate-500">
@@ -349,8 +349,11 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                   </p>
                 </div>
 
-                <div className="text-[11px] md:text-sm shrink-0">
-                  <label className="mr-2 font-medium">Resultado:</label>
+                <div className="text-[11px] md:text-sm shrink-0 md:flex md:items-center md:gap-2">
+                  <label className="font-medium whitespace-nowrap">
+                    Resultado:
+                  </label>
+
                   <select
                     className="border border-slate-300 rounded px-2 py-1 text-[11px] md:text-sm bg-white"
                     value={valorSelect}
@@ -370,14 +373,14 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
               {/* Tabla */}
               <div className="overflow-x-auto">
                 <div className="flex justify-center">
-                  <table className="w-max min-w-[980px] table-auto border-collapse text-[11px] md:text-xs">
+                  <table className="w-full table-fixed border-collapse text-[11px] lg:text-xs lg:w-max lg:min-w-[980px] lg:table-auto">
                     <thead className="bg-slate-100 text-slate-700">
                       <tr>
-                        <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-20">
+                        <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-12">
                           Fecha
                         </th>
 
-                        <th className="border border-slate-200 px-2 py-2 text-center w-[360px]">
+                        <th className="border border-slate-200 px-2 py-2 text-center sm:w-80">
                           Resultado
                         </th>
 
@@ -389,15 +392,15 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                           />
                         </th>
 
-                        <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap w-36">
+                        <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap md:w-12">
                           Capitán
                         </th>
 
-                        <th className="border border-slate-200 px-2 py-2 text-left min-w-[200px]">
+                        <th className="border border-slate-200 px-2 py-2 text-left min-w-[200px] md:w-40">
                           Goleadores Propios
                         </th>
 
-                        <th className="border border-slate-200 px-2 py-2 text-left min-w-[200px]">
+                        <th className="border border-slate-200 px-2 py-2 text-left min-w-[200px] md:w-40">
                           Goles del Rival
                         </th>
 
