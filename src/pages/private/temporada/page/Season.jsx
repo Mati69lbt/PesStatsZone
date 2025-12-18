@@ -380,7 +380,7 @@ const Season = () => {
             {/* GOLEADORES de esa temporada */}
             <TopGoleadores
               playersStats={data?.playersStats}
-              topN={7}
+              topN={15}
               mode="horizontal"
             />
           </div>
