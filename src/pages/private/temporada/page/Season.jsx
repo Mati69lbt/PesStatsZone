@@ -101,6 +101,9 @@ const Season = () => {
   const pick = (obj, keys) =>
     keys.reduce((acc, k) => (obj?.[k] ? { ...acc, [k]: obj[k] } : acc), {});
 
+  // const year = String(temp).slice(0, 4);
+  // console.log(year, year);
+
   return (
     <div className="p-4 max-w-screen-2xl mx-auto">
       {/* Header + selector de club */}
@@ -129,6 +132,8 @@ const Season = () => {
 
       {/* Tabla por temporada (Season) */}
       {temporadasDesc.map((temp) => {
+        const years = String(temp).match(/\d{4}/g) || [];
+
         const rTemp = resumenPorTemporada[temp];
         if (!rTemp) return null;
 
@@ -240,6 +245,8 @@ const Season = () => {
                   topN={9}
                   mode="vertical"
                   className="mt-0"
+                  years={years}
+                  data={{ matches }}
                 />
               </div>
             </div>
@@ -380,8 +387,10 @@ const Season = () => {
             {/* GOLEADORES de esa temporada */}
             <TopGoleadores
               playersStats={data?.playersStats}
-              topN={15}
+              topN={14}
               mode="horizontal"
+              years={years}
+              data={data}
             />
           </div>
         );
