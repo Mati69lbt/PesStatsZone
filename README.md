@@ -16,7 +16,7 @@
 
 - ✅ Arreglar el cuadro para q se vea bien en celulares
 - [ ] ponerle año a la tabla de goleadores, porque no desgloza por año
-- [ ] Poner de nuevo la tabla de goleadores en pantalla de escritorio
+- ✅ Poner de nuevo la tabla de goleadores en pantalla de escritorio
 
 ### /Goleadores
 
