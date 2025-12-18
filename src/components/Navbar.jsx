@@ -157,40 +157,53 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md w-full sticky top-0 z-50">
       {!forzarHamburguesa && (
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+          {/* Izquierda: marca */}
           <span
             className="text-3xl font-bold text-blue-600 whitespace-nowrap cursor-pointer"
             onClick={recargarDatos}
           >
             ⚽ Pes Stats Zone
           </span>
-         <div className="text-sm flex flex-wrap gap-2">
-            {links.map(({ path, label }) => (
-              <Link
-                key={path}
-                to={path}
-                className={`${linkClass(path)} flex items-center gap-1 text-xl`}
-              >
-                <span className={iconClass(path)}>{label}</span>
-              </Link>
-            ))}
+
+          {/* Centro: iconos (no wrap, si no entra, scroll horizontal) */}
+          <div className="flex-1 flex justify-center min-w-0">
+            <div className="flex items-center gap-2 flex-nowrap overflow-x-auto">
+              {links.map(({ path, label }) => (
+                <Link
+                  key={path}
+                  to={path}
+                  className={`${linkClass(
+                    path
+                  )} flex items-center gap-1 text-xl`}
+                >
+                  <span className={iconClass(path)}>{label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Derecha: DT + acciones (siempre en la misma línea) */}
+          <div className="flex items-center gap-2 flex-nowrap whitespace-nowrap">
             {user && (
               <div className="flex flex-col items-center justify-center border p-2 rounded-lg">
                 <label>Dt</label>
-                <span className="text-gray-700 font-semibold">
+                <span className="text-gray-700 font-semibold max-w-[140px] truncate">
                   {pretty(user.displayName)}
                 </span>
               </div>
             )}
+
             <button
               onClick={mostrarConfirmacionReset}
               className="text-red-600 hover:uppercase hover:font-bold flex items-center gap-1"
             >
               🗑️ Reiniciar
             </button>
+
             <button
               onClick={() => cerrarSesion()}
-              className=" bg-red-400 text-white rounded-xl px-4 hover:bg-red-600 flex items-center gap-1"
+              className="bg-red-400 text-white rounded-xl px-4 hover:bg-red-600 flex items-center gap-1"
             >
               Salir
             </button>
@@ -279,7 +292,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 006.04</span>
+                <span>Versión: 7</span>
               </div>
             </div>
           </div>

@@ -138,110 +138,121 @@ const Season = () => {
         return (
           <div key={temp} className="mb-8 space-y-3">
             {/* MOBILE: layout apilado (md:hidden) */}
-            <div className="md:hidden max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
-              <table className="w-full text-[11px] border-collapse">
-                <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
-                  <tr>
-                    <th className="px-3 py-2 text-left border-b border-slate-200">
-                      Temporada
-                    </th>
-                    {metricas.map((m) => (
-                      <th
-                        key={`head-${m}`}
-                        className="px-2 py-2 text-center border-b border-slate-200"
-                      >
-                        {m}
+            <div className="flex justify-evenly ">
+              <div className="lg:hidden max-h-full overflow-auto overflow-x-auto border border-slate-200 rounded-lg bg-white shadow-sm">
+                <table className="w-full text-[11px] border-collapse">
+                  <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
+                    <tr>
+                      <th className="px-3 py-2 text-left border-b border-slate-200">
+                        Temporada
                       </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* ---- Bloque temporada (General / Local / Visitante / Neutral) ---- */}
+                      {metricas.map((m) => (
+                        <th
+                          key={`head-${m}`}
+                          className="px-2 py-2 text-center border-b border-slate-200"
+                        >
+                          {m}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* ---- Bloque temporada (General / Local / Visitante / Neutral) ---- */}
 
-                  {/* General: fila 2 */}
-                  <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
-                    <td className="px-3 py-1.5 font-semibold text-left text-slate-800">
-                      {temp}
-                    </td>
-                    {renderStatsCells(tripleSeason.General)}
-                  </tr>
+                    {/* General: fila 2 */}
+                    <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
+                      <td className="px-2 py-1.5 w-24 whitespace-nowrap font-semibold text-left text-slate-800">
+                        {temp}
+                      </td>
+                      {renderStatsCells(tripleSeason.General)}
+                    </tr>
 
-                  {/* Local */}
-                  <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                    <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                      Local
-                    </td>
-                    {renderStatsCells(tripleSeason.Local)}
-                  </tr>
+                    {/* Local */}
+                    <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                      <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                        Local
+                      </td>
+                      {renderStatsCells(tripleSeason.Local)}
+                    </tr>
 
-                  {/* Visitante */}
-                  <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                    <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                      Visitante
-                    </td>
-                    {renderStatsCells(tripleSeason.Visitante)}
-                  </tr>
+                    {/* Visitante */}
+                    <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                      <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                        Visitante
+                      </td>
+                      {renderStatsCells(tripleSeason.Visitante)}
+                    </tr>
 
-                  {/* Neutral */}
-                  <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                    <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                      Neutral
-                    </td>
-                    {renderStatsCells(tripleSeason.Neutral)}
-                  </tr>
+                    {/* Neutral */}
+                    <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                      <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                        Neutral
+                      </td>
+                      {renderStatsCells(tripleSeason.Neutral)}
+                    </tr>
 
-                  {/* ---- Bloques por capitán ---- */}
-                  {caps.map((cap) => {
-                    const tripleCap = rTemp.capitanes?.[cap] || emptyTriple();
+                    {/* ---- Bloques por capitán ---- */}
+                    {caps.map((cap) => {
+                      const tripleCap = rTemp.capitanes?.[cap] || emptyTriple();
 
-                    return (
-                      <React.Fragment key={`${temp}-${cap}`}>
-                        {/* Capitán - General */}
-                        <tr className="border-t border-slate-200 bg-white hover:bg-slate-50/80 transition-colors">
-                          <td className="px-3 py-1.5 font-semibold text-left text-slate-800">
-                            {pretty(cap)}
-                          </td>
-                          {renderStatsCells(tripleCap.General)}
-                        </tr>
+                      return (
+                        <React.Fragment key={`${temp}-${cap}`}>
+                          {/* Capitán - General */}
+                          <tr className="border-t border-slate-200 bg-white hover:bg-slate-50/80 transition-colors">
+                            <td className="px-3 py-1.5 font-semibold text-left text-slate-800">
+                              {pretty(cap)}
+                            </td>
+                            {renderStatsCells(tripleCap.General)}
+                          </tr>
 
-                        {/* Capitán - Local */}
-                        <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                          <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                            Local
-                          </td>
-                          {renderStatsCells(tripleCap.Local)}
-                        </tr>
+                          {/* Capitán - Local */}
+                          <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                            <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                              Local
+                            </td>
+                            {renderStatsCells(tripleCap.Local)}
+                          </tr>
 
-                        {/* Capitán - Visitante */}
-                        <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                          <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                            Visitante
-                          </td>
-                          {renderStatsCells(tripleCap.Visitante)}
-                        </tr>
+                          {/* Capitán - Visitante */}
+                          <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                            <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                              Visitante
+                            </td>
+                            {renderStatsCells(tripleCap.Visitante)}
+                          </tr>
 
-                        {/* Capitán - Neutral */}
-                        <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                          <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                            Neutral
-                          </td>
-                          {renderStatsCells(tripleCap.Neutral)}
-                        </tr>
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          {/* Capitán - Neutral */}
+                          <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                            <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                              Neutral
+                            </td>
+                            {renderStatsCells(tripleCap.Neutral)}
+                          </tr>
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <div className="md:w-max lg:hidden">
+                <TopGoleadores
+                  playersStats={data?.playersStats}
+                  topN={9}
+                  mode="vertical"
+                  className="mt-0"
+                />
+              </div>
             </div>
 
             {/* DESKTOP/TABLET: tabla completa (hidden en mobile) */}
-            <div className="hidden md:block max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
+            <div className="hidden lg:block max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
               <table className="mx-auto w-full min-w-[860px] text-[11px] md:text-sm border-collapse">
                 <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] md:text-xs uppercase tracking-wide">
                   <tr>
-                    <th className="px-2 py-2 w-40 text-center border-b border-slate-200">
+                    <th className="px-2 py-2 w-28 whitespace-nowrap text-left border-b border-slate-200">
                       Temporada
                     </th>
+
                     <th
                       className="px-2 py-2 text-center border-b border-slate-200"
                       colSpan={14}
@@ -367,7 +378,11 @@ const Season = () => {
             </div>
 
             {/* GOLEADORES de esa temporada */}
-            <TopGoleadores playersStats={data?.playersStats} topN={7} />
+            <TopGoleadores
+              playersStats={data?.playersStats}
+              topN={7}
+              mode="horizontal"
+            />
           </div>
         );
       })}
