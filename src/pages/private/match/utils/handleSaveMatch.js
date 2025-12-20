@@ -87,9 +87,14 @@ const handleSaveMatch = async ({
           rivalName,
           autogolesFavor: matchState?.autogolesFavor || 0,
         });
-        Notiflix.Notify.success("Partido guardado correctamente ✅");
+        const isEditing = !!matchState?.editingMatchId;
+        Notiflix.Notify.success(
+          isEditing
+            ? "Partido actualizado correctamente ✅"
+            : "Partido guardado correctamente ✅"
+        );
         matchDispatch({ type: "RESET_FORM" });
-        navigate("/versus");
+        navigate("/campeonatos");
       } catch (e) {
         // --- Diagnóstico detallado del error ---
         const info = {

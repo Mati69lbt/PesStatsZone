@@ -59,7 +59,7 @@ export function puntosYefectividad(box) {
   return { puntos, efectividad };
 }
 
-export function borrarPartido({ match, uid, clubKey }) {
+export function borrarPartido({ match, uid, clubKey, onDone }) {
   if (!match?.id) {
     Notiflix.Notify.failure("No se encontró el ID del partido.");
     return;
@@ -79,9 +79,8 @@ export function borrarPartido({ match, uid, clubKey }) {
         const snap = await getDoc(userRef);
         const data = snap.data() || {};
 
-        const key = clubKey || match.club; // usamos el mismo clubKey que ya le pasás desde CampDesgl
+        const key = clubKey || match.club;
         const current = data?.lineups?.[key]?.matches || [];
-
         const next = current.filter((m) => m?.id !== match.id);
 
         await updateDoc(userRef, {
@@ -89,6 +88,11 @@ export function borrarPartido({ match, uid, clubKey }) {
         });
 
         Notiflix.Notify.success("Partido borrado con éxito.");
+
+        // ✅ acá avisamos al componente que ya se borró
+        if (typeof onDone === "function") {
+          onDone();
+        }
       } catch (e) {
         console.error(e);
         Notiflix.Notify.failure("No se pudo borrar el partido.");
@@ -97,3 +101,4 @@ export function borrarPartido({ match, uid, clubKey }) {
     () => Notiflix.Notify.info("El partido no se borró")
   );
 }
+

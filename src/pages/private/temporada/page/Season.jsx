@@ -34,7 +34,7 @@ const metricToKey = {
 
 // Celdas para mobile: usa mismos colores que el resto de la app
 const renderStatsCells = (stats = {}) =>
-  metricas.map((m) => {
+  metricas.map((m, idx) => {
     const prop = metricToKey[m];
     const val = stats?.[prop] ?? 0;
 
@@ -43,8 +43,11 @@ const renderStatsCells = (stats = {}) =>
         ? getColorSegunDiferenciaDeGol(stats?.df ?? 0)
         : getColorSegunResultado(stats);
 
+    // borde vertical sutil entre columnas (no en la primera métrica)
+    const sepClass = idx === 0 ? "" : " border-2 border-white/70";
+
     return (
-      <td key={m} className={`px-2 py-1 text-center ${colorClass}`}>
+      <td key={m} className={`px-2 py-1 text-center ${colorClass}${sepClass}`}>
         {val}
       </td>
     );
@@ -85,6 +88,14 @@ const Season = () => {
   }, [bucket]);
 
   const matches = Array.isArray(data?.matches) ? data.matches : [];
+  const years = Array.from(
+    new Set(
+      matches
+        .map((m) => m?.torneoYear ?? m?.tournamentYear ?? m?.year ?? m?.anio)
+        .filter((y) => y !== undefined && y !== null)
+        .map(String)
+    )
+  ).sort();
 
   // Resumen por temporada
   const { temporadasOrdenadas, resumenPorTemporada, captainsOrdenados } =
@@ -143,7 +154,7 @@ const Season = () => {
         return (
           <div key={temp} className="mb-8 space-y-3">
             {/* MOBILE: layout apilado (md:hidden) */}
-            <div className="flex justify-evenly ">
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-evenly sm:gap-6">
               <div className="lg:hidden max-h-full overflow-auto overflow-x-auto border border-slate-200 rounded-lg bg-white shadow-sm">
                 <table className="w-full text-[11px] border-collapse">
                   <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
@@ -188,13 +199,15 @@ const Season = () => {
                       {renderStatsCells(tripleSeason.Visitante)}
                     </tr>
 
-                    {/* Neutral */}
-                    <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                      <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                        Neutral
-                      </td>
-                      {renderStatsCells(tripleSeason.Neutral)}
-                    </tr>
+                    {/* Neutral (solo si PJ > 0) */}
+                    {(tripleSeason?.Neutral?.pj ?? 0) > 0 ? (
+                      <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                        <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                          Neutral
+                        </td>
+                        {renderStatsCells(tripleSeason.Neutral)}
+                      </tr>
+                    ) : null}
 
                     {/* ---- Bloques por capitán ---- */}
                     {caps.map((cap) => {
@@ -226,13 +239,15 @@ const Season = () => {
                             {renderStatsCells(tripleCap.Visitante)}
                           </tr>
 
-                          {/* Capitán - Neutral */}
-                          <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                            <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                              Neutral
-                            </td>
-                            {renderStatsCells(tripleCap.Neutral)}
-                          </tr>
+                          {/* Capitán - Neutral (solo si PJ > 0) */}
+                          {(tripleCap?.Neutral?.pj ?? 0) > 0 ? (
+                            <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                              <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                                Neutral
+                              </td>
+                              {renderStatsCells(tripleCap.Neutral)}
+                            </tr>
+                          ) : null}
                         </React.Fragment>
                       );
                     })}
@@ -242,7 +257,7 @@ const Season = () => {
               <div className="md:w-max lg:hidden">
                 <TopGoleadores
                   playersStats={data?.playersStats}
-                  topN={9}
+                  topN={7}
                   mode="vertical"
                   className="mt-0"
                   years={years}
@@ -385,13 +400,15 @@ const Season = () => {
             </div>
 
             {/* GOLEADORES de esa temporada */}
-            <TopGoleadores
-              playersStats={data?.playersStats}
-              topN={14}
-              mode="horizontal"
-              years={years}
-              data={data}
-            />
+            <div className="hidden lg:block">
+              <TopGoleadores
+                playersStats={data?.playersStats}
+                topN={14}
+                mode="horizontal"
+                years={years}
+                data={data}
+              />
+            </div>
           </div>
         );
       })}

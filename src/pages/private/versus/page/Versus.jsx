@@ -86,7 +86,7 @@ const Versus = () => {
       </h1>
 
       {/* Controles (iguales a los que ya usabas) */}
-      <div className="flex flex-wrap gap-4 mb-2 items-end justify-center">
+      <div className="flex flex-wrap mb-2 gap-x-10 gap-y-2 justify-evenly sm:gap-x-4 sm:gap-y-2 sm:items-end sm:justify-center">
         {/* Club */}
         <div className="text-center">
           <label className="text-sm font-medium block">Club</label>
@@ -122,7 +122,7 @@ const Versus = () => {
           </select>
         </div>
 
-        <div>
+        <div className="text-center">
           <label className="text-sm font-medium block">Campo</label>
           <select
             value={ordenCampo}
@@ -140,7 +140,7 @@ const Versus = () => {
           </select>
         </div>
 
-        <div>
+        <div className="text-center">
           <label className="text-sm font-medium block">Orden</label>
           <select
             value={ordenDireccion}
@@ -184,10 +184,20 @@ const Versus = () => {
             ) : (
               estadisticas.map(([rival, stats], index) => {
                 const rowBg = index % 2 === 0 ? "bg-white" : "bg-gray-200";
+                const hasSpace = /\s/.test(rival);
                 return (
                   <tr key={rival} className={rowBg}>
-                    <td className="border px-2 py-2 font-semibold text-left">
-                      <div title={rival}>{rival}</div>
+                    <td className="border px-1 py-2 font-semibold text-left">
+                      <div
+                        title={rival}
+                        className={
+                          hasSpace
+                            ? "block w-full whitespace-normal"
+                            : "block w-full truncate"
+                        }
+                      >
+                        {rival}
+                      </div>
                     </td>
                     {columnas.map((col) => {
                       const box = stats[col] || emptyBox();

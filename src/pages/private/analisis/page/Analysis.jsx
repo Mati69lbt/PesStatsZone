@@ -91,7 +91,7 @@ const Analysis = () => {
       </h2>
 
       <div className="overflow-x-auto">
-        <div className="flex gap-3 flex-nowrap justify-center mx-auto w-max">
+        <div className="flex flex-col gap-3 mx-auto w-full sm:flex-row sm:flex-nowrap sm:justify-center sm:w-max">
           {captains.map((cap) => (
             <div
               key={`total-${cap.captain}`}
@@ -114,7 +114,7 @@ const Analysis = () => {
               {tName}
             </h3>
             <div className="overflow-x-auto">
-              <div className="flex gap-3 flex-nowrap justify-center mx-auto w-max">
+              <div className="flex flex-col gap-3 mx-auto w-full sm:flex-row sm:flex-nowrap sm:justify-center sm:w-max">
                 {captains.map((cap) => {
                   const triple = cap.byTournament[tName] || emptyTriple();
                   return (

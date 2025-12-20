@@ -114,7 +114,7 @@ const TopGoleadores = ({
     return (
       <div className={`${className}`}>
         <div className="w-max mx-auto rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-3 py-2 border-b border-slate-200 text-[10px] font-semibold tracking-wide text-center uppercase text-slate-800">
+          <div className="px-3 py-2 border-b border-slate-200 text-[10px] font-semibold tracking-wide text-center uppercase text-slate-800 bg-sky-50">
             Goleadores {yearsLabel}
           </div>
 
@@ -123,27 +123,24 @@ const TopGoleadores = ({
               {lista.map((j, i) => {
                 const { bg, icon, isTop3 } = rankStyles(i);
                 return (
-                  <tr
-                    key={j.name}
-                    className={`${bg} border-t border-slate-100`}
-                  >
-                    {/* Apellido */}
-                    <td
-                      className={`px-3 py-2 text-left ${
-                        isTop3
-                          ? "font-semibold text-slate-800"
-                          : "text-slate-700"
-                      }`}
-                    >
-                      {prettySafe(j.name)}
+                  <tr className="border-b border-slate-100">
+                    {/* Columna ranking/icono */}
+                    <td className="px-2 py-2 text-center align-middle w-12">
+                      <span className="inline-flex items-center justify-center w-9 rounded-full bg-slate-50 ring-1 ring-slate-200 text-base leading-none">
+                        {rankStyles(i).icon}
+                      </span>
                     </td>
 
-                    {/* Goles + emoji */}
-                    <td className="px-3 py-2 text-right whitespace-nowrap tabular-nums font-bold text-slate-900">
-                      <span className="inline-flex items-center gap-2">
-                        <span className="text-xs text-slate-500">{icon}</span>
-                        <span>{j.goals}</span>
-                      </span>
+                    {/* Columna apellido */}
+                    <td className="px-2 py-2 text-left">
+                      <div className="text-[12px] font-medium text-slate-800">
+                        {prettySafe(j.name)}
+                      </div>
+                    </td>
+
+                    {/* Columna goles */}
+                    <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 w-12">
+                      {j.goals}
                     </td>
                   </tr>
                 );

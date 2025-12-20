@@ -2,8 +2,6 @@ import React, { useMemo } from "react";
 import { prettySafe } from "../../campeonatos/util/funtions";
 
 const Villanos = ({ matches }) => {
-
-
   const villanos = useMemo(() => {
     const mapa = {};
 
@@ -112,7 +110,7 @@ const Villanos = ({ matches }) => {
       </h2>
 
       <div className="overflow-x-auto text-xs md:text-sm">
-        <table className="table-auto border-collapse border mx-auto min-w-[450px]">
+        <table className="table-auto border-collapse border mx-auto ">
           <thead>
             <tr className="bg-slate-100">
               <th className="border px-2 py-1 text-left">Jugador</th>
@@ -120,7 +118,6 @@ const Villanos = ({ matches }) => {
               <th className="border px-2 py-1 text-center">Goles</th>
               <th className="border px-2 py-1 text-center">⚽x2</th>
               <th className="border px-2 py-1 text-center">⚽x3</th>
-              <th className="border px-2 py-1 text-center">Expulsiones</th>
             </tr>
           </thead>
           <tbody>
@@ -135,9 +132,6 @@ const Villanos = ({ matches }) => {
                 <td className="border px-2 py-1 text-center">{v.goles}</td>
                 <td className="border px-2 py-1 text-center">{v.x2}</td>
                 <td className="border px-2 py-1 text-center">{v.x3}</td>
-                <td className="border px-2 py-1 text-center">
-                  {v.expulsiones}
-                </td>
               </tr>
             ))}
           </tbody>

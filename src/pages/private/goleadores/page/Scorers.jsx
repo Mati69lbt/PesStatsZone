@@ -10,6 +10,7 @@ import Villanos from "../utils/Villanos";
 import Expulsados from "../utils/Expulsados";
 import Carniceros from "../utils/Carniceros";
 import { Navigate } from "react-router-dom";
+import TopGoleadores from "../../temporada/page/Goleadores";
 
 const prettySafe = (str) => {
   if (!str) return "";
@@ -61,6 +62,7 @@ const Scorers = () => {
   return (
     <div className="p-4 max-w-screen-2xl mx-auto">
       {/* Selector de club */}
+      <h1 className="text-center text-3xl mt-2 ">⚽ Scorers</h1>
       <div className="flex flex-wrap gap-4 mb-4 items-end justify-center">
         <div className="text-center">
           <label className="text-sm font-medium block">Club</label>
@@ -79,7 +81,7 @@ const Scorers = () => {
       </div>
 
       {/* Botones de vista */}
-      <div className="flex flex-wrap justify-center gap-2 mb-4">
+      <div className="grid grid-cols-3 gap-2 mb-4 md:flex md:flex-wrap md:justify-center">
         <button
           onClick={() => setView("goleadores")}
           className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
@@ -98,7 +100,17 @@ const Scorers = () => {
               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
           }`}
         >
-          Goleadores por campeonato
+          Goleadores por Campeonato
+        </button>
+        <button
+          onClick={() => setView("año")}
+          className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
+            view === "año"
+              ? "bg-blue-600 text-white border-blue-700 shadow"
+              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+          }`}
+        >
+          Goleadores por Año
         </button>
         <button
           onClick={() => setView("expulsados")}
@@ -138,6 +150,16 @@ const Scorers = () => {
       {view === "villanos" && <Villanos matches={matches} />}
       {view === "expulsados" && <Expulsados matches={matches} />}
       {view === "carniceros" && <Carniceros matches={matches} />}
+      {view === "año" && (
+        <TopGoleadores
+          playersStats={data?.playersStats}
+          topN={7}
+          mode="vertical"
+          className="mt-0"
+          years={years}
+          data={{ matches }}
+        />
+      )}
     </div>
   );
 };

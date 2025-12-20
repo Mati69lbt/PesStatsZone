@@ -10,6 +10,7 @@ import {
   where,
 } from "firebase/firestore";
 import Notiflix from "notiflix";
+import { useNavigate } from "react-router-dom";
 
 // Opciones del select "Resultado" del campeonato
 
@@ -210,7 +211,9 @@ const saveResultadoEnPalmares = async ({ uid, clubKey, camp, value }) => {
   }
 };
 
-const CampDesgl = ({ matches = [], clubKey, uid }) => {
+const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
+  const navigate = useNavigate();
+
   const [resumenResultados, setResumenResultados] = useState({});
 
   // Al entrar a la página, cargar de Firestore los resultados ya guardados
@@ -319,6 +322,19 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
     return null;
   }
 
+  const handleDelete = (m) => {
+    borrarPartido({
+      match: m,
+      uid,
+      clubKey,
+      onDone: async () => {
+        if (typeof onRefresh === "function") {
+          await onRefresh();
+        }
+      },
+    });
+  };
+
   return (
     <div className="mt-8">
       <h2 className="text-lg md:text-xl font-bold mb-4 text-center">
@@ -337,7 +353,7 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
             {/* Card única: header + tabla comparten ancho */}
             <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-max ">
               {/* Header del campeonato + select Resultado */}
-              <div className="flex flex-col md:flex-row md:items-center  sm:flex-row sm:items-center justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50 rounded-t-lg">
+              <div className="flex   items-center  flex-row  justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50 rounded-t-lg">
                 <div className="min-w-0">
                   <h3 className="font-semibold text-sm lg:text-base text-slate-800 truncate">
                     {tituloCamp}
@@ -350,7 +366,7 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                 </div>
 
                 <div className="text-[11px] md:text-sm shrink-0 md:flex md:items-center md:gap-2">
-                  <label className="font-medium whitespace-nowrap">
+                  <label className="font-medium whitespace-nowrap mr-2">
                     Resultado:
                   </label>
 
@@ -369,9 +385,87 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                   </select>
                 </div>
               </div>
+              {/* { 2 renglones */}
+              <div className="sm:hidden space-y-3">
+                {camp.matches.map((m) => (
+                  <div
+                    key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
+                    className="border border-slate-200 rounded-lg overflow-hidden bg-white"
+                  >
+                    {/* Fila 1: Fecha + Resultado + Acciones */}
+                    <div className="flex items-center justify-between gap-2 px-3 py-2 bg-slate-50">
+                      <div className="text-xs tabular-nums">
+                        {formatDDMM(m)}
+                      </div>
+
+                      <span
+                        className={
+                          "px-2 py-0.5 rounded-full text-[12px] whitespace-nowrap " +
+                          getResultadoPartidoClasses(m.final)
+                        }
+                      >
+                        {prettySafe(m.resultMatch || "")}
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="cursor-pointer disabled:opacity-40"
+                          disabled={!m.id}
+                          title="Editar partido"
+                          onClick={() => navigate(`/editar-partido/${m.id}`)}
+                        >
+                          <img
+                            src="pencil.png"
+                            alt="Editar"
+                            className="h-6 w-6"
+                          />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(m)}
+                          className="cursor-pointer"
+                          title="Borrar partido"
+                        >
+                          <img src="bas.png" alt="Borrar" className="h-6 w-6" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Fila 2: Detalles */}
+                    <div className="px-3 py-2 text-[12px] space-y-1">
+                      <div className="flex gap-2">
+                        <span className="text-slate-500 min-w-[72px]">
+                          Capitán
+                        </span>
+                        <span className="font-medium">
+                          {m.captain ? prettySafe(m.captain) : "—"}
+                        </span>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <span className="text-slate-500 min-w-[72px]">
+                          Goles
+                        </span>
+                        <span>{getGoleadoresPropiosTexto(m)}</span>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <span className="text-slate-500 min-w-[72px]">
+                          Rival
+                        </span>
+                        <span>{getGoleadoresRivalesTexto(m)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* { fin 2 renglones */}
 
               {/* Tabla */}
-              <div className="overflow-x-auto">
+              <div className="hidden sm:block overflow-x-auto">
                 <div className="flex justify-center">
                   <table className="w-full table-fixed border-collapse text-[11px] lg:text-xs lg:w-max lg:min-w-[980px] lg:table-auto">
                     <thead className="bg-slate-100 text-slate-700">
@@ -436,7 +530,15 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                           </td>
 
                           <td className="border border-slate-200 px-2 py-2 text-center">
-                            <button type="button">
+                            <button
+                              type="button"
+                              className="cursor-pointer"
+                              disabled={!m.id}
+                              title="Editar partido"
+                              onClick={() =>
+                                navigate(`/editar-partido/${m.id}`)
+                              }
+                            >
                               <img
                                 src="pencil.png"
                                 alt="Editar"
@@ -460,10 +562,8 @@ const CampDesgl = ({ matches = [], clubKey, uid }) => {
                           <td className="border border-slate-200 px-2 py-2 text-center">
                             <button
                               type="button"
-                              onClick={() =>
-                                borrarPartido({ match: m, uid, clubKey })
-                              }
-                              className="inline-flex items-center justify-center"
+                              onClick={() => handleDelete(m)}
+                              className="inline-flex items-center justify-center cursor-pointer"
                               title="Borrar partido"
                             >
                               <img

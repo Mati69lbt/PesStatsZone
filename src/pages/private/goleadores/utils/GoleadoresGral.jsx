@@ -130,29 +130,28 @@ const GoleadoresGral = ({ matches }) => {
       }))
       .filter((x) => (x[ordenAmbito]?.goles ?? 0) > 0);
 
-   const sorted = lista.sort((a, b) => {
-     // helper nombre normalizado
-     const nameA = a.nombre.toLowerCase();
-     const nameB = b.nombre.toLowerCase();
+    const sorted = lista.sort((a, b) => {
+      // helper nombre normalizado
+      const nameA = a.nombre.toLowerCase();
+      const nameB = b.nombre.toLowerCase();
 
-     if (ordenCampo === "nombre") {
-       return ordenDireccion === "asc"
-         ? nameA.localeCompare(nameB)
-         : nameB.localeCompare(nameA);
-     }
+      if (ordenCampo === "nombre") {
+        return ordenDireccion === "asc"
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      }
 
-     const amb = ordenAmbito;
-     const valA = a[amb]?.[ordenCampo] ?? 0;
-     const valB = b[amb]?.[ordenCampo] ?? 0;
+      const amb = ordenAmbito;
+      const valA = a[amb]?.[ordenCampo] ?? 0;
+      const valB = b[amb]?.[ordenCampo] ?? 0;
 
-     // 1) criterio principal (numérico)
-     const diff = ordenDireccion === "asc" ? valA - valB : valB - valA;
-     if (diff !== 0) return diff;
+      // 1) criterio principal (numérico)
+      const diff = ordenDireccion === "asc" ? valA - valB : valB - valA;
+      if (diff !== 0) return diff;
 
-     // 2) desempate alfabético siempre ascendente
-     return nameA.localeCompare(nameB);
-   });
-
+      // 2) desempate alfabético siempre ascendente
+      return nameA.localeCompare(nameB);
+    });
 
     return sorted;
   }, [safeMatches, ordenAmbito, ordenCampo, ordenDireccion]);
@@ -220,8 +219,107 @@ const GoleadoresGral = ({ matches }) => {
         </div>
       </div>
 
+      {/* { tabla para celulares verticales} */}
+      {/* MOBILE (<640): tabla apilada por jugador */}
+      <div className="sm:hidden max-h-[80vh] overflow-auto border rounded">
+        <table className="w-full border-collapse text-[11px] tabular-nums">
+          <thead className="sticky top-0 z-20 bg-slate-100 text-slate-700">
+            <tr>
+              <th className="border px-2 py-2 text-center w-10">#</th>
+              <th className="border px-2 py-2 text-left">Jugador</th>
+              <th className="border px-2 py-2 text-center w-12">PJ</th>
+              <th className="border px-2 py-2 text-center w-12">G</th>
+              <th className="border px-2 py-2 text-center w-12">x2</th>
+              <th className="border px-2 py-2 text-center w-12">x3</th>
+              <th className="border px-2 py-2 text-center w-16">Prom</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {goleadoresOrdenados.map((g, idx) => (
+              <React.Fragment key={g.nombre}>
+                {/* Fila 1: General (con nombre del jugador) */}
+                <tr className="bg-white">
+                  <td
+                    className="border px-2 py-2 text-center font-bold align-middle"
+                    rowSpan={3}
+                  >
+                    {idx + 1}
+                  </td>
+
+                  <td className="border px-2 py-2 text-left font-semibold">
+                    <div
+                      className="font-bold underline text-[12px] leading-tight truncate max-w-[180px]"
+                      title={prettySafe(g.nombre)}
+                    >
+                      {prettySafe(g.nombre)}
+                    </div>
+                  </td>
+
+                  <td className="border px-2 py-2 text-center">
+                    {g.general.pj}
+                  </td>
+                  <td className="border px-2 py-2 text-center">
+                    {g.general.goles}
+                  </td>
+                  <td className="border px-2 py-2 text-center">
+                    {g.general.x2}
+                  </td>
+                  <td className="border px-2 py-2 text-center">
+                    {g.general.x3}
+                  </td>
+                  <td className="border px-2 py-2 text-center">
+                    {formatProm(g.general.prom)}
+                  </td>
+                </tr>
+
+                {/* Fila 2: Local */}
+                <tr className="bg-slate-50">
+                  <td className="border px-2 py-2 text-left">
+                    <div className="font-semibold">Local</div>
+                  </td>
+                  <td className="border px-2 py-2 text-center">{g.local.pj}</td>
+                  <td className="border px-2 py-2 text-center">
+                    {g.local.goles}
+                  </td>
+                  <td className="border px-2 py-2 text-center">{g.local.x2}</td>
+                  <td className="border px-2 py-2 text-center">{g.local.x3}</td>
+                  <td className="border px-2 py-2 text-center">
+                    {formatProm(g.local.prom)}
+                  </td>
+                </tr>
+
+                {/* Fila 3: Visitante */}
+                <tr className="bg-white">
+                  <td className="border px-2 py-2 text-left">
+                    <div className="font-semibold">Visitante</div>
+                  </td>
+                  <td className="border px-2 py-2 text-center">
+                    {g.visitante.pj}
+                  </td>
+                  <td className="border px-2 py-2 text-center">
+                    {g.visitante.goles}
+                  </td>
+                  <td className="border px-2 py-2 text-center">
+                    {g.visitante.x2}
+                  </td>
+                  <td className="border px-2 py-2 text-center">
+                    {g.visitante.x3}
+                  </td>
+                  <td className="border px-2 py-2 text-center">
+                    {formatProm(g.visitante.prom)}
+                  </td>
+                </tr>
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* { FIN tabla para celulares verticales} */}
+
       {/* Tabla */}
-      <div className="max-h-[80vh] overflow-auto ">
+      <div className="hidden sm:block max-h-[80vh] overflow-auto">
         <table className="table-fixed border-collapse mx-auto min-w-[680px] md:min-w-[780px] text-[11px] md:text-sm tabular-nums">
           <thead className="sticky top-0 z-20">
             <tr className="bg-slate-100 text-slate-700">

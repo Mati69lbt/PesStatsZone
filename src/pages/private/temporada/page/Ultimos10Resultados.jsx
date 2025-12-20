@@ -63,26 +63,39 @@ const Ultimos10Resultados = ({ partidos = [], fixedCaptains }) => {
     ])
   );
   return (
-    <>
+    <div className="justify-center mb-4">
       {/* General */}
-      <div className="grid grid-cols-2 items-center gap-2 mb-2 ml-12">
-        <Titulo>📈 Últimos 10 Resultados (General)</Titulo>
-        <Bolitas lista={ultimos10General} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2 ml-0 sm:ml-12 sm:items-start">
+        <Titulo>
+          <span className="inline-flex items-center gap-2">
+            <span>📈</span>
+            <span>Últimos 10 Resultados (General)</span>
+          </span>
+        </Titulo>
+
+        <div className="flex justify-center items-center">
+          <Bolitas lista={ultimos10General} />
+        </div>
       </div>
 
-      {/* Por capitán (dinámico o fijo) */}
+      {/* Por capitán */}
       {capitanes.map((cap) => (
         <div
           key={cap}
-          className="grid grid-cols-2 items-center gap-2 mb-2 mt-4 ml-12"
+          className="grid grid-cols-1 sm:grid-cols-2 items-start sm:items-center gap-2 mb-2 mt-4 ml-0 sm:ml-12"
         >
-          <Titulo>🧤 Últimos 10 con {pretty(cap)}</Titulo>
-          <Bolitas lista={ultimos10PorCapitan[cap]} />
+          <Titulo>
+            <span className="inline-flex items-center gap-2">
+              <span>🧤</span>
+              <span>Últimos 10 con {pretty(cap)}</span>
+            </span>
+          </Titulo>
+          <div className="flex justify-center items-center">
+            <Bolitas lista={ultimos10PorCapitan[cap]} />
+          </div>
         </div>
       ))}
-
-      <br />
-    </>
+    </div>
   );
 };
 

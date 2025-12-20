@@ -16,6 +16,7 @@ import Analysis from "./pages/private/analisis/page/Analysis";
 import Season from "./pages/private/temporada/page/Season";
 import Scorers from "./pages/private/goleadores/page/Scorers";
 import Palmares from "./pages/private/versus/palmares/page/Palmares";
+import Partidos from "./pages/private/campeonatos/util/Partidos";
 
 function Hydrator() {
   const { uid } = useAuth();
@@ -35,9 +36,11 @@ const App = () => {
         <Route element={<Private />}>
           <Route path="*" element={<Hydrator />} />
           <Route path="/registrar-partido" element={<Partido />} />
+          <Route path="/editar-partido/:matchId" element={<Partido />} />
           <Route path="/formacion" element={<TeamForm />} />
           <Route path="/versus" element={<Versus />} />
           <Route path="/campeonatos" element={<Campeonatos />} />
+          <Route path="/partidos" element={<Partidos />} />
           <Route path="/analisis" element={<Analysis />} />
           <Route path="/temporadas" element={<Season />} />
           <Route path="/goleadores" element={<Scorers />} />

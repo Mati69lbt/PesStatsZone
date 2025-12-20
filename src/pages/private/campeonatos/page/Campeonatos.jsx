@@ -14,11 +14,19 @@ import {
 } from "../util/funtions";
 import CampDesgl from "../util/CampDesgl";
 import { Navigate } from "react-router-dom";
+import { fetchUserData, useUserData } from "../../../../hooks/useUserData";
 
 const Campeonatos = () => {
   const { uid } = useAuth();
   const { state: matchState, dispatch: matchDispatch } = usePartido();
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
+
+  useUserData(uid, matchDispatch, lineupDispatch);
+
+  const refreshData = async () => {
+    if (!uid) return;
+    await fetchUserData(uid, matchDispatch, lineupDispatch);
+  };
 
   const clubs = Object.keys(lineupState?.lineups || []);
   const [selectedClub, setSelectedClub] = useState(
@@ -443,8 +451,7 @@ const Campeonatos = () => {
             )}
           </tbody>
         </table>
-      </div>
-      <CampDesgl matches={matches} clubKey={clubKey} uid={uid} />
+      </div>    
     </div>
   );
 };

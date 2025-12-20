@@ -147,8 +147,9 @@ export default function Navbar() {
     { path: "/registrar-partido", label: "🏠" },
     { path: "/versus", label: "🆚" },
     { path: "/temporadas", label: "🗓️" },
-    { path: "/analisis", label: "📈 " },
+    { path: "/analisis", label: "📈" },
     { path: "/campeonatos", label: "🏆" },
+    { path: "/partidos", label: "📋" },
     { path: "/goleadores", label: "⚽" },
     { path: "/formacion", label: "📝" },
     { path: "/palmares", label: "👑" },
@@ -292,7 +293,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 9.01</span>
+                <span>Versión: 11</span>
               </div>
             </div>
           </div>

@@ -145,7 +145,7 @@ const GoleadoresPorCampeonato = ({ matches }) => {
             </h3>
 
             <div className="overflow-x-auto text-xs md:text-sm">
-              <table className="table-auto border-collapse border mx-auto min-w-[500px]">
+              <table className="table-auto border-collapse border mx-auto w-full md:w-max">
                 <thead>
                   <tr className="bg-slate-100">
                     <th className="border px-2 py-1 text-left">Jugador</th>

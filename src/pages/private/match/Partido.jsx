@@ -14,7 +14,7 @@ import { pretty } from "./utils/pretty";
 import { makeHandleOnBlur } from "./utils/handleOnBlur";
 import makeHandleChangeCaptainSelect from "./utils/handleChangeCaptainSelect";
 import GuardarPartidoButton from "./button/GuardarPartidoButton";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import handleSaveMatch from "./utils/handleSaveMatch";
 import ConditionInput from "./inputs/ConditionInput";
 import makeHandleChangeSubstitutes from "./utils/handleChangeSubstitutes";
@@ -42,6 +42,10 @@ const Partido = () => {
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
   const { activeClub, lineups } = lineupState;
 
+  const { matchId } = useParams();
+
+  console.log(matchState);
+
   const navigate = useNavigate();
   const handleChange = makeHandleChange(matchDispatch);
   const handleChangeCaptainSelect = makeHandleChangeCaptainSelect(
@@ -65,6 +69,35 @@ const Partido = () => {
   if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
     return <Navigate to="/formacion" replace />;
   }
+
+  useEffect(() => {
+    if (matchId && lineupState.lineups) {
+      let found = null;
+
+      Object.keys(lineupState.lineups).forEach((clubKey) => {
+        if (found) return;
+
+        const matches = lineupState.lineups[clubKey].matches;
+
+        if (matches && Array.isArray(matches)) {
+          // Buscamos el match específico por ID dentro de este club
+          const matchMatch = matches.find((m) => m.id === matchId);
+          if (matchMatch) {
+            found = matchMatch;
+          }
+        }
+      });
+
+      if (found) {
+        matchDispatch({
+          type: "LOAD_MATCH_FOR_EDIT",
+          payload: { match: found },
+        });
+      } else {
+        console.warn("No se encontró el match con ID:", matchId);
+      }
+    }
+  }, [matchId, lineupState.lineups, matchDispatch]);
 
   return (
     <div className="p-4 max-w-md mx-auto">

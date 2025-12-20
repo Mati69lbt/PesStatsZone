@@ -18,6 +18,9 @@ export const matchInitialState = {
   goleadoresActiveClub: [],
   goleadoresRivales: [],
   autogolesFavor: 0,
+  editingMatchId: null, 
+  editingClub: null,
+  editingCreatedAt: null, 
 };
 
 export function partidoReducer(state, action) {
@@ -152,6 +155,38 @@ export function partidoReducer(state, action) {
         goleadoresRivales: state.goleadoresRivales.filter(
           (g) => !(g.name === name && g.club === club)
         ),
+      };
+    }
+
+    case "LOAD_MATCH_FOR_EDIT": {
+      const m = action.payload?.match;
+      if (!m) return state;
+
+      return {
+        ...state,
+
+        // ✅ NUEVO (marca modo edición)
+        editingMatchId: m.id,
+        editingClub: m.club ?? null,
+        editingCreatedAt: m.createdAt ?? null,
+
+        // ✅ Cargar form (ajustado a tu schema actual de saveMatch)
+        fecha: m.fecha ?? "",
+        captain: m.captain ?? "",
+        condition: m.condition ?? "local",
+        rival: m.rival ?? "",
+        torneoName: m.torneoName ?? "",
+        starters: Array.isArray(m.starters) ? m.starters : [],
+        substitutes: Array.isArray(m.substitutes) ? m.substitutes : [],
+        goleadoresActiveClub: Array.isArray(m.goleadoresActiveClub)
+          ? m.goleadoresActiveClub
+          : [],
+        goleadoresRivales: Array.isArray(m.goleadoresRivales)
+          ? m.goleadoresRivales
+          : [],
+        autogolesFavor: Number.isFinite(m.autogolesFavor)
+          ? m.autogolesFavor
+          : 0,
       };
     }
 
