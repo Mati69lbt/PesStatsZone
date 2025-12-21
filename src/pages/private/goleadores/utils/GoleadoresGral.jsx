@@ -169,6 +169,21 @@ const GoleadoresGral = ({ matches }) => {
     );
   }
 
+  const ambitoBg = (amb) => {
+    switch (amb) {
+      case "local":
+        return "bg-emerald-50";
+      case "visitante":
+        return "bg-amber-50";
+      default:
+        return "bg-sky-50"; // general
+    }
+  };
+
+  const campoHighlight = "bg-slate-200/60"; // o bg-indigo-100 etc
+
+  const isCampo = (campo, target) => campo === target;
+
   return (
     <div className="mt-4">
       <h2 className="text-xl font-bold mb-4 text-center">
@@ -274,39 +289,105 @@ const GoleadoresGral = ({ matches }) => {
                 </tr>
 
                 {/* Fila 2: Local */}
-                <tr className="bg-slate-50">
+                <tr className={ambitoBg("local")}>
                   <td className="border px-2 py-2 text-left">
                     <div className="font-semibold">Local</div>
                   </td>
-                  <td className="border px-2 py-2 text-center">{g.local.pj}</td>
-                  <td className="border px-2 py-2 text-center">
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "local" && ordenCampo === "pj"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
+                    {g.local.pj}
+                  </td>
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "local" && ordenCampo === "goles"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
                     {g.local.goles}
                   </td>
-                  <td className="border px-2 py-2 text-center">{g.local.x2}</td>
-                  <td className="border px-2 py-2 text-center">{g.local.x3}</td>
-                  <td className="border px-2 py-2 text-center">
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "local" && ordenCampo === "x2"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
+                    {g.local.x2}
+                  </td>
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "local" && ordenCampo === "x3"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
+                    {g.local.x3}
+                  </td>
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "local" && ordenCampo === "prom"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
                     {formatProm(g.local.prom)}
                   </td>
                 </tr>
 
                 {/* Fila 3: Visitante */}
-                <tr className="bg-white">
+                <tr className={ambitoBg("visitante")}>
                   <td className="border px-2 py-2 text-left">
                     <div className="font-semibold">Visitante</div>
                   </td>
-                  <td className="border px-2 py-2 text-center">
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "visitante" && ordenCampo === "pj"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
                     {g.visitante.pj}
                   </td>
-                  <td className="border px-2 py-2 text-center">
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "visitante" && ordenCampo === "goles"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
                     {g.visitante.goles}
                   </td>
-                  <td className="border px-2 py-2 text-center">
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "visitante" && ordenCampo === "x2"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
                     {g.visitante.x2}
                   </td>
-                  <td className="border px-2 py-2 text-center">
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "visitante" && ordenCampo === "x3"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
                     {g.visitante.x3}
                   </td>
-                  <td className="border px-2 py-2 text-center">
+                  <td
+                    className={`border px-2 py-2 text-center ${
+                      ordenAmbito === "visitante" && ordenCampo === "prom"
+                        ? campoHighlight
+                        : ""
+                    }`}
+                  >
                     {formatProm(g.visitante.prom)}
                   </td>
                 </tr>
@@ -391,7 +472,7 @@ const GoleadoresGral = ({ matches }) => {
             {goleadoresOrdenados.map((g, idx) => (
               <tr
                 key={g.nombre}
-                className="even:bg-slate-50 hover:bg-slate-100/70 transition-colors"
+                className="even:bg-slate-200 hover:bg-slate-100/70 transition-colors"
               >
                 {/* NUEVO: índice */}
                 <td className="border px-2 py-2 text-center sticky left-0 bg-white z-10 w-10">

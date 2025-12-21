@@ -121,7 +121,7 @@ const Season = () => {
       <div className="mb-4">
         <h1 className="text-2xl font-bold text-center">📆 Temporadas</h1>
         {clubs.length > 0 && (
-          <div className="text-center mt-3">
+          <div className="flex items-center justify-center gap-2 mt-3">
             <label className="text-sm font-medium block">Club</label>
             <select
               className="border p-1 rounded text-sm"
@@ -253,16 +253,6 @@ const Season = () => {
                     })}
                   </tbody>
                 </table>
-              </div>
-              <div className="md:w-max lg:hidden">
-                <TopGoleadores
-                  playersStats={data?.playersStats}
-                  topN={7}
-                  mode="vertical"
-                  className="mt-0"
-                  years={years}
-                  data={{ matches }}
-                />
               </div>
             </div>
 

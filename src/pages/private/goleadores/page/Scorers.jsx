@@ -59,32 +59,39 @@ const Scorers = () => {
 
   const [view, setView] = useState("goleadores"); // 'goleadores' | 'campeonatos' | 'villanos'
 
+  const years = Array.from(
+    new Set(
+      matches
+        .map((m) => m?.torneoYear ?? m?.tournamentYear ?? m?.year ?? m?.anio)
+        .filter((y) => y !== undefined && y !== null)
+        .map(String)
+    )
+  ).sort();
+
   return (
     <div className="p-4 max-w-screen-2xl mx-auto">
       {/* Selector de club */}
       <h1 className="text-center text-3xl mt-2 ">⚽ Scorers</h1>
-      <div className="flex flex-wrap gap-4 mb-4 items-end justify-center">
-        <div className="text-center">
-          <label className="text-sm font-medium block">Club</label>
-          <select
-            className="border p-1 rounded text-sm"
-            value={selectedClub}
-            onChange={(e) => setSelectedClub(e.target.value)}
-          >
-            {clubs.map((c) => (
-              <option key={c} value={c}>
-                {prettySafe(c)}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="flex items-center justify-center gap-2 m-3">
+        <label className="text-sm font-medium block">Club</label>
+        <select
+          className="border p-1 rounded text-sm"
+          value={selectedClub}
+          onChange={(e) => setSelectedClub(e.target.value)}
+        >
+          {clubs.map((c) => (
+            <option key={c} value={c}>
+              {prettySafe(c)}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Botones de vista */}
       <div className="grid grid-cols-3 gap-2 mb-4 md:flex md:flex-wrap md:justify-center">
         <button
           onClick={() => setView("goleadores")}
-          className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
+          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
             view === "goleadores"
               ? "bg-blue-600 text-white border-blue-700 shadow"
               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
@@ -94,27 +101,27 @@ const Scorers = () => {
         </button>
         <button
           onClick={() => setView("campeonatos")}
-          className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
+          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
             view === "campeonatos"
               ? "bg-blue-600 text-white border-blue-700 shadow"
               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
           }`}
         >
-          Goleadores por Campeonato
+          Campeonato
         </button>
         <button
           onClick={() => setView("año")}
-          className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
+          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
             view === "año"
               ? "bg-blue-600 text-white border-blue-700 shadow"
               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
           }`}
         >
-          Goleadores por Año
+          Año
         </button>
         <button
           onClick={() => setView("expulsados")}
-          className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
+          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
             view === "expulsados"
               ? "bg-blue-600 text-white border-blue-700 shadow"
               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
@@ -124,7 +131,7 @@ const Scorers = () => {
         </button>
         <button
           onClick={() => setView("villanos")}
-          className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
+          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
             view === "villanos"
               ? "bg-blue-600 text-white border-blue-700 shadow"
               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
@@ -134,7 +141,7 @@ const Scorers = () => {
         </button>
         <button
           onClick={() => setView("carniceros")}
-          className={`px-3 py-1.5 rounded-full text-xs md:text-sm border transition ${
+          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
             view === "carniceros"
               ? "bg-blue-600 text-white border-blue-700 shadow"
               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
@@ -153,7 +160,7 @@ const Scorers = () => {
       {view === "año" && (
         <TopGoleadores
           playersStats={data?.playersStats}
-          topN={7}
+          topN={15}
           mode="vertical"
           className="mt-0"
           years={years}
