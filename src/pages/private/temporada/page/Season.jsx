@@ -112,8 +112,7 @@ const Season = () => {
   const pick = (obj, keys) =>
     keys.reduce((acc, k) => (obj?.[k] ? { ...acc, [k]: obj[k] } : acc), {});
 
-  // const year = String(temp).slice(0, 4);
-  // console.log(year, year);
+
 
   return (
     <div className="p-4 max-w-screen-2xl mx-auto">

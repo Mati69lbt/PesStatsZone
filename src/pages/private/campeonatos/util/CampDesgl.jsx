@@ -336,11 +336,7 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
   };
 
   return (
-    <div className="mt-8">
-      <h2 className="text-lg md:text-xl font-bold mb-4 text-center">
-        📋 Detalle de Partidos por Campeonato
-      </h2>
-
+    <div className="mt-4">   
       {campeonatos.map((camp) => {
         const torneoKey = camp.nombre;
         const valorSelect = resumenResultados[torneoKey] || "";

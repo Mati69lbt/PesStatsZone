@@ -94,7 +94,7 @@ const handleSaveMatch = async ({
             : "Partido guardado correctamente ✅"
         );
         matchDispatch({ type: "RESET_FORM" });
-        navigate("/campeonatos");
+        navigate("/partidos");
       } catch (e) {
         // --- Diagnóstico detallado del error ---
         const info = {

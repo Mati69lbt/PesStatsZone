@@ -10,6 +10,7 @@ import { useLineups } from "../../../../../context/LineUpProvider";
 import { useLineupsData } from "../../../../../hooks/useLineupsData";
 import { usePartido } from "../../../../../context/PartidoReducer";
 import { normalizeName } from "../../../../../utils/normalizeName";
+import { useUserData } from "../../../../../hooks/useUserData";
 
 // Badge de color según resultado del campeonato
 const getResultadoBadgeClasses = (resultado) => {
@@ -54,11 +55,21 @@ const Palmares = () => {
   const { uid } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const { state: matchState, dispatch: matchDispatch } = usePartido();
-  const { state: lineupState, dispatch: lineupDispatch } = useLineupsData();
-  const rawClub = lineupState?.activeClub || matchState?.activeClub || "";
-  const clubKey = normalizeName ? normalizeName(rawClub) : rawClub;
+  const { state: lineupState, dispatch: lineupDispatch } = useLineups();
+
+  useUserData(uid, matchDispatch, lineupDispatch);
+
+  const [data, setData] = useState(null);
+
+  const clubs = Object.keys(lineupState?.lineups || []);
+  const [selectedClub, setSelectedClub] = useState(
+    lineupState?.activeClub || clubs[0] || ""
+  );
+
+  const clubKey = normalizeName(selectedClub || "");
+  const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
+
   const clubData = lineupState?.lineups?.[clubKey] || {};
   const hasPlayers = (clubData.players?.length ?? 0) > 0;
   const hasFormations = (clubData.formations?.length ?? 0) > 0;
@@ -69,6 +80,12 @@ const Palmares = () => {
   if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
     return <Navigate to="/formacion" replace />;
   }
+
+  useEffect(() => {
+    if (!bucket) return;
+    if (Object.keys(bucket).length === 0) return;
+    setData(bucket);
+  }, [bucket]);
 
   // Traer palmarés de Firebase para el usuario logueado
   useEffect(() => {
@@ -139,10 +156,6 @@ const Palmares = () => {
   return (
     <div className="p-4 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-2 text-center">👑 Palmarés</h1>
-      <p className="text-xs md:text-sm text-slate-500 text-center mb-6">
-        Campeonatos guardados desde la pantalla de Campeonatos, agrupados por
-        año y resultado.
-      </p>
 
       {loading && (
         <div className="text-center text-sm text-slate-500 mt-6">

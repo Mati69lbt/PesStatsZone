@@ -159,12 +159,11 @@ const Scorers = () => {
       {view === "carniceros" && <Carniceros matches={matches} />}
       {view === "año" && (
         <TopGoleadores
-          playersStats={data?.playersStats}
-          topN={15}
           mode="vertical"
-          className="mt-0"
+          topN={15}
           years={years}
-          data={{ matches }}
+          data={data}
+          showHomeAway
         />
       )}
     </div>

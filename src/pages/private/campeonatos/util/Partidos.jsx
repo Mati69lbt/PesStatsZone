@@ -5,6 +5,7 @@ import useAuth from "../../../../hooks/useAuth";
 import { fetchUserData, useUserData } from "../../../../hooks/useUserData";
 import { normalizeName } from "../../../../utils/normalizeName";
 import CampDesgl from "./CampDesgl";
+import { pretty } from "../../match/utils/pretty";
 
 const Partidos = () => {
   const { uid } = useAuth();
@@ -30,8 +31,9 @@ const Partidos = () => {
 
   return (
     <div className="p-4 max-w-screen-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-center">📋 Partidos</h1>
-
+      <h2 className="text-lg md:text-xl font-bold mb-4 text-center">
+        📋 Detalle de Partidos por Campeonato
+      </h2>
       <div className="flex flex-wrap gap-4 mb-4 items-end justify-center">
         <div className="text-center">
           <label className="text-sm font-medium block">Club</label>
@@ -42,7 +44,7 @@ const Partidos = () => {
           >
             {clubs.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {pretty(c)}
               </option>
             ))}
           </select>

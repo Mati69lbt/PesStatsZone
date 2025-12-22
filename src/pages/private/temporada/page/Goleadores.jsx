@@ -15,7 +15,9 @@ const TopGoleadores = ({
   className = "",
   years = [],
   data = null,
+  showHomeAway = false,
 }) => {
+  
   // igual que en CampDesgl.jsx (misma lógica)
   const calcularGolesGoleador = (g) => {
     if (!g) return 0;
@@ -38,12 +40,20 @@ const TopGoleadores = ({
     return mm ? mm[1] : null;
   };
 
-  const goalsFromMatches = React.useMemo(() => {
+  const goalsMaps = React.useMemo(() => {
     const ms = data?.matches;
     if (!Array.isArray(ms) || ms.length === 0) return null;
 
     const allowed = new Set((years || []).map(String));
-    const map = {};
+
+    const all = {};
+    const local = {};
+    const visitante = {};
+
+    const normCond = (c) =>
+      String(c || "")
+        .toLowerCase()
+        .trim(); // "local" | "visitante"
 
     for (const match of ms) {
       const y = getMatchYear(match);
@@ -51,20 +61,27 @@ const TopGoleadores = ({
         if (!y || !allowed.has(String(y))) continue;
       }
 
+      const cond = normCond(match?.condition);
       const scorers = Array.isArray(match?.goleadoresActiveClub)
         ? match.goleadoresActiveClub
         : [];
 
       for (const g of scorers) {
+        if (g?.isOwnGoal) continue; // por si te llegan autogoles acá
+
         const name = g?.name;
         const goles = calcularGolesGoleador(g);
         if (!name || goles <= 0) continue;
 
-        map[name] = (map[name] || 0) + goles;
+        all[name] = (all[name] || 0) + goles;
+
+        if (cond === "local") local[name] = (local[name] || 0) + goles;
+        if (cond === "visitante")
+          visitante[name] = (visitante[name] || 0) + goles;
       }
     }
 
-    return map;
+    return { all, local, visitante };
   }, [data, years]);
 
   // tu lógica vieja (la dejamos como fallback)
@@ -86,23 +103,27 @@ const TopGoleadores = ({
   // armo la lista con unión de nombres (por si hay un goleador que no esté en playersStats)
   const names = new Set([
     ...Object.keys(playersStats || {}),
-    ...(goalsFromMatches ? Object.keys(goalsFromMatches) : []),
+    ...(goalsMaps?.all ? Object.keys(goalsMaps.all) : []),
   ]);
 
-  const lista = Array.from(names)
-    .map((name) => {
-      const goals = goalsFromMatches
-        ? goalsFromMatches[name] || 0
-        : goalsForYears(playersStats[name]);
-      return { name, goals };
-    })
-    .filter((x) => x.goals > 0)
-    .sort((a, b) => {
-      const diff = b.goals - a.goals;
-      if (diff !== 0) return diff;
-      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-    })
-    .slice(0, topN);
+  const buildListFromMap = (map, limit) =>
+    Object.entries(map || {})
+      .map(([name, goals]) => ({ name, goals }))
+      .filter((x) => x.goals > 0)
+      .sort((a, b) => {
+        const diff = b.goals - a.goals;
+        if (diff !== 0) return diff;
+        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+      })
+      .slice(0, limit);
+
+  const lista = goalsMaps ? buildListFromMap(goalsMaps.all, topN) : []; // (si querés, dejá tu fallback viejo acá)
+
+  const halfN = Math.ceil(topN / 2);
+  const listaLocal = goalsMaps ? buildListFromMap(goalsMaps.local, halfN) : [];
+  const listaVisitante = goalsMaps
+    ? buildListFromMap(goalsMaps.visitante, halfN)
+    : [];
 
   if (lista.length === 0) return null;
 
@@ -110,47 +131,69 @@ const TopGoleadores = ({
     ? [...new Set(years.map(String))].sort().join(" / ")
     : "";
 
+  // vertical
+  const VerticalTable = ({ title, list }) => (
+    <div className="w-max rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="px-3 py-2 border-b border-slate-200 text-[10px] font-semibold tracking-wide text-center uppercase text-slate-800 bg-sky-50">
+        {title}
+      </div>
+
+      <table className="w-full text-[11px] border-collapse">
+        <tbody>
+          {!list || list.length === 0 ? (
+            <tr>
+              <td className="px-3 py-3 text-center text-slate-500" colSpan={3}>
+                Sin goles
+              </td>
+            </tr>
+          ) : (
+            list.map((j, i) => (
+              <tr key={j.name} className="border-b border-slate-100">
+                <td className="px-2 py-2 text-center align-middle w-12">
+                  <span className="inline-flex items-center justify-center w-9 rounded-full bg-slate-50 ring-1 ring-slate-200 text-base leading-none">
+                    {rankStyles(i).icon}
+                  </span>
+                </td>
+                <td className="px-2 py-2 text-left">
+                  <div className="text-[12px] font-medium text-slate-800">
+                    {prettySafe(j.name)}
+                  </div>
+                </td>
+                <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 w-12">
+                  {j.goals}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
   if (mode === "vertical") {
+    const yearsLabel = years?.length
+      ? [...new Set(years.map(String))].sort().join(" / ")
+      : "";
+
     return (
-      <div className={`${className}`}>
-        <div className="w-max mx-auto rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-3 py-2 border-b border-slate-200 text-[10px] font-semibold tracking-wide text-center uppercase text-slate-800 bg-sky-50">
-            Goleadores {yearsLabel}
+      <div className={`${className} flex items-start justify-center gap-3`}>
+        <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
+
+        {showHomeAway && (
+          <div className="flex flex-col gap-3">
+            <VerticalTable title={`Local ${yearsLabel}`} list={listaLocal} />
+            <VerticalTable
+              title={`Visitante ${yearsLabel}`}
+              list={listaVisitante}
+            />
           </div>
-
-          <table className="w-full text-[11px] border-collapse">
-            <tbody>
-              {lista.map((j, i) => {
-                const { bg, icon, isTop3 } = rankStyles(i);
-                return (
-                  <tr className="border-b border-slate-100">
-                    {/* Columna ranking/icono */}
-                    <td className="px-2 py-2 text-center align-middle w-12">
-                      <span className="inline-flex items-center justify-center w-9 rounded-full bg-slate-50 ring-1 ring-slate-200 text-base leading-none">
-                        {rankStyles(i).icon}
-                      </span>
-                    </td>
-
-                    {/* Columna apellido */}
-                    <td className="px-2 py-2 text-left">
-                      <div className="text-[12px] font-medium text-slate-800">
-                        {prettySafe(j.name)}
-                      </div>
-                    </td>
-
-                    {/* Columna goles */}
-                    <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 w-12">
-                      {j.goals}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        )}
       </div>
     );
   }
+
+  // fin vertical
+
   // HORIZONTAL (default)
   return (
     <div className={`mt-4 ${className} md:hidden sm:hidden lg:block`}>

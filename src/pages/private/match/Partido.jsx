@@ -42,9 +42,7 @@ const Partido = () => {
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
   const { activeClub, lineups } = lineupState;
 
-  const { matchId } = useParams();
-
-  console.log(matchState);
+  const { matchId } = useParams();  
 
   const navigate = useNavigate();
   const handleChange = makeHandleChange(matchDispatch);
