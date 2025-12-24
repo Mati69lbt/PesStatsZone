@@ -1,27 +1,30 @@
-# TODO
+## /Registrar Partido
+- [X] Ver si las sugerencias de partido se pueden poner desde el ultimo usado
 
-### Importante
+## /versus
+- [X] controlar q se vean todos bien con entrada y salida
 
-- [ ] Editar formulario
+## /temporadas
+- [X] Sacar las bolitas, poner ultimos 10 de local y visitante
+- [X] Ordenar las tablas de la mas reciente a la mas vieja
 
-### Navbar
+## /analisis
+- [X] aca se ve bien, esta desde lo mas reciente a lo mas viejo
+- [X] ver como queda el w-max y poner las dos tablas en una dila
 
-- ✅ Poner un circulo indicando el navbar activo
 
-### /Formación
+## /campeonatos
+- [X] chekear q se este mostrando del mas nuevo al mas viejo
 
-- ✅ que se vea bien en el celular apaisado
 
-### /Temporadas
+## /partidos
+- [ ] Que siempre se vea desde el principio
+- [ ] poner los titulos de partido, alneado a la izquierda, no centrados
+- [ ] ver si se puede poner una tabla, capitan, goles, rival
+- [ ] no se separan las tablas de un año al otro
 
-- ✅ Arreglar el cuadro para q se vea bien en celulares
-- [ ] ponerle año a la tabla de goleadores, porque no desgloza por año
-- ✅ Poner de nuevo la tabla de goleadores en pantalla de escritorio
+## /goleadores campeonato
+- [ ] ordenar del mas nuevo al mas viejo
 
-### /Goleadores
-
-- ✅ Sacar los jugadores q no marcaron goles
-- ✅ Si los jugadores tienen la misma cantidad de goles, q se ordenen alfabeticamente
-
-mati69@hotmail.com
-matias
+## /goleadores año
+- [ ] se tiene q hacer tablas nuevas a los goleadores, del 2019 salta al 2020 

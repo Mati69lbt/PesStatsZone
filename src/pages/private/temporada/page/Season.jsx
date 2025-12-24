@@ -62,7 +62,7 @@ const Season = () => {
 
   const [data, setData] = useState(null);
 
-  const clubs = Object.keys(lineupState?.lineups || []);
+  const clubs = Object.keys(lineupState?.lineups || {});
   const [selectedClub, setSelectedClub] = useState(
     lineupState?.activeClub || clubs[0] || ""
   );
@@ -105,19 +105,25 @@ const Season = () => {
   const partidosLegacy = usePartidosLegacy(matches);
 
   // Ordenar temporadas de la más reciente a la más vieja
-  const temporadasDesc = [...(temporadasOrdenadas || [])].reverse();
+  const temporadasDesc = [...(temporadasOrdenadas || [])].sort((a, b) => {
+    const yearsA = String(a).match(/\d{4}/g) || [];
+    const yearsB = String(b).match(/\d{4}/g) || [];
+
+    const keyA = yearsA.length ? Math.max(...yearsA.map(Number)) : -Infinity;
+    const keyB = yearsB.length ? Math.max(...yearsB.map(Number)) : -Infinity;
+
+    return keyB - keyA; // más reciente primero
+  });
 
   const visibleClub = selectedClub;
 
   const pick = (obj, keys) =>
     keys.reduce((acc, k) => (obj?.[k] ? { ...acc, [k]: obj[k] } : acc), {});
 
-
-
   return (
     <div className="p-4 max-w-screen-2xl mx-auto">
       {/* Header + selector de club */}
-      <div className="mb-4">
+      <div>
         <h1 className="text-2xl font-bold text-center">📆 Temporadas</h1>
         {clubs.length > 0 && (
           <div className="flex items-center justify-center gap-2 mt-3">
@@ -137,8 +143,8 @@ const Season = () => {
         )}
       </div>
 
-      {/* Últimos 10 resultados */}
-      <Ultimos10Resultados partidos={partidosLegacy} />
+      {/* Últimos 10 resultados
+      <Ultimos10Resultados partidos={partidosLegacy} /> */}
 
       {/* Tabla por temporada (Season) */}
       {temporadasDesc.map((temp) => {

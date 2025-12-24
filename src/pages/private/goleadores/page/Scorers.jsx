@@ -158,13 +158,21 @@ const Scorers = () => {
       {view === "expulsados" && <Expulsados matches={matches} />}
       {view === "carniceros" && <Carniceros matches={matches} />}
       {view === "año" && (
-        <TopGoleadores
-          mode="vertical"
-          topN={15}
-          years={years}
-          data={data}
-          showHomeAway
-        />
+        <div className="flex flex-col gap-4">
+          {years
+            .slice()
+            .sort((a, b) => b - a) // ✅ más reciente arriba
+            .map((y) => (
+              <TopGoleadores
+                key={y}
+                mode="vertical"
+                topN={15}
+                years={[y]} // ✅ 1 año por bloque
+                data={data}
+                showHomeAway
+              />
+            ))}
+        </div>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 // cspell: ignore Efec Segun Yefectividad resumenes Ressumenes
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import useAuth from "../../../../hooks/useAuth";
 import { usePartido } from "../../../../context/PartidoReducer";
 import { useLineups } from "../../../../context/LineUpProvider";
@@ -49,22 +49,89 @@ const Campeonatos = () => {
     ? Object.keys(clubData.playersStats).length > 0
     : false;
 
+  const hasLineupsLoaded =
+    lineupState?.lineups && Object.keys(lineupState.lineups).length > 0;
+
+  if (!hasLineupsLoaded) {
+    return (
+      <div className="p-6 text-center text-slate-500">Cargando datos...</div>
+    );
+  }
+
   if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
     return <Navigate to="/formacion" replace />;
   }
 
+  const clavesPorAnio = useMemo(() => {
+    const norm = (s) =>
+      String(s || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+
+    // 1) índice por torneoDisplay y torneoName (por si tu clave coincide con uno u otro)
+    const yearByDisplay = new Map();
+    const yearByName = new Map();
+
+    for (const m of matches || []) {
+      const y = Number(m?.torneoYear) || null;
+      if (!y) continue;
+
+      const d = norm(m?.torneoDisplay);
+      const n = norm(m?.torneoName);
+
+      if (d) yearByDisplay.set(d, y);
+      if (n) yearByName.set(n, y);
+    }
+
+    // 2) agrupar claves
+    const groups = new Map(); // year -> claves[]
+    for (const clave of clavesOrdenadas || []) {
+      const k = norm(clave);
+
+      // a) si la clave ya tiene año en el texto (ej: "Primera Etapa 2020")
+      const mYear = String(clave).match(/\b(19|20)\d{2}\b/);
+      let year = mYear ? Number(mYear[0]) : null;
+
+      // b) fallback: buscar en matches por display o name
+      if (!year) year = yearByDisplay.get(k) || yearByName.get(k) || null;
+
+      const bucket = year ?? 0; // 0 = "Sin año"
+      if (!groups.has(bucket)) groups.set(bucket, []);
+      groups.get(bucket).push(clave);
+    }
+
+    // 3) ordenar años desc (más nuevo primero), dejando "Sin año" al final
+    const years = Array.from(groups.keys()).sort((a, b) => {
+      if (a === 0) return 1;
+      if (b === 0) return -1;
+      return b - a;
+    });
+
+    return years.map((y) => ({
+      year: y,
+      claves: groups.get(y),
+    }));
+  }, [matches, clavesOrdenadas]);
+
   return (
     <div className="p-4 max-w-screen-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-center">🏆 Campeonatos</h1>
+      {/* ✅ Header más lindo */}
+      <h1 className="mb-6 text-center text-3xl font-extrabold tracking-tight text-slate-900">
+        🏆 Campeonatos      
+      </h1>
 
-      {/* Controles: mismo patrón que Versus */}
-      <div className="flex flex-wrap gap-4 mb-4 items-end justify-center">
+      {/* ✅ Controles (más prolijos) */}
+      <div className="mb-4 flex flex-wrap items-end justify-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="text-center">
-          <label className="text-sm font-medium block">Club</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Club
+          </label>
           <select
-            className="border p-1 rounded text-sm"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
             value={selectedClub}
             onChange={(e) => setSelectedClub(e.target.value)}
+            aria-label="Seleccionar club"
           >
             {clubs.map((c) => (
               <option key={c} value={c}>
@@ -75,11 +142,14 @@ const Campeonatos = () => {
         </div>
 
         <div className="text-center">
-          <label className="text-sm font-medium block">Orden</label>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Orden
+          </label>
           <select
-            className="border p-1 rounded text-sm"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
             value={orden}
             onChange={(e) => setOrden(e.target.value)}
+            aria-label="Ordenar campeonatos"
           >
             <option value="desc">Más nuevos primero</option>
             <option value="asc">Más viejos primero</option>
@@ -87,10 +157,11 @@ const Campeonatos = () => {
         </div>
       </div>
 
-      {/* Tabla */}
-      {/* Vista MOBILE: layout apilado (sm:hidden) */}
-      <div className="lg:hidden max-h-[75vh] overflow-auto  rounded-lg bg-white  ">
-        <div className="flex justify-center">
+      {/* ========================= */}
+      {/* ✅ MOBILE: 3 filas por campeonato */}
+      {/* ========================= */}
+      <div className="lg:hidden max-h-[75vh] overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex justify-center p-2">
           <table className="w-max text-[12px] md:text-sm border-separate border-spacing-px bg-white">
             <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
               <tr>
@@ -123,9 +194,11 @@ const Campeonatos = () => {
                 </th>
               </tr>
             </thead>
+
             <tbody>
               {clavesOrdenadas.map((clave) => {
-                const r = resumenes[clave];
+                const r = resumenes?.[clave];
+                if (!r) return null; // ✅ evita crash si falta data
 
                 const dgG = getDG(r.general);
                 const dgL = getDG(r.local);
@@ -147,7 +220,7 @@ const Campeonatos = () => {
 
                 return (
                   <React.Fragment key={clave}>
-                    {/* Fila GENERAL → nombre del campeonato */}
+                    {/* GENERAL */}
                     <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
                       <td className="px-3 py-1.5 font-semibold text-left text-slate-800">
                         {prettySafe(clave)}
@@ -178,7 +251,7 @@ const Campeonatos = () => {
                       </td>
                     </tr>
 
-                    {/* Fila LOCAL */}
+                    {/* LOCAL */}
                     <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
                       <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
                         LOCAL
@@ -209,7 +282,7 @@ const Campeonatos = () => {
                       </td>
                     </tr>
 
-                    {/* Fila VISITANTE */}
+                    {/* VISITANTE */}
                     <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
                       <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
                         VISITANTE
@@ -258,8 +331,10 @@ const Campeonatos = () => {
         </div>
       </div>
 
-      {/* Vista DESKTOP/TABLET: tabla completa (hidden en mobile) */}
-      <div className="hidden lg:block max-h-[75vh] overflow-auto">
+      {/* ========================= */}
+      {/* ✅ DESKTOP/TABLET: tabla completa */}
+      {/* ========================= */}
+      <div className="hidden lg:block max-h-[75vh] overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm p-2">
         <table className="mx-auto w-max table-auto text-[11px] md:text-sm border-collapse">
           <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] md:text-xs uppercase tracking-wide">
             <tr>
@@ -340,10 +415,13 @@ const Campeonatos = () => {
               </th>
             </tr>
           </thead>
+
           <tbody>
             {clavesOrdenadas.map((clave, idx) => {
+              const r = resumenes?.[clave];
+              if (!r) return null; // ✅ evita crash si falta data
+
               const rowBg = idx % 2 === 0 ? "bg-white" : "bg-slate-50";
-              const r = resumenes[clave];
 
               const dg = getDG(r.general);
               const dgL = getDG(r.local);
@@ -451,9 +529,10 @@ const Campeonatos = () => {
             )}
           </tbody>
         </table>
-      </div>    
+      </div>
     </div>
   );
+
 };
 
 export default Campeonatos;

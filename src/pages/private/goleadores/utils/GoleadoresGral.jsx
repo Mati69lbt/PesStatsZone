@@ -185,7 +185,7 @@ const GoleadoresGral = ({ matches }) => {
   const isCampo = (campo, target) => campo === target;
 
   return (
-    <div className="mt-4">
+    <div className="mt-6">
       <h2 className="text-xl font-bold mb-4 text-center">
         👤 Goleadores del equipo
       </h2>

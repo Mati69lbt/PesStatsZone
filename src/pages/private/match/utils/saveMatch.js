@@ -89,11 +89,8 @@ const saveMatch = async ({
     torneoName: name,
     torneoYear: year,
     torneoDisplay: display,
-
-    // ✅ en edición, NO piso createdAt
     createdAt: isEditing ? editingCreatedAt ?? Date.now() : Date.now(),
     updatedAt: Date.now(),
-
     starters: starters,
     substitutes: substitutes,
     goleadoresActiveClub: goleadoresActiveClub || [],

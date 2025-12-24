@@ -211,6 +211,29 @@ const saveResultadoEnPalmares = async ({ uid, clubKey, camp, value }) => {
   }
 };
 
+const normKey = (v) =>
+  String(v ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+
+const extractYearFromMatch = (m) => {
+  const y = m?.torneoYear;
+  if (y !== undefined && y !== null && y !== "") return Number(y);
+
+  // fallback: si el display viene tipo "Primera Etapa 2020"
+  const mYear = String(m?.torneoDisplay || "").match(/\b(19|20)\d{2}\b/);
+  return mYear ? Number(mYear[0]) : null;
+};
+
+const getCampKeyFromMatch = (m) => {
+  const base = normKey(
+    m?.torneoName || m?.torneo || m?.torneoDisplay || "Sin torneo"
+  );
+  const year = extractYearFromMatch(m);
+  return `${base}__${year ?? "NA"}`;
+};
+
 const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
   const navigate = useNavigate();
 
@@ -223,14 +246,21 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
     const map = new Map();
 
     matches.forEach((m) => {
-      const key = m.torneoName || m.torneo || "Sin torneo";
+      const baseName =
+        m.torneoName || m.torneo || m.torneoDisplay || "Sin torneo";
+      const year = extractYearFromMatch(m);
+      const key = getCampKeyFromMatch(m); // ✅ torneo + año (normalizado)
+
       if (!map.has(key)) {
         map.set(key, {
-          nombre: key,
+          key, // ✅ clave interna
+          nombre: baseName, // 👈 lo que se muestra (sin “ensuciar”)
+          year, // ✅ año del grupo
           matches: [],
           lastDate: null,
         });
       }
+
       const camp = map.get(key);
       camp.matches.push(m);
 
@@ -268,7 +298,7 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
       if (!campeonatos || !campeonatos.length) return;
 
       try {
-        const torneosSet = new Set(campeonatos.map((c) => c.nombre));
+        const torneosSet = new Set(campeonatos.map((c) => c.key));
 
         const ref = collection(db, "palmares");
         const q = query(ref, where("uid", "==", uid));
@@ -278,17 +308,19 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
 
         snap.forEach((docSnap) => {
           const data = docSnap.data();
-          const torneo = data.torneoDisplay;
           const value = data.resultado;
+          const base = normKey(data.torneoDisplay);
+          const year = data.year ?? null;
+          const docKey = `${base}__${year ?? "NA"}`;
 
-          if (torneosSet.has(torneo) && typeof value === "string") {
-            loaded[torneo] = value;
+          if (torneosSet.has(docKey) && typeof value === "string") {
+            loaded[docKey] = value;
           }
         });
 
         setResumenResultados((prev) => ({
-          ...loaded,
           ...prev,
+          ...loaded,
         }));
       } catch (error) {
         console.error("Error cargando palmarés:", error);
@@ -299,7 +331,7 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
   }, [uid, campeonatos]);
 
   const handleResultadoChange = async (camp, value) => {
-    const torneoKey = camp.nombre;
+    const torneoKey = camp.key;
 
     setResumenResultados((prev) => ({
       ...prev,
@@ -336,11 +368,11 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
   };
 
   return (
-    <div className="mt-4">   
+    <div className="mt-4">
       {campeonatos.map((camp) => {
-        const torneoKey = camp.nombre;
+        const torneoKey = camp.key;
         const valorSelect = resumenResultados[torneoKey] || "";
-        const year = getYearFromCamp(camp);
+        const year = camp.year ?? getYearFromCamp(camp);
         const tituloCamp = `${prettySafe(camp.nombre)}${
           year ? ` ${year}` : ""
         }`;
@@ -382,16 +414,21 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
                 </div>
               </div>
               {/* { 2 renglones */}
-              <div className="sm:hidden space-y-3">
+              <div className="sm:hidden space-y-1">
                 {camp.matches.map((m) => (
                   <div
                     key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
                     className="border border-slate-200 rounded-lg overflow-hidden bg-white"
                   >
                     {/* Fila 1: Fecha + Resultado + Acciones */}
-                    <div className="flex items-center justify-between gap-2 px-3 py-2 bg-slate-50">
-                      <div className="text-xs tabular-nums">
-                        {formatDDMM(m)}
+                    <div className="flex items-center justify-start gap-2 px-3 py-2 bg-slate-50">
+                      <div>
+                        <div className="text-xs tabular-nums">
+                          {formatDDMM(m)}
+                        </div>
+                        <span className="text-slate-900 text-[10px]">
+                          {m.captain ? prettySafe(m.captain) : "—"}
+                        </span>
                       </div>
 
                       <span
@@ -403,7 +440,7 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
                         {prettySafe(m.resultMatch || "")}
                       </span>
 
-                      <div className="flex items-center gap-2">
+                      <div className="ml-auto flex items-center gap-2">
                         <button
                           type="button"
                           className="cursor-pointer disabled:opacity-40"
@@ -430,28 +467,23 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
                     </div>
 
                     {/* Fila 2: Detalles */}
-                    <div className="px-3 py-2 text-[12px] space-y-1">
-                      <div className="flex gap-2">
-                        <span className="text-slate-500 min-w-[72px]">
-                          Capitán
-                        </span>
-                        <span className="font-medium">
-                          {m.captain ? prettySafe(m.captain) : "—"}
-                        </span>
+                    {/* Fila 2: Goleadores (2 columnas) */}
+                    <div className="px-3 py-2 text-[12px]">
+                      {/* títulos */}
+                      <div className="flex items-center justify-between px-4 text-[10px] uppercase tracking-wide text-slate-500">
+                        <span className="flex-1 text-left pr-3">Goles</span>
+                        <span className="flex-1 text-right pl-3">Rival</span>
                       </div>
 
-                      <div className="flex gap-2">
-                        <span className="text-slate-500 min-w-[72px]">
-                          Goles
+                      {/* valores */}
+                      <div className="mt-1 flex items-start justify-between px-4">
+                        <span className="flex-1 text-left pr-3 text-slate-800 break-words">
+                          {getGoleadoresPropiosTexto(m)}
                         </span>
-                        <span>{getGoleadoresPropiosTexto(m)}</span>
-                      </div>
 
-                      <div className="flex gap-2">
-                        <span className="text-slate-500 min-w-[72px]">
-                          Rival
+                        <span className="flex-1 text-right pl-3 text-slate-800 break-words">
+                          {getGoleadoresRivalesTexto(m)}
                         </span>
-                        <span>{getGoleadoresRivalesTexto(m)}</span>
                       </div>
                     </div>
                   </div>

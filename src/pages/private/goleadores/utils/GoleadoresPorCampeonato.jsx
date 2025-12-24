@@ -34,9 +34,18 @@ const GoleadoresPorCampeonato = ({ matches }) => {
         torneos[key] = {
           label,
           year: torneoYear,
-          jugadores: {}, // slugJugador -> stats
+          jugadores: {},
+          lastPlayed: 0,
         };
       }
+
+      const ts =
+        Date.parse(match?.fecha) ||
+        Number(match?.updatedAt) ||
+        Number(match?.createdAt) ||
+        0;
+
+      if (ts > torneos[key].lastPlayed) torneos[key].lastPlayed = ts;
 
       // ---------- A) PJ por participación (starters + substitutes) ----------
       const startersArr = Array.isArray(starters) ? starters : [];
@@ -104,9 +113,13 @@ const GoleadoresPorCampeonato = ({ matches }) => {
     });
 
     // Ordenar torneos de más reciente a más viejo
-    return Object.values(torneos).sort(
-      (a, b) => b.year - a.year || a.label.localeCompare(b.label)
-    );
+    return Object.values(torneos).sort((a, b) => {
+      // ✅ más recientemente jugado primero
+      if (b.lastPlayed !== a.lastPlayed) return b.lastPlayed - a.lastPlayed;
+
+      // fallback: año + label
+      return b.year - a.year || a.label.localeCompare(b.label);
+    });
   }, [matches]);
 
   const calcularPromedio = (goles, pj) => {

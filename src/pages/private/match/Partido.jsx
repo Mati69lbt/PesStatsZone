@@ -42,7 +42,7 @@ const Partido = () => {
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
   const { activeClub, lineups } = lineupState;
 
-  const { matchId } = useParams();  
+  const { matchId } = useParams();
 
   const navigate = useNavigate();
   const handleChange = makeHandleChange(matchDispatch);
@@ -97,8 +97,10 @@ const Partido = () => {
     }
   }, [matchId, lineupState.lineups, matchDispatch]);
 
+  
+
   return (
-    <div className="p-4 max-w-md mx-auto">
+    <div className="mt-6 max-w-md mx-auto">
       <h1 className="text-2xl font-bold mb-4 text-center">Registrar Partido</h1>
       <form className="bg-white shadow-md rounded-xl p-6 space-y-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
@@ -123,6 +125,7 @@ const Partido = () => {
           value={matchState.torneoName}
           onChange={handleChange}
           suggestions={matchState.torneosIndex}
+          matches={matchState.matches}
           onBlur={makeHandleOnBlur(
             matchDispatch,
             "torneoName",

@@ -80,13 +80,13 @@ const Versus = () => {
   );
 
   return (
-    <div className="p-4 max-w-7xl mx-auto">
+    <div className="mt-6 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-center">
         📊 Estadísticas del Equipo
       </h1>
 
       {/* Controles (iguales a los que ya usabas) */}
-      <div className="flex flex-wrap mb-2 gap-x-10 gap-y-2 justify-evenly sm:gap-x-4 sm:gap-y-2 sm:items-end sm:justify-center">
+      <div className="flex flex-wrap mb-2 gap-x-20 gap-y-2 justify-center sm:gap-x-4 sm:gap-y-2 sm:items-end sm:justify-center">
         {/* Club */}
         <div className="text-center">
           <label className="text-sm font-medium block">Club</label>
@@ -183,20 +183,24 @@ const Versus = () => {
               </tr>
             ) : (
               estadisticas.map(([rival, stats], index) => {
+                const rivalClean =
+                  typeof rival === "string"
+                    ? rival.trim().replace(/\s+/g, " ")
+                    : String(rival ?? "");
                 const rowBg = index % 2 === 0 ? "bg-white" : "bg-gray-200";
-                const hasSpace = /\s/.test(rival);
+                const hasSpace = /\s/.test(rivalClean);
                 return (
-                  <tr key={rival} className={rowBg}>
+                  <tr key={rivalClean} className={rowBg}>
                     <td className="border px-1 py-2 font-semibold text-left">
                       <div
-                        title={rival}
+                        title={rivalClean}
                         className={
                           hasSpace
                             ? "block w-full whitespace-normal"
                             : "block w-full truncate"
                         }
                       >
-                        {rival}
+                        {rivalClean}
                       </div>
                     </td>
                     {columnas.map((col) => {

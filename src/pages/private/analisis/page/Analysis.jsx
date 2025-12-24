@@ -18,7 +18,7 @@ const Analysis = () => {
 
   const [data, setData] = useState(null);
 
-  const clubs = Object.keys(lineupState?.lineups || []);
+  const clubs = Object.keys(lineupState?.lineups || {});
   const [selectedClub, setSelectedClub] = useState(
     lineupState?.activeClub || clubs[0] || ""
   );
@@ -63,15 +63,19 @@ const Analysis = () => {
   const visibleClub = selectedClub;
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      <div className="grid grid-cols-3 items-center mb-4">
-        <h1 className="text-2xl font-bold text-center col-start-2">
+      <div className="mb-6 grid grid-cols-3 items-center">
+        <div /> {/* spacer */}
+        <h1 className="text-center text-3xl font-extrabold tracking-tight text-slate-900">
           📊 Análisis
+          <span className="ml-3 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+            por torneo y capitán
+          </span>
         </h1>
-        {clubs.length > 1 && (
+        {clubs.length > 1 ? (
           <div className="justify-self-end flex items-center gap-2">
-            <span className="text-sm text-gray-600">Club:</span>
+            <span className="text-sm text-slate-600">Club:</span>
             <select
-              className="border rounded px-2 py-1 text-sm"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
               value={visibleClub}
               onChange={(e) => setSelectedClub(e.target.value)}
             >
@@ -82,50 +86,70 @@ const Analysis = () => {
               ))}
             </select>
           </div>
+        ) : (
+          <div />
         )}
       </div>
 
-      {/* Totales Generales: todas las tarjetitas de capitanes en UNA fila */}
-      <h2 className="text-lg font-bold mb-2 text-center underline">
-        Totales Generales
-      </h2>
-
-      <div className="overflow-x-auto">
-        <div className="flex flex-col gap-3 mx-auto w-full sm:flex-row sm:flex-nowrap sm:justify-center sm:w-max">
-          {captains.map((cap) => (
-            <div
-              key={`total-${cap.captain}`}
-              className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"
-            >
-              <StatsTable title={cap.captain} rows={toRows(cap.total)} />
-            </div>
-          ))}
-          {!captains.length && (
-            <div className="text-gray-500 text-sm">— Sin partidos —</div>
-          )}
+      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+          <h2 className="text-sm font-extrabold tracking-wide text-slate-800 uppercase">
+            Totales Generales
+          </h2>
+          <span className="text-xs text-slate-500">
+            {captains.length ? `${captains.length} capitanes` : "—"}
+          </span>
         </div>
-      </div>
+
+        <div className="p-3">
+          <div className="overflow-x-auto">
+            <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
+              {captains.map((cap) => (
+                <div
+                  key={`total-${cap.captain}`}
+                  className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"
+                >
+                  <StatsTable title={cap.captain} rows={toRows(cap.total)} />
+                </div>
+              ))}
+              {!captains.length && (
+                <div className="text-slate-500 text-sm px-2 py-4">
+                  — Sin partidos —
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Por campeonato: sección por torneo (recientes primero), en cada una TODAS las tarjetitas */}
-      <div className="mt-6 space-y-6">
+      <div className="mt-2 space-y-6 ">
         {tournamentsOrdered.map((tName) => (
-          <section key={tName}>
-            <h3 className="font-bold text-base md:text-lg mb-2 text-center underline">
-              {tName}
-            </h3>
-            <div className="overflow-x-auto">
-              <div className="flex flex-col gap-3 mx-auto w-full sm:flex-row sm:flex-nowrap sm:justify-center sm:w-max">
-                {captains.map((cap) => {
-                  const triple = cap.byTournament[tName] || emptyTriple();
-                  return (
-                    <div
-                      key={`${tName}-${cap.captain}`}
-                      className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"
-                    >
-                      <StatsTable title={cap.captain} rows={toRows(triple)} />
-                    </div>
-                  );
-                })}
+          <section
+            key={tName}
+            className="rounded-2xl border border-slate-200 bg-white shadow-sm"
+          >
+            <div className="px-4 py-3 border-b border-slate-200">
+              <h3 className="text-sm font-extrabold tracking-wide text-slate-800 uppercase text-center">
+                {tName}
+              </h3>
+            </div>
+
+            <div className="p-3">
+              <div className="overflow-x-auto">
+                <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
+                  {captains.map((cap) => {
+                    const triple = cap.byTournament[tName] || emptyTriple();
+                    return (
+                      <div
+                        key={`${tName}-${cap.captain}`}
+                        className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"
+                      >
+                        <StatsTable title={cap.captain} rows={toRows(triple)} />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>
