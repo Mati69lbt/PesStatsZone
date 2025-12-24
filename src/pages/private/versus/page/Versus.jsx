@@ -80,8 +80,8 @@ const Versus = () => {
   );
 
   return (
-    <div className="mt-6 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-center">
+    <div className="p-2 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-center mt-4">
         📊 Estadísticas del Equipo
       </h1>
 
