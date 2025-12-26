@@ -180,7 +180,7 @@ const TopGoleadores = ({
         <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
 
         {showHomeAway && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 w-max">
             <VerticalTable title={`Local ${yearsLabel}`} list={listaLocal} />
             <VerticalTable
               title={`Visitante ${yearsLabel}`}

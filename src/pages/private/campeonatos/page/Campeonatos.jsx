@@ -115,10 +115,10 @@ const Campeonatos = () => {
   }, [matches, clavesOrdenadas]);
 
   return (
-    <div className="p-4 max-w-screen-2xl mx-auto">
+    <div className="p-1 max-w-screen-2xl mx-auto">
       {/* ✅ Header más lindo */}
       <h1 className="mb-6 text-center text-3xl font-extrabold tracking-tight text-slate-900">
-        🏆 Campeonatos      
+        🏆 Campeonatos
       </h1>
 
       {/* ✅ Controles (más prolijos) */}
@@ -160,12 +160,12 @@ const Campeonatos = () => {
       {/* ========================= */}
       {/* ✅ MOBILE: 3 filas por campeonato */}
       {/* ========================= */}
-      <div className="lg:hidden max-h-[75vh] overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="lg:hidden max-h-[75vh] overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm w-full">
         <div className="flex justify-center p-2">
           <table className="w-max text-[12px] md:text-sm border-separate border-spacing-px bg-white">
             <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
               <tr>
-                <th className="px-3 py-2 text-left border-b border-slate-200">
+                <th className="px-3 py-2 text-left border-b border-slate-200 w-[100px]">
                   Campeonato
                 </th>
                 <th className="px-2 py-2 text-center border-b border-slate-200">
@@ -222,7 +222,7 @@ const Campeonatos = () => {
                   <React.Fragment key={clave}>
                     {/* GENERAL */}
                     <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
-                      <td className="px-3 py-1.5 font-semibold text-left text-slate-800">
+                      <td className="px-3 py-1.5 font-semibold text-center text-slate-800">
                         {prettySafe(clave)}
                       </td>
                       <td className={`px-2 py-1 text-center ${colGen}`}>
@@ -253,7 +253,7 @@ const Campeonatos = () => {
 
                     {/* LOCAL */}
                     <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                      <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                      <td className="px-3 py-1 text-right text-[10px] uppercase tracking-wide text-slate-600">
                         LOCAL
                       </td>
                       <td className={`px-2 py-1 text-center ${colLoc}`}>
@@ -284,7 +284,7 @@ const Campeonatos = () => {
 
                     {/* VISITANTE */}
                     <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                      <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                      <td className="px-3 py-1 text-right text-[10px] uppercase tracking-wide text-slate-600">
                         VISITANTE
                       </td>
                       <td className={`px-2 py-1 text-center ${colVis}`}>
@@ -532,7 +532,6 @@ const Campeonatos = () => {
       </div>
     </div>
   );
-
 };
 
 export default Campeonatos;

@@ -154,138 +154,145 @@ const Versus = () => {
       </div>
 
       {/* Tabla responsive como la anterior */}
-      <div className="max-h-[80vh] w-[100%] mx-auto overflow-auto border rounded">
-        <table className="w-full table-fixed text-[11px] md:text-sm border-collapse">
-          <thead className="bg-blue-200 sticky top-0 shadow-lg">
-            <tr>
-              <th className="border px-2 py-2 w-[70px] text-left font-bold">
-                Rival
-              </th>
-              {columnas.map((col) => (
-                <th
-                  key={col}
-                  className="border px-2 py-1 text-center w-[100px]"
-                >
-                  {prettyScope(col)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {!Array.isArray(estadisticas) || estadisticas.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={1 + columnas.length}
-                  className="border px-3 py-6 text-center text-gray-500 font-semibold"
-                >
-                  Sin datos
-                </td>
-              </tr>
-            ) : (
-              estadisticas.map(([rival, stats], index) => {
-                const rivalClean =
-                  typeof rival === "string"
-                    ? rival.trim().replace(/\s+/g, " ")
-                    : String(rival ?? "");
-                const rowBg = index % 2 === 0 ? "bg-white" : "bg-gray-200";
-                const hasSpace = /\s/.test(rivalClean);
-                return (
-                  <tr key={rivalClean} className={rowBg}>
-                    <td className="border px-1 py-2 font-semibold text-left">
-                      <div
-                        title={rivalClean}
-                        className={
-                          hasSpace
-                            ? "block w-full whitespace-normal"
-                            : "block w-full truncate"
-                        }
-                      >
-                        {rivalClean}
-                      </div>
-                    </td>
-                    {columnas.map((col) => {
-                      const box = stats[col] || emptyBox();
-                      const bg =
-                        box.pj > 0 ? getColorSegunResultado(box) : rowBg;
-                      const df = box.gf - box.gc;
-                      const dfClass =
-                        df > 0
-                          ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500"
-                          : df < 0
-                          ? "bg-rose-50 text-rose-800 ring-1 ring-rose-500"
-                          : "bg-slate-50 text-slate-700 ring-1 ring-slate-200";
+  <div className="max-h-[80vh] w-[100%] mx-auto overflow-auto border rounded">
+         <table className="min-w-full w-max table-auto text-[11px] md:text-sm border-collapse">
+           <thead className="bg-blue-200 sticky top-0 shadow-lg">
+             <tr>
+               <th className="border px-2 py-2 min-w-[80px] w-[80px] text-left font-bold">
+                 Rival
+               </th>
+               {columnas.map((col) => (
+                 <th
+                   key={col}
+                   className="border px-2 py-1 text-center min-w-[110px]"
+                 >
+                   {prettyScope(col)}
+                 </th>
+               ))}
+             </tr>
+           </thead>
+           <tbody>
+             {!Array.isArray(estadisticas) || estadisticas.length === 0 ? (
+               <tr>
+                 <td
+                   colSpan={1 + columnas.length}
+                   className="border px-3 py-6 text-center text-gray-500 font-semibold"
+                 >
+                   Sin datos
+                 </td>
+               </tr>
+             ) : (
+               estadisticas.map(([rival, stats], index) => {
+                 const rivalClean =
+                   typeof rival === "string"
+                     ? rival.trim().replace(/\s+/g, " ")
+                     : String(rival ?? "");
+                 const rowBg = index % 2 === 0 ? "bg-white" : "bg-gray-200";
+                 const hasSpace = /\s/.test(rivalClean);
+                 return (
+                   <tr key={rivalClean} className={rowBg}>
+                     <td className="border px-1 py-2 font-semibold text-left">
+                       <div
+                         title={rivalClean}
+                         className={
+                           hasSpace
+                             ? "block w-full whitespace-normal"
+                             : "block w-full truncate"
+                         }
+                       >
+                         {rivalClean}
+                       </div>
+                     </td>
+                     {columnas.map((col) => {
+                       const box = stats[col] || emptyBox();
+                       const bg =
+                         box.pj > 0 ? getColorSegunResultado(box) : rowBg;
+                       const df = box.gf - box.gc;
+                       const dfClass =
+                         df > 0
+                           ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500"
+                           : df < 0
+                           ? "bg-rose-50 text-rose-800 ring-1 ring-rose-500"
+                           : "bg-slate-50 text-slate-700 ring-1 ring-slate-200";
+ 
+                       const dfTxt =
+                         df > 0 ? `${df}` : df < 0 ? `${Math.abs(df)}` : "0";
+ 
+                       if (box.pj === 0) {
+                         return (
+                           <td
+                             key={col}
+                             className={`border px-1 py-1 overflow-hidden text-center align-middle ${rowBg} min-w-[110px]`}
+                           >
+                             <span className="text-xl font-black text-gray-900 leading-none">
+                               —
+                             </span>
+                           </td>
+                         );
+                       }
+ 
+                       return (
+                         <td
+                           key={col}
+                           className={`border px-1 py-1 overflow-hidden text-center align-top ${bg} min-w-[110px]`}
+                         >
+                           <div className="w-full leading-tight">
+                             {/* Línea 1: G · E · P (labels) */}
+                             <div className="text-[12px] text-gray-500 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center whitespace-nowrap">
+                               <span>G</span>
+                               <span className="text-gray-400">·</span>
+                               <span>E</span>
+                               <span className="text-gray-400">·</span>
+                               <span>P</span>
+                             </div>
 
-                      const dfTxt =
-                        df > 0 ? `${df}` : df < 0 ? `${Math.abs(df)}` : "0";
+                             {/* Línea 2: G · E · P (values) */}
+                             <div className="font-bold tabular-nums grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center whitespace-nowrap">
+                               <span>{box.g}</span>
+                               <span className="text-gray-400">·</span>
+                               <span>{box.e}</span>
+                               <span className="text-gray-400">·</span>
+                               <span>{box.p}</span>
+                             </div>
 
-                      if (box.pj === 0) {
-                        return (
-                          <td
-                            key={col}
-                            className={`border px-1 py-1 text-center align-middle ${rowBg}`}
-                          >
-                            <span className="text-xl font-black text-gray-900 leading-none">
-                              —
-                            </span>
-                          </td>
-                        );
-                      }
+                             {/* Línea 3: PJ · GF · GC · DF (labels) */}
+                             <div className="mt-0.5 text-[12px] text-gray-500 grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-center whitespace-nowrap">
+                               <span>PJ</span>
+                               <span className="text-gray-400">·</span>
+                               <span>GF</span>
+                               <span className="text-gray-400">·</span>
+                               <span>GC</span>
+                               <span className="text-gray-400">·</span>
+                               <span>DF</span>
+                             </div>
 
-                      return (
-                        <td
-                          key={col}
-                          className={`border px-1 py-1 whitespace-pre-line text-center align-top ${bg}`}
-                        >
-                          <div className="flex flex-col items-center leading-tight">
-                            {/* Línea 1: G-E-P grande */}
-                            <div className="text-[12px] text-gray-500 flex items-center gap-3 lg:gap-5">
-                              <span>G</span>
-                              <span className="text-gray-400">·</span>
-                              <span>E</span>
-                              <span className="text-gray-400">·</span>
-                              <span>P</span>
-                            </div>
-                            <div className="font-bold tabular-nums flex items-center gap-3 lg:gap-4">
-                              <span>{box.g}</span>
-                              <span className="text-gray-400">·</span>
-                              <span>{box.e}</span>
-                              <span className="text-gray-400">·</span>
-                              <span>{box.p}</span>
-                            </div>
-                            <div className="text-[12px] text-gray-500 flex items-center gap-1 lg:gap-3">
-                              <span>PJ</span>
-                              <span className="text-gray-400">·</span>
-                              <span>GF</span>
-                              <span className="text-gray-400">·</span>
-                              <span>GC</span>
-                              <span className="text-gray-400">·</span>
-                              <span>DF</span>
-                            </div>
-                            <div className="font-bold tabular-nums flex items-center gap-2 lg:gap-4">
-                              <span>{box.pj}</span>
-                              <span className="text-gray-400">·</span>
-                              <span>{box.gf}</span>
-                              <span className="text-gray-400">·</span>
-                              <span>{box.gc}</span>
-                              <span className="text-gray-400">·</span>
-                              <span
-                                className={`px-1 py-0.5 rounded-full font-semibold tabular-nums ${dfClass}`}
-                              >
-                                {df > 0 ? "+" : ""}
-                                {df}
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                             {/* Línea 4: PJ · GF · GC · DF (values) */}
+                             <div className="font-bold tabular-nums grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-center whitespace-nowrap">
+                               <span>{box.pj}</span>
+                               <span className="text-gray-400">·</span>
+                               <span>{box.gf}</span>
+                               <span className="text-gray-400">·</span>
+                               <span>{box.gc}</span>
+                               <span className="text-gray-400">·</span>
+                               <span
+                                 className={`justify-self-center px-1 py-0.5 rounded-full font-semibold tabular-nums ${dfClass}`}
+                               >
+                                 {df > 0 ? "+" : ""}
+                                 {df}
+                               </span>
+                             </div>
+                           </div>
+                         </td>
+                       );
+
+                     })}
+                   </tr>
+                 );
+               })
+             )}
+           </tbody>
+         </table>
+       </div>
     </div>
   );
 };

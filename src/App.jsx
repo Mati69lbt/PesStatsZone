@@ -1,7 +1,7 @@
 // cspell: ignore Notiflix notiflix useAuth logueado formacion analisis
 
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, HashRouter } from "react-router-dom";
 import Public from "./pages/public/Public";
 import Login from "./pages/public/Login";
 import Private from "./pages/private/Private";
@@ -30,7 +30,7 @@ function Hydrator() {
 const repoName = "PesStatsZone";
 const App = () => {
   return (
-    <BrowserRouter basename={`/${repoName}/`}>
+    <HashRouter>
       <ScrollToTop />
       <Routes>
         <Route element={<Public />}>
@@ -51,7 +51,7 @@ const App = () => {
           <Route path="/palmares" element={<Palmares />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 

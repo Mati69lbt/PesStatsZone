@@ -381,7 +381,7 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
             {/* Card única: header + tabla comparten ancho */}
             <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-max ">
               {/* Header del campeonato + select Resultado */}
-              <div className="flex   items-center  flex-row  justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50 rounded-t-lg">
+              <div className="flex   items-center  flex-row  justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-100 rounded-t-lg">
                 <div className="min-w-0">
                   <h3 className="font-semibold text-sm lg:text-base text-slate-800 truncate">
                     {tituloCamp}
@@ -415,79 +415,89 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
               </div>
               {/* { 2 renglones */}
               <div className="sm:hidden space-y-1">
-                {camp.matches.map((m) => (
-                  <div
-                    key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
-                    className="border border-slate-200 rounded-lg overflow-hidden bg-white"
-                  >
-                    {/* Fila 1: Fecha + Resultado + Acciones */}
-                    <div className="flex items-center justify-start gap-2 px-3 py-2 bg-slate-50">
-                      <div>
-                        <div className="text-xs tabular-nums">
-                          {formatDDMM(m)}
+                {camp.matches.map((m) => {
+                  return (
+                    <div
+                      key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
+                      className="border border-slate-200 rounded-lg overflow-hidden bg-white"
+                    >
+                      {/* Fila 1: Fecha + Resultado + Acciones */}
+                      <div className="flex items-center justify-start gap-2 px-3 py-2 bg-slate-100">
+                        <div>
+                          <div className="text-xs tabular-nums">
+                            {formatDDMM(m)}
+                          </div>
+                          <span className="text-slate-900 text-[10px]">
+                            {m.captain ? prettySafe(m.captain) : "—"}
+                          </span>
                         </div>
-                        <span className="text-slate-900 text-[10px]">
-                          {m.captain ? prettySafe(m.captain) : "—"}
+
+                        <span
+                          className={
+                            "px-2 py-0.5 rounded-full text-[12px] whitespace-nowrap " +
+                            getResultadoPartidoClasses(m.final)
+                          }
+                        >
+                          {prettySafe(m.resultMatch || "")}
                         </span>
+
+                        <div className="ml-auto flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="cursor-pointer disabled:opacity-40"
+                            disabled={!m.id}
+                            title="Editar partido"
+                            onClick={() => navigate(`/editar-partido/${m.id}`)}
+                          >
+                            <img
+                              src="pencil.png"
+                              alt="Editar"
+                              className="h-6 w-6"
+                            />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(m)}
+                            className="cursor-pointer"
+                            title="Borrar partido"
+                          >
+                            <img
+                              src="bas.png"
+                              alt="Borrar"
+                              className="h-6 w-6"
+                            />
+                          </button>
+                        </div>
                       </div>
 
-                      <span
-                        className={
-                          "px-2 py-0.5 rounded-full text-[12px] whitespace-nowrap " +
-                          getResultadoPartidoClasses(m.final)
-                        }
-                      >
-                        {prettySafe(m.resultMatch || "")}
-                      </span>
+                      {/* Fila 2: Detalles */}
+                      {/* Fila 2: Goleadores (2 columnas) */}
+                      <div className="px-3 py-2 text-[12px] bg-white">
+                        {/* títulos */}
+                        <div className="flex items-center justify-between px-1 text-[10px] uppercase tracking-wide text-slate-500">
+                          <span className="flex-1 text-center ">
+                            Goles {m.club}
+                          </span>
+                          <span className="flex-1 text-center ">
+                            Goles {m.rival}
+                          </span>
+                        </div>
 
-                      <div className="ml-auto flex items-center gap-2">
-                        <button
-                          type="button"
-                          className="cursor-pointer disabled:opacity-40"
-                          disabled={!m.id}
-                          title="Editar partido"
-                          onClick={() => navigate(`/editar-partido/${m.id}`)}
-                        >
-                          <img
-                            src="pencil.png"
-                            alt="Editar"
-                            className="h-6 w-6"
-                          />
-                        </button>
+                        {/* valores */}
+                        <div className="mt-1 flex items-start justify-between px-4">
+                          <span className="flex-1 text-center  text-slate-800 break-words">
+                            {getGoleadoresPropiosTexto(m)}
+                          </span>
 
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(m)}
-                          className="cursor-pointer"
-                          title="Borrar partido"
-                        >
-                          <img src="bas.png" alt="Borrar" className="h-6 w-6" />
-                        </button>
+                          <span className="flex-1 text-center text-slate-800 break-words">
+                            {getGoleadoresRivalesTexto(m)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Fila 2: Detalles */}
-                    {/* Fila 2: Goleadores (2 columnas) */}
-                    <div className="px-3 py-2 text-[12px]">
-                      {/* títulos */}
-                      <div className="flex items-center justify-between px-4 text-[10px] uppercase tracking-wide text-slate-500">
-                        <span className="flex-1 text-left pr-3">Goles</span>
-                        <span className="flex-1 text-right pl-3">Rival</span>
-                      </div>
-
-                      {/* valores */}
-                      <div className="mt-1 flex items-start justify-between px-4">
-                        <span className="flex-1 text-left pr-3 text-slate-800 break-words">
-                          {getGoleadoresPropiosTexto(m)}
-                        </span>
-
-                        <span className="flex-1 text-right pl-3 text-slate-800 break-words">
-                          {getGoleadoresRivalesTexto(m)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* { fin 2 renglones */}

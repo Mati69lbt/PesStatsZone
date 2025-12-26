@@ -30,7 +30,7 @@ const Partidos = () => {
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
 
   return (
-    <div className="p-4 max-w-screen-2xl mx-auto">
+    <div className="p-2 max-w-screen-2xl mx-auto">
       <h2 className="text-lg md:text-xl font-bold mb-4 text-center">
         📋 Detalle de Partidos por Campeonato
       </h2>

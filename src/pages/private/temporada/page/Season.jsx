@@ -157,7 +157,7 @@ const Season = () => {
         const tripleSeason = rTemp.general || emptyTriple();
 
         return (
-          <div key={temp} className="mb-8 space-y-3">
+          <div key={temp} className="m-2 space-y-3">
             {/* MOBILE: layout apilado (md:hidden) */}
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-evenly sm:gap-6">
               <div className="lg:hidden max-h-full overflow-auto overflow-x-auto border border-slate-200 rounded-lg bg-white shadow-sm">
