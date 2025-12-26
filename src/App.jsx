@@ -1,7 +1,7 @@
 // cspell: ignore Notiflix notiflix useAuth logueado formacion analisis
 
 import React from "react";
-import { Routes, Route, HashRouter } from "react-router-dom";
+import { Routes, Route, HashRouter, Navigate } from "react-router-dom";
 import Public from "./pages/public/Public";
 import Login from "./pages/public/Login";
 import Private from "./pages/private/Private";
@@ -19,6 +19,7 @@ import Palmares from "./pages/private/versus/palmares/page/Palmares";
 import Partidos from "./pages/private/campeonatos/util/Partidos";
 import UltimosDiez from "./pages/private/Ultimos10/page/UltimosDiez";
 import ScrollToTop from "./components/ScrollToTop";
+import { useUserData } from "./hooks/useUserData";
 
 function Hydrator() {
   const { uid } = useAuth();
@@ -27,17 +28,35 @@ function Hydrator() {
   useUserData(uid, matchDispatch, lineupDispatch);
   return null;
 }
-const repoName = "PesStatsZone";
+function HomeRedirect() {
+  const { uid } = useAuth();
+  return uid ? <Navigate to="/versus" replace /> : <Login />;
+}
+
+function PrivateIndex() {
+  return (
+    <>
+      <Hydrator />
+      <Navigate to="/versus" replace />
+    </>
+  );
+}
 const App = () => {
   return (
     <HashRouter>
       <ScrollToTop />
       <Routes>
         <Route element={<Public />}>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<HomeRedirect />} />
         </Route>
-        <Route element={<Private />}>
-          <Route path="*" element={<Hydrator />} />
+        <Route
+          element={
+            <>
+              <Hydrator />
+              <Private />
+            </>
+          }
+        >
           <Route path="/registrar-partido" element={<Partido />} />
           <Route path="/editar-partido/:matchId" element={<Partido />} />
           <Route path="/formacion" element={<TeamForm />} />
@@ -50,6 +69,7 @@ const App = () => {
           <Route path="/goleadores" element={<Scorers />} />
           <Route path="/palmares" element={<Palmares />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>
   );
