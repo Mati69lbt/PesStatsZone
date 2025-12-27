@@ -84,6 +84,13 @@ const CondicionBadge = ({ condition }) => {
   return <span className={`${base} bg-slate-100 text-slate-600`}>-</span>;
 };
 
+const cleanToken = (v) => String(v ?? "").trim();
+
+const isOG = (g) =>
+  g?.isOwnGoal === true || cleanToken(g?.name).toLowerCase() === "__og__";
+
+const prettyScorerName = (g) => (isOG(g) ? "En contra" : prettySafe(g?.name));
+
 // Calcula cuántos goles hizo un goleador según las banderas (gol, doblete, triplete, etc.)
 const calcularGolesGoleador = (g) => {
   if (!g) return 0;
@@ -107,8 +114,8 @@ const getGoleadoresPropiosTexto = (match) => {
       const goles = calcularGolesGoleador(g);
       if (!g.name || goles <= 0) return null;
       return goles === 1
-        ? `${prettySafe(g.name)}`
-        : `${prettySafe(g.name)} (${goles})`;
+        ? `${prettyScorerName(g)}`
+        : `${prettyScorerName(g)} (${goles})`;
     })
     .filter(Boolean);
 
@@ -127,8 +134,8 @@ const getGoleadoresRivalesTexto = (match) => {
       const goles = calcularGolesGoleador(g);
       if (!g.name || goles <= 0) return null;
       return goles === 1
-        ? `${prettySafe(g.name)}`
-        : `${prettySafe(g.name)} (${goles})`;
+        ? `${prettyScorerName(g)}`
+        : `${prettyScorerName(g)} (${goles})`;
     })
     .filter(Boolean);
 
@@ -244,6 +251,8 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
     if (!Array.isArray(matches)) return [];
 
     const map = new Map();
+
+    console.log("matches", matches);
 
     matches.forEach((m) => {
       const baseName =

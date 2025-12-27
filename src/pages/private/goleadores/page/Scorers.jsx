@@ -11,6 +11,7 @@ import Expulsados from "../utils/Expulsados";
 import Carniceros from "../utils/Carniceros";
 import { Navigate } from "react-router-dom";
 import TopGoleadores from "../../temporada/page/Goleadores";
+import RachaN from "../utils/RachaN";
 
 const prettySafe = (str) => {
   if (!str) return "";
@@ -49,6 +50,8 @@ const Scorers = () => {
     return <Navigate to="/formacion" replace />;
   }
 
+
+
   useEffect(() => {
     if (!bucket) return;
     if (Object.keys(bucket).length === 0) return;
@@ -69,7 +72,7 @@ const Scorers = () => {
   ).sort();
 
   return (
-    <div className="p-4 max-w-screen-2xl mx-auto">
+    <div className="p-2 max-w-screen-2xl mx-auto">
       {/* Selector de club */}
       <h1 className="text-center text-3xl mt-2 ">⚽ Scorers</h1>
       <div className="flex items-center justify-center gap-2 m-3">
@@ -149,7 +152,17 @@ const Scorers = () => {
         >
           Carniceros
         </button>
-      </div>
+        </div>
+        <button
+          onClick={() => setView("racha")}
+          className={`px-3 py-1.5 rounded-full w-full text-sm md:text-sm border transition ${
+            view === "racha"
+              ? "bg-blue-600 text-white border-blue-700 shadow"
+              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+          }`}
+        >
+          Rachas de Sequía Goleadora
+        </button>
 
       {/* Contenido según vista */}
       {view === "goleadores" && <GoleadoresGral matches={matches} />}
@@ -157,6 +170,7 @@ const Scorers = () => {
       {view === "villanos" && <Villanos matches={matches} />}
       {view === "expulsados" && <Expulsados matches={matches} />}
       {view === "carniceros" && <Carniceros matches={matches} />}
+      {view === "racha" && <RachaN data={data} />}
       {view === "año" && (
         <div className="flex flex-col gap-4">
           {years
