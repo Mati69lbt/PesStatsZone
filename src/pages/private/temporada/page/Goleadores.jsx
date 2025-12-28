@@ -119,7 +119,7 @@ const TopGoleadores = ({
 
   const lista = goalsMaps ? buildListFromMap(goalsMaps.all, topN) : []; // (si querés, dejá tu fallback viejo acá)
 
-  const halfN = Math.ceil(topN / 2);
+  const halfN = Math.floor(topN / 2);
   const listaLocal = goalsMaps ? buildListFromMap(goalsMaps.local, halfN) : [];
   const listaVisitante = goalsMaps
     ? buildListFromMap(goalsMaps.visitante, halfN)
@@ -180,7 +180,7 @@ const TopGoleadores = ({
         <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
 
         {showHomeAway && (
-          <div className="flex flex-col gap-3 w-max">
+          <div className="flex flex-col gap-1 w-max">
             <VerticalTable title={`Local ${yearsLabel}`} list={listaLocal} />
             <VerticalTable
               title={`Visitante ${yearsLabel}`}

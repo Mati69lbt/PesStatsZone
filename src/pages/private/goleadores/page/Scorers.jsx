@@ -50,8 +50,6 @@ const Scorers = () => {
     return <Navigate to="/formacion" replace />;
   }
 
-
-
   useEffect(() => {
     if (!bucket) return;
     if (Object.keys(bucket).length === 0) return;
@@ -152,10 +150,11 @@ const Scorers = () => {
         >
           Carniceros
         </button>
-        </div>
+      </div>
+      <div className="text-center">
         <button
           onClick={() => setView("racha")}
-          className={`px-3 py-1.5 rounded-full w-full text-sm md:text-sm border transition ${
+          className={`px-3 py-1.5 rounded-full w-max  text-sm md:text-sm border transition ${
             view === "racha"
               ? "bg-blue-600 text-white border-blue-700 shadow"
               : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
@@ -163,7 +162,7 @@ const Scorers = () => {
         >
           Rachas de Sequía Goleadora
         </button>
-
+      </div>
       {/* Contenido según vista */}
       {view === "goleadores" && <GoleadoresGral matches={matches} />}
       {view === "campeonatos" && <GoleadoresPorCampeonato matches={matches} />}

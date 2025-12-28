@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 
 const GOAL_FLAGS = ["gol", "doblete", "triplete", "hattrick"];
 
@@ -110,44 +110,64 @@ function buildRows({ matchesSorted, playersActive, clubLower, mode }) {
 }
 
 function Table({ title, rows }) {
+  const [openKey, setOpenKey] = useState(null);
   return (
-    <div className="mt-2">
-      <h2 className="text-xs font-semibold">{title}</h2>
+    <div className="rounded-lg border border-slate-200 overflow-hidden bg-white">
+      {/* Header integrado */}
+      <div className="bg-slate-50 px-2 py-1 border-b border-slate-200">
+        <h2 className="text-[14px] text-center font-semibold">{title}</h2>
+      </div>
 
       {rows.length === 0 ? (
-        <div className="mt-2 text-sm opacity-70">
+        <div className="px-2 py-2 text-[11px] opacity-70">
           No hay jugadores con racha negativa para mostrar.
         </div>
       ) : (
-        <div className="mt-3 rounded-lg border border-slate-200 overflow-hidden">
-          <table className="w-full table-fixed text-[11px]">
-            <thead className="bg-slate-50">
-              <tr className="text-left">
-                <th className="px-2 py-1 w-[44%]">Jugador</th>
-                <th className="px-2 py-1 w-[18%]">Racha</th>
-                <th className="px-2 py-1 w-[38%]">Rival</th>
-              </tr>
-            </thead>
+        <table className="w-full table-fixed text-[11px]">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-2 py-1 w-max text-left">Jugador</th>
+              <th className="px-2 py-1 w-[30px] text-left">Racha</th>
+              <th className="px-2 py-1 w-max">Rival</th>
+            </tr>
+          </thead>
 
-            <tbody>
-              {rows.map((r) => (
-                <tr key={`${r.player}-${title}`} className="border-t">
-                  <td className="px-2 py-1 capitalize truncate whitespace-nowrap">
-                    {r.player}
-                  </td>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={`${r.player}-${title}`} className="border-t">
+                <td className="px-2 py-1 capitalize truncate whitespace-nowrap">
+                  {r.player}
+                </td>
 
-                  <td className="px-2 py-1 font-semibold whitespace-nowrap">
-                    {r.drought}
-                  </td>
+                <td className=" text-center px-2 py-1 font-semibold whitespace-nowrap bg-amber-100">
+                  {r.drought}
+                </td>
 
-                  <td className="px-2 py-1 truncate whitespace-nowrap">
+                <td className="px-2 py-1">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenKey(
+                        openKey === `${r.player}-${title}`
+                          ? null
+                          : `${r.player}-${title}`
+                      )
+                    }
+                    className={
+                      "block w-full text-left " +
+                      (openKey === `${r.player}-${title}`
+                        ? "whitespace-normal break-words"
+                        : "truncate whitespace-nowrap")
+                    }
+                    title={r.rival} // desktop hover sigue funcionando
+                  >
                     {r.rival}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
@@ -205,10 +225,12 @@ const RachaN = ({ data }) => {
       <div className="mt-1 text-sm opacity-70">
         Club: <span className="capitalize">{computed.clubLower}</span>
       </div>
-      <div className="mt-2 grid gap-2 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex items-start justify-center gap-3">
         <Table title="General" rows={computed.rowsAll} />
-        <Table title="Local" rows={computed.rowsLocal} />
-        <Table title="Visitante" rows={computed.rowsVisitante} />
+        <div className="flex flex-col gap-1 w-max">
+          <Table title="Local" rows={computed.rowsLocal} />
+          <Table title="Visitante" rows={computed.rowsVisitante} />
+        </div>
       </div>
     </div>
   );
