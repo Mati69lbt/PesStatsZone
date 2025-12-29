@@ -12,6 +12,7 @@ import Carniceros from "../utils/Carniceros";
 import { Navigate } from "react-router-dom";
 import TopGoleadores from "../../temporada/page/Goleadores";
 import RachaN from "../utils/RachaN";
+import Goleadores_Desglozados from "../utils/goleadores_Desglozados/page/Goleadores_Desglozados";
 
 const prettySafe = (str) => {
   if (!str) return "";
@@ -58,7 +59,7 @@ const Scorers = () => {
 
   const matches = Array.isArray(data?.matches) ? data.matches : [];
 
-  const [view, setView] = useState("goleadores"); // 'goleadores' | 'campeonatos' | 'villanos'
+  const [view, setView] = useState("scorers"); // 'goleadores' | 'campeonatos' | 'villanos'
 
   const years = Array.from(
     new Set(
@@ -69,101 +70,61 @@ const Scorers = () => {
     )
   ).sort();
 
+  const viewOptions = [
+    { value: "scorers", label: "Scorers" },
+    { value: "campeonatos", label: "Campeonato" },
+    { value: "año", label: "Año" },
+    { value: "racha", label: "Rachas de Sequía Goleadora" },
+    { value: "villanos", label: "Villanos" },
+    { value: "carniceros", label: "Carniceros" },
+    { value: "expulsados", label: "Expulsados" },
+    { value: "goleadores", label: "Goleadores" },
+  ];
+
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
       {/* Selector de club */}
       <h1 className="text-center text-3xl mt-2 ">⚽ Scorers</h1>
-      <div className="flex items-center justify-center gap-2 m-3">
-        <label className="text-sm font-medium block">Club</label>
-        <select
-          className="border p-1 rounded text-sm"
-          value={selectedClub}
-          onChange={(e) => setSelectedClub(e.target.value)}
-        >
-          {clubs.map((c) => (
-            <option key={c} value={c}>
-              {prettySafe(c)}
-            </option>
-          ))}
-        </select>
+      <div className="mb-1 flex items-end justify-center gap-2">
+        {/* Club */}
+        <label className="w-[220px]">
+          <span className="text-sm font-medium text-slate-700">Club</span>
+
+          <select
+            value={selectedClub}
+            onChange={(e) => setSelectedClub(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
+                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {clubs.map((c) => (
+              <option key={c} value={c}>
+                {prettySafe(c)}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* Vista */}
+        <label className="w-[220px]">
+          <span className="text-sm font-medium text-slate-700">Vista</span>
+
+          <select
+            value={view}
+            onChange={(e) => setView(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
+                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {viewOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
-      {/* Botones de vista */}
-      <div className="grid grid-cols-3 gap-2 mb-4 md:flex md:flex-wrap md:justify-center">
-        <button
-          onClick={() => setView("goleadores")}
-          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
-            view === "goleadores"
-              ? "bg-blue-600 text-white border-blue-700 shadow"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          Goleadores
-        </button>
-        <button
-          onClick={() => setView("campeonatos")}
-          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
-            view === "campeonatos"
-              ? "bg-blue-600 text-white border-blue-700 shadow"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          Campeonato
-        </button>
-        <button
-          onClick={() => setView("año")}
-          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
-            view === "año"
-              ? "bg-blue-600 text-white border-blue-700 shadow"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          Año
-        </button>
-        <button
-          onClick={() => setView("expulsados")}
-          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
-            view === "expulsados"
-              ? "bg-blue-600 text-white border-blue-700 shadow"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          Expulsados
-        </button>
-        <button
-          onClick={() => setView("villanos")}
-          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
-            view === "villanos"
-              ? "bg-blue-600 text-white border-blue-700 shadow"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          Villanos
-        </button>
-        <button
-          onClick={() => setView("carniceros")}
-          className={`px-3 py-1.5 rounded-full text-sm md:text-sm border transition ${
-            view === "carniceros"
-              ? "bg-blue-600 text-white border-blue-700 shadow"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          Carniceros
-        </button>
-      </div>
-      <div className="text-center">
-        <button
-          onClick={() => setView("racha")}
-          className={`px-3 py-1.5 rounded-full w-max  text-sm md:text-sm border transition ${
-            view === "racha"
-              ? "bg-blue-600 text-white border-blue-700 shadow"
-              : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          Rachas de Sequía Goleadora
-        </button>
-      </div>
       {/* Contenido según vista */}
+      {view === "scorers" && <Goleadores_Desglozados matches={matches} />}
       {view === "goleadores" && <GoleadoresGral matches={matches} />}
       {view === "campeonatos" && <GoleadoresPorCampeonato matches={matches} />}
       {view === "villanos" && <Villanos matches={matches} />}

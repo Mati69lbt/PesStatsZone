@@ -64,6 +64,18 @@ const UltimosDiez = () => {
   }
 
   useEffect(() => {
+    if (!selectedClub && clubs.length) {
+      setSelectedClub(lineupState?.activeClub || clubs[0]);
+    }
+  }, [clubs, lineupState?.activeClub, selectedClub]);
+
+  if (!clubs.length) {
+    return (
+      <p className="text-center text-slate-500 mt-4">Cargando clubes...</p>
+    );
+  }
+
+  useEffect(() => {
     if (!bucket) return;
     if (Object.keys(bucket).length === 0) return;
     setData(bucket);
@@ -72,20 +84,25 @@ const UltimosDiez = () => {
   const matches = Array.isArray(data?.matches) ? data.matches : [];
   const partidosLegacy = usePartidosLegacy(matches);
   return (
-    <div className="p-4 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-          Últimos 10
-          <span className="ml-3 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-            🔥 racha
+    <div className="p-2 max-w-5xl mx-auto">
+      <div className="flex items-center justify-between gap-1 mb-2">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex flex-col gap-0 leading-none">
+          <span>Últimos 10</span>
+          <span className="mt-1 inline-flex w-fit items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+            🔥 Racha
           </span>
         </h1>
 
-        {clubs.length > 1 && (
+        <label className="w-full max-w-[220px]">
+          <span className="text-sm font-medium text-slate-700">Club</span>
+
           <select
-            className="border p-2 rounded text-sm"
             value={selectedClub}
             onChange={(e) => setSelectedClub(e.target.value)}
+            disabled={clubs.length <= 1}
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-1 text-sm text-slate-800 shadow-sm
+      focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500
+      disabled:bg-slate-100 disabled:text-slate-500"
           >
             {clubs.map((c) => (
               <option key={c} value={c}>
@@ -93,7 +110,7 @@ const UltimosDiez = () => {
               </option>
             ))}
           </select>
-        )}
+        </label>
       </div>
 
       <Ultimos10Resultados partidos={partidosLegacy} />

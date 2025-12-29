@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { pretty } from "../../match/utils/pretty";
 
 function colorResultado(p) {
@@ -13,28 +13,59 @@ const Titulo = ({ children }) => (
   <h2 className="font-semibold text-sm whitespace-nowrap">{children}</h2>
 );
 
-const Bolitas = ({ lista = [] }) => (
-  <div className="flex gap-1 flex-wrap justify-start sm:justify-center">
-    {lista.length === 0 ? (
-      <span className="text-xs text-gray-400">Sin partidos</span>
-    ) : (
-      lista.map((p) => (
-        <div
-          key={p.id}
-          className={`w-5 h-5 md:w-6 md:h-6 rounded-full ${colorResultado(p)}`}
-          title={`${p.fecha} vs ${String(p.rival || "").trim()}: ${
-            p.golesFavor
-          }-${p.golesContra}`}
-        />
-      ))
-    )}
-  </div>
-);
+const Bolitas = ({ lista = [] }) => {
+  const [openKey, setOpenKey] = useState(null);
+
+  if (!lista.length) {
+    return <span className="text-xs text-gray-400">Sin partidos</span>;
+  }
+
+  return (
+    <div className="w-full">
+      <div className="w-full flex gap-1">
+        {lista.map((p, idx) => {
+          const key = p.id ?? `${p.fecha}-${p.rival}-${idx}`;
+          const isOpen = openKey === key;
+          const rival = String(p.rival || "").trim() || "—";
+
+          return (
+            <div
+              key={key}
+              className="flex-1 basis-0 min-w-0 flex flex-col items-center"
+            >
+              {/* Label clickeable: truncate vs expand */}
+              <button
+                type="button"
+                onClick={() => setOpenKey(isOpen ? null : key)}
+                className={
+                  "w-full min-w-0 text-[9px] leading-none text-slate-500 text-center " +
+                  (isOpen
+                    ? "whitespace-normal break-words"
+                    : "truncate whitespace-nowrap")
+                }
+                title={rival}
+              >
+                {rival}
+              </button>
+
+              <div
+                className={`mt-1 w-5 h-5 md:w-6 md:h-6 rounded-full ${colorResultado(
+                  p
+                )}`}
+                title={`${p.fecha} vs ${rival}: ${p.golesFavor}-${p.golesContra}`}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 const Row = ({ icon, title, list }) => (
   <div className="grid grid-cols-1 sm:grid-cols-[260px_1fr] gap-2 items-start sm:items-center">
     <Titulo>
-      <span className="inline-flex items-center gap-2">
+      <span className="inline-flex items-center gap-5">
         <span>{icon}</span>
         <span>{title}</span>
       </span>

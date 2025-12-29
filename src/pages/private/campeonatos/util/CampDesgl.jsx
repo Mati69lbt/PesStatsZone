@@ -246,13 +246,52 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
 
   const [resumenResultados, setResumenResultados] = useState({});
 
+  // ✅ NUEVO: helper para “key” de fecha sin problemas de timezone
+  const getDateKey = (m) => {
+    const raw = m?.fecha || m?.createdAt;
+    if (!raw) return null;
+
+    // si viene "YYYY-MM-DD", lo usamos directo (evita corrimientos)
+    if (typeof raw === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+    const d = new Date(raw);
+    if (Number.isNaN(d.getTime())) return null;
+
+    // clave local YYYY-MM-DD
+    const y = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${y}-${mm}-${dd}`;
+  };
+
+  const getCampTitleFromMatch = (m) => {
+    const base = m?.torneoName || m?.torneo || m?.torneoDisplay || "Sin torneo";
+    const year = extractYearFromMatch(m);
+    return `${prettySafe(base)}${year ? ` ${year}` : ""}`;
+  };
+
+  // ✅ NUEVO: detectar duplicados por fecha
+  const duplicadosPorFecha = useMemo(() => {
+    if (!Array.isArray(matches) || !matches.length) return [];
+
+    const map = new Map(); // dateKey -> matches[]
+    matches.forEach((m) => {
+      const k = getDateKey(m);
+      if (!k) return;
+      if (!map.has(k)) map.set(k, []);
+      map.get(k).push(m);
+    });
+
+    return Array.from(map.entries())
+      .filter(([, arr]) => arr.length > 1)
+      .sort(([a], [b]) => a.localeCompare(b));
+  }, [matches]);
+
   // Al entrar a la página, cargar de Firestore los resultados ya guardados
   const campeonatos = useMemo(() => {
     if (!Array.isArray(matches)) return [];
 
     const map = new Map();
-
-    console.log("matches", matches);
 
     matches.forEach((m) => {
       const baseName =
@@ -378,6 +417,46 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
 
   return (
     <div className="mt-4">
+      {/* ✅ NUEVO: advertencia fechas duplicadas */}
+      {duplicadosPorFecha.length > 0 && (
+        <div className="mx-auto mb-4 max-w-3xl rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900 shadow-sm">
+          <div className="font-semibold text-sm">
+            ⚠️ Hay {duplicadosPorFecha.length} fecha
+            {duplicadosPorFecha.length !== 1 ? "s" : ""} con 2+ partidos
+            cargados
+          </div>
+
+          <div className="mt-2 space-y-2 text-[12px]">
+            {duplicadosPorFecha.map(([fechaKey, arr]) => (
+              <div
+                key={fechaKey}
+                className="rounded-lg border border-amber-200 bg-white/60 p-2"
+              >
+                <div className="font-semibold tabular-nums">
+                  Fecha: {fechaKey}
+                </div>
+
+                <ul className="mt-1 list-disc pl-5 space-y-1">
+                  {arr.map((m) => (
+                    <li key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}>
+                      <span className="font-medium">
+                        {prettySafe(m.resultMatch || "Sin resultado")}
+                      </span>
+                      {" · "}
+                      vs {prettySafe(m.rival || "Sin rival")}
+                      {" · "}
+                      <span className="text-slate-700">
+                        {getCampTitleFromMatch(m)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {campeonatos.map((camp) => {
         const torneoKey = camp.key;
         const valorSelect = resumenResultados[torneoKey] || "";
@@ -513,6 +592,51 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
 
               {/* Tabla */}
               <div className="hidden sm:block overflow-x-auto">
+                {/* ✅ NUEVO: advertencia fechas duplicadas */}
+                {duplicadosPorFecha.length > 0 && (
+                  <div className="mx-auto mb-4 max-w-3xl rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900 shadow-sm">
+                    <div className="font-semibold text-sm">
+                      ⚠️ Hay {duplicadosPorFecha.length} fecha
+                      {duplicadosPorFecha.length !== 1 ? "s" : ""} con 2+
+                      partidos cargados
+                    </div>
+
+                    <div className="mt-2 space-y-2 text-[12px]">
+                      {duplicadosPorFecha.map(([fechaKey, arr]) => (
+                        <div
+                          key={fechaKey}
+                          className="rounded-lg border border-amber-200 bg-white/60 p-2"
+                        >
+                          <div className="font-semibold tabular-nums">
+                            Fecha: {fechaKey}
+                          </div>
+
+                          <ul className="mt-1 list-disc pl-5 space-y-1">
+                            {arr.map((m) => (
+                              <li
+                                key={
+                                  m.id ||
+                                  `${m.fecha}-${m.rival}-${m.resultMatch}`
+                                }
+                              >
+                                <span className="font-medium">
+                                  {prettySafe(m.resultMatch || "Sin resultado")}
+                                </span>
+                                {" · "}
+                                vs {prettySafe(m.rival || "Sin rival")}
+                                {" · "}
+                                <span className="text-slate-700">
+                                  {getCampTitleFromMatch(m)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-center">
                   <table className="w-full table-fixed border-collapse text-[11px] lg:text-xs lg:w-max lg:min-w-[980px] lg:table-auto">
                     <thead className="bg-slate-100 text-slate-700">

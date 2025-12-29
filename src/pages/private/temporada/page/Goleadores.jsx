@@ -176,18 +176,23 @@ const TopGoleadores = ({
       : "";
 
     return (
-      <div className={`${className} flex items-start justify-center gap-3`}>
-        <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
+      <div>
+        <h1 className="text-xl font-bold mb-2 text-center">
+          ⭐️ Goleadores del Año ⭐️
+        </h1>
+        <div className={`${className} flex items-start justify-center gap-3`}>
+          <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
 
-        {showHomeAway && (
-          <div className="flex flex-col gap-1 w-max">
-            <VerticalTable title={`Local ${yearsLabel}`} list={listaLocal} />
-            <VerticalTable
-              title={`Visitante ${yearsLabel}`}
-              list={listaVisitante}
-            />
-          </div>
-        )}
+          {showHomeAway && (
+            <div className="flex flex-col gap-1 w-max">
+              <VerticalTable title={`Local ${yearsLabel}`} list={listaLocal} />
+              <VerticalTable
+                title={`Visitante ${yearsLabel}`}
+                list={listaVisitante}
+              />
+            </div>
+          )}
+        </div>
       </div>
     );
   }
