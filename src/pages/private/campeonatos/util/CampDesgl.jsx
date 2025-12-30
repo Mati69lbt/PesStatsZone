@@ -442,9 +442,9 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
                       <span className="font-medium">
                         {prettySafe(m.resultMatch || "Sin resultado")}
                       </span>
+                      {" · "}                     
                       {" · "}
-                      vs {prettySafe(m.rival || "Sin rival")}
-                      {" · "}
+                      <br />
                       <span className="text-slate-700">
                         {getCampTitleFromMatch(m)}
                       </span>
