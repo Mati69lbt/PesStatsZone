@@ -56,7 +56,7 @@ export function puntosYefectividad(box) {
   const puntos = box.g * 3 + box.e;
   const posibles = box.pj * 3;
   const efectividad = posibles > 0 ? (puntos / posibles).toFixed(2) : "0.00";
-  return { puntos, efectividad };
+  return { puntos, efectividad, posibles };
 }
 
 export function borrarPartido({ match, uid, clubKey, onDone }) {
@@ -101,4 +101,3 @@ export function borrarPartido({ match, uid, clubKey, onDone }) {
     () => Notiflix.Notify.info("El partido no se borró")
   );
 }
-

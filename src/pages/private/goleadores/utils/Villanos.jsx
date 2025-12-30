@@ -122,7 +122,10 @@ const Villanos = ({ matches }) => {
           </thead>
           <tbody>
             {villanos.map((v) => (
-              <tr key={`${v.nombre}-${v.club}`}>
+              <tr
+                key={`${v.nombre}-${v.club}`}
+                className="odd:bg-white even:bg-slate-100 hover:bg-slate-100 transition-colors"
+              >
                 <td className="border px-2 py-1 text-left font-medium">
                   {v.nombrePretty}
                 </td>

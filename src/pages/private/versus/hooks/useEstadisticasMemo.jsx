@@ -19,15 +19,19 @@ const useEstadisticasMemo = (
     const boxA = a[1]?.[ordenAmbito] ?? {};
     const boxB = b[1]?.[ordenAmbito] ?? {};
 
-    const valA =
-      ordenCampo === "df"
-        ? (boxA.gf ?? 0) - (boxA.gc ?? 0)
-        : boxA?.[ordenCampo] ?? 0;
+   const valA =
+     ordenCampo === "df"
+       ? (boxA.gf ?? 0) - (boxA.gc ?? 0)
+       : ordenCampo === "gp"
+       ? (boxA.g ?? 0) - (boxA.p ?? 0)
+       : boxA?.[ordenCampo] ?? 0;
 
-    const valB =
-      ordenCampo === "df"
-        ? (boxB.gf ?? 0) - (boxB.gc ?? 0)
-        : boxB?.[ordenCampo] ?? 0;
+   const valB =
+     ordenCampo === "df"
+       ? (boxB.gf ?? 0) - (boxB.gc ?? 0)
+       : ordenCampo === "gp"
+       ? (boxB.g ?? 0) - (boxB.p ?? 0)
+       : boxB?.[ordenCampo] ?? 0;
 
     return ordenDireccion === "asc" ? valA - valB : valB - valA;
   });

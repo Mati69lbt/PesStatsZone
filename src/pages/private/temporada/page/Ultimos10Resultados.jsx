@@ -142,7 +142,7 @@ const Ultimos10Resultados = ({ partidos = [], fixedCaptains }) => {
   return (
     <div className="space-y-2">
       {/* General */}
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="rounded-xl border bg-white p-2 shadow-sm">
         <div className="space-y-2">
           <Row
             icon="📈"

@@ -12,9 +12,25 @@ import {
   prettySafe,
   puntosYefectividad,
 } from "../util/funtions";
-import CampDesgl from "../util/CampDesgl";
 import { Navigate } from "react-router-dom";
 import { fetchUserData, useUserData } from "../../../../hooks/useUserData";
+
+// ✅ NUEVO: círculo para DG y G/P (fondo blanco + ring con color)
+const StatCircle = ({ value = 0, title = "", showPlus = false }) => {
+  const n = Number(value || 0);
+  const ring =
+    n > 0 ? "ring-emerald-600" : n < 0 ? "ring-rose-600" : "ring-yellow-500";
+  const txt = showPlus && n > 0 ? `+${n}` : `${n}`;
+  return (
+    <span
+      className={`mx-auto inline-flex items-center justify-center rounded-full bg-white ring-2 ${ring}
+        h-6 w-6 md:h-7 md:w-7 text-[10px] md:text-[11px] font-extrabold text-black tabular-nums`}
+      title={title}
+    >
+      {txt}
+    </span>
+  );
+};
 
 const Campeonatos = () => {
   const { uid } = useAuth();
@@ -165,7 +181,7 @@ const Campeonatos = () => {
           <table className="w-max text-[12px] md:text-sm border-separate border-spacing-px bg-white">
             <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
               <tr>
-                <th className="px-3 py-2 text-left border-b border-slate-200 w-[100px]">
+                <th className="px-3 py-2 text-left border-b border-slate-200 w-[40px]">
                   Campeonato
                 </th>
                 <th className="px-2 py-2 text-center border-b border-slate-200">
@@ -179,6 +195,9 @@ const Campeonatos = () => {
                 </th>
                 <th className="px-2 py-2 text-center border-b border-slate-200">
                   P
+                </th>
+                <th className="px-2 py-2 text-center border-b border-slate-200">
+                  G/P
                 </th>
                 <th className="px-2 py-2 text-center border-b border-slate-200">
                   GF
@@ -204,19 +223,32 @@ const Campeonatos = () => {
                 const dgL = getDG(r.local);
                 const dgV = getDG(r.visitante);
 
+                // ✅ NUEVO: G/P
+                const gpG =
+                  Number(r.general?.g || 0) - Number(r.general?.p || 0);
+                const gpL = Number(r.local?.g || 0) - Number(r.local?.p || 0);
+                const gpV =
+                  Number(r.visitante?.g || 0) - Number(r.visitante?.p || 0);
+
                 const colGen = getColorSegunResultado(r.general);
                 const colLoc = getColorSegunResultado(r.local);
                 const colVis = getColorSegunResultado(r.visitante);
 
-                const { puntos: ptsG, efectividad: efG } = puntosYefectividad(
-                  r.general
-                );
-                const { puntos: ptsL, efectividad: efL } = puntosYefectividad(
-                  r.local
-                );
-                const { puntos: ptsV, efectividad: efV } = puntosYefectividad(
-                  r.visitante
-                );
+                const {
+                  puntos: ptsG,
+                  efectividad: efG,
+                  posibles: poG,
+                } = puntosYefectividad(r.general);
+                const {
+                  puntos: ptsL,
+                  efectividad: efL,
+                  posibles: poL,
+                } = puntosYefectividad(r.local);
+                const {
+                  puntos: ptsV,
+                  efectividad: efV,
+                  posibles: poV,
+                } = puntosYefectividad(r.visitante);
 
                 return (
                   <React.Fragment key={clave}>
@@ -238,16 +270,28 @@ const Campeonatos = () => {
                         {r.general.p}
                       </td>
                       <td className={`px-2 py-1 text-center ${colGen}`}>
+                        <StatCircle
+                          value={gpG}
+                          title={`G/P = ${r.general.g} - ${r.general.p} = ${gpG}`}
+                        />
+                      </td>
+
+                      <td className={`px-2 py-1 text-center ${colGen}`}>
                         {r.general.gf}
                       </td>
                       <td className={`px-2 py-1 text-center ${colGen}`}>
                         {r.general.gc}
                       </td>
                       <td className={`px-2 py-1 text-center ${colGen}`}>
-                        {dgG}
+                        <StatCircle
+                          value={dgG}
+                          showPlus
+                          title={`DG = ${dgG}`}
+                        />
                       </td>
+
                       <td className={`px-2 py-1 text-center ${colGen}`}>
-                        {ptsG} / {efG}
+                        {ptsG} / {poG} {efG}
                       </td>
                     </tr>
 
@@ -269,16 +313,27 @@ const Campeonatos = () => {
                         {r.local.p}
                       </td>
                       <td className={`px-2 py-1 text-center ${colLoc}`}>
+                        <StatCircle
+                          value={gpG}
+                          title={`G/P = ${r.local.g} - ${r.local.p} = ${gpL}`}
+                        />
+                      </td>
+
+                      <td className={`px-2 py-1 text-center ${colLoc}`}>
                         {r.local.gf}
                       </td>
                       <td className={`px-2 py-1 text-center ${colLoc}`}>
                         {r.local.gc}
                       </td>
                       <td className={`px-2 py-1 text-center ${colLoc}`}>
-                        {dgL}
+                        <StatCircle
+                          value={dgL}
+                          showPlus
+                          title={`DG = ${dgL}`}
+                        />
                       </td>
                       <td className={`px-2 py-1 text-center ${colLoc}`}>
-                        {ptsL} / {efL}
+                        {ptsL} / {poL} {efL}
                       </td>
                     </tr>
 
@@ -300,16 +355,28 @@ const Campeonatos = () => {
                         {r.visitante.p}
                       </td>
                       <td className={`px-2 py-1 text-center ${colVis}`}>
+                        <StatCircle
+                          value={gpG}
+                          title={`G/P = ${r.visitante.g} - ${r.visitante.p} = ${gpV}`}
+                        />
+                      </td>
+
+                      <td className={`px-2 py-1 text-center ${colVis}`}>
                         {r.visitante.gf}
                       </td>
                       <td className={`px-2 py-1 text-center ${colVis}`}>
                         {r.visitante.gc}
                       </td>
                       <td className={`px-2 py-1 text-center ${colVis}`}>
-                        {dgV}
+                        <StatCircle
+                          value={dgV}
+                          showPlus
+                          title={`DG = ${dgV}`}
+                        />
                       </td>
+
                       <td className={`px-2 py-1 text-center ${colVis}`}>
-                        {ptsV} / {efV}
+                        {ptsV} / {poV} {efV}
                       </td>
                     </tr>
                   </React.Fragment>
@@ -320,7 +387,7 @@ const Campeonatos = () => {
                 <tr>
                   <td
                     className="px-2 py-4 text-center text-slate-500"
-                    colSpan={9}
+                    colSpan={10}
                   >
                     No hay partidos cargados para este club.
                   </td>
@@ -356,6 +423,10 @@ const Campeonatos = () => {
                 P
               </th>
               <th className="px-2 py-2 text-center border-b border-slate-200">
+                G/P
+              </th>
+
+              <th className="px-2 py-2 text-center border-b border-slate-200">
                 GF
               </th>
               <th className="px-2 py-2 text-center border-b border-slate-200">
@@ -364,7 +435,7 @@ const Campeonatos = () => {
               <th className="px-2 py-2 text-center border-b border-slate-200">
                 DG
               </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200 border-r border-slate-300">
+              <th className="px-2 py-2 text-center border-b  border-r border-slate-300">
                 Pts / Efec.
               </th>
 
@@ -382,12 +453,16 @@ const Campeonatos = () => {
                 P L
               </th>
               <th className="px-2 py-2 text-center border-b border-slate-200">
+                G/P L
+              </th>
+
+              <th className="px-2 py-2 text-center border-b border-slate-200">
                 GF L
               </th>
               <th className="px-2 py-2 text-center border-b border-slate-200">
                 GC L
               </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200 border-r border-slate-300">
+              <th className="px-2 py-2 text-center border-b  border-r border-slate-300">
                 DG L
               </th>
 
@@ -403,6 +478,9 @@ const Campeonatos = () => {
               </th>
               <th className="px-2 py-2 text-center border-b border-slate-200">
                 P V
+              </th>
+              <th className="px-2 py-2 text-center border-b border-slate-200">
+                G/P V
               </th>
               <th className="px-2 py-2 text-center border-b border-slate-200">
                 GF V
@@ -427,11 +505,19 @@ const Campeonatos = () => {
               const dgL = getDG(r.local);
               const dgV = getDG(r.visitante);
 
+              // ✅ NUEVO: G/P
+              const gp = Number(r.general?.g || 0) - Number(r.general?.p || 0);
+              const gpL = Number(r.local?.g || 0) - Number(r.local?.p || 0);
+              const gpV =
+                Number(r.visitante?.g || 0) - Number(r.visitante?.p || 0);
+
               const colGen = getColorSegunResultado(r.general);
               const colLoc = getColorSegunResultado(r.local);
               const colVis = getColorSegunResultado(r.visitante);
 
-              const { puntos, efectividad } = puntosYefectividad(r.general);
+              const { puntos, efectividad, posibles } = puntosYefectividad(
+                r.general
+              );
 
               return (
                 <tr
@@ -456,16 +542,26 @@ const Campeonatos = () => {
                     {r.general.p}
                   </td>
                   <td className={`px-2 py-1 text-center ${colGen}`}>
+                    <StatCircle
+                      value={gp}
+                      title={`G/P = ${r.general.g} - ${r.general.p} = ${gp}`}
+                    />
+                  </td>
+
+                  <td className={`px-2 py-1 text-center ${colGen}`}>
                     {r.general.gf}
                   </td>
                   <td className={`px-2 py-1 text-center ${colGen}`}>
                     {r.general.gc}
                   </td>
-                  <td className={`px-2 py-1 text-center ${colGen}`}>{dg}</td>
+                  <td className={`px-2 py-1 text-center ${colGen}`}>
+                    <StatCircle value={dg} showPlus title={`DG = ${dg}`} />
+                  </td>
+
                   <td
                     className={`px-2 py-1 text-center ${colGen} border-r border-slate-200`}
                   >
-                    {puntos} / {efectividad}
+                    {puntos} / {posibles} - {efectividad}
                   </td>
 
                   {/* Local */}
@@ -482,6 +578,12 @@ const Campeonatos = () => {
                     {r.local.p}
                   </td>
                   <td className={`px-2 py-1 text-center ${colLoc}`}>
+                    <StatCircle
+                      value={gpL}
+                      title={`G/P = ${r.local.g} - ${r.local.p} = ${gpL}`}
+                    />
+                  </td>
+                  <td className={`px-2 py-1 text-center ${colLoc}`}>
                     {r.local.gf}
                   </td>
                   <td className={`px-2 py-1 text-center ${colLoc}`}>
@@ -490,7 +592,7 @@ const Campeonatos = () => {
                   <td
                     className={`px-2 py-1 text-center ${colLoc} border-r border-slate-200`}
                   >
-                    {dgL}
+                    <StatCircle value={dgL} showPlus title={`DG = ${dgL}`} />
                   </td>
 
                   {/* Visitante */}
@@ -507,12 +609,20 @@ const Campeonatos = () => {
                     {r.visitante.p}
                   </td>
                   <td className={`px-2 py-1 text-center ${colVis}`}>
+                    <StatCircle
+                      value={gpV}
+                      title={`G/P = ${r.visitante.g} - ${r.visitante.p} = ${gpV}`}
+                    />
+                  </td>
+                  <td className={`px-2 py-1 text-center ${colVis}`}>
                     {r.visitante.gf}
                   </td>
                   <td className={`px-2 py-1 text-center ${colVis}`}>
                     {r.visitante.gc}
                   </td>
-                  <td className={`px-2 py-1 text-center ${colVis}`}>{dgV}</td>
+                  <td className={`px-2 py-1 text-center ${colVis}`}>
+                    <StatCircle value={dgV} showPlus title={`DG = ${dgV}`} />
+                  </td>
                 </tr>
               );
             })}
@@ -521,7 +631,7 @@ const Campeonatos = () => {
               <tr>
                 <td
                   className="px-2 py-4 text-center text-slate-500"
-                  colSpan={23}
+                  colSpan={26}
                 >
                   No hay partidos cargados para este club.
                 </td>

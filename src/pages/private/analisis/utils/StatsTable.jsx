@@ -15,64 +15,106 @@ const StatsTable = ({ title, rows, colorize = true }) => {
     return "bg-gray-100";
   }
 
-  function getDifBg(dif) {
-    if (!colorize) return "";
-    if (dif > 0) return "bg-green-200 font-semibold";
-    if (dif < 0) return "bg-red-200 font-semibold";
-    return "bg-yellow-200 font-semibold";
-  }
+ 
 
   // celdita numérica normal (aplica color por resultado dominante)
   const Cell = ({ children, bg }) => (
-    <td className={`px-2.5 py-1.5 border-b border-gray-100 text-center ${bg}`}>
+    <td className={`px-2 py-1 border-b border-gray-100 text-center ${bg}`}>
       {children}
     </td>
   );
 
-  // celdita para DIF (color independiente por signo)
-  const DifCell = ({ value }) => (
-    <td
-      className={`px-2.5 py-1.5 border-b border-gray-100 text-center ${getDifBg(
-        value
-      )}`}
-    >
-      {value}
-    </td>
-  );
+
+  const DifCell = ({ value = 0, rowBg = "" }) => {
+    const v = Number(value || 0);
+
+    const ring =
+      v > 0 ? "ring-green-400" : v < 0 ? "ring-red-400" : "ring-yellow-400";
+
+    return (
+      <td
+        className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}
+      >
+        <span
+          className={`mx-auto inline-flex items-center justify-center rounded-full w-7 h-7 bg-white ring-2 ${ring} text-[10px] font-extrabold text-black`}
+          title={`DIF: ${v}`}
+        >
+          {v}
+        </span>
+      </td>
+    );
+  };
+
+  // celdita para G/P (G - P) con círculo verde/rojo/amarillo
+  const GpCell = ({ g = 0, p = 0, rowBg = "" }) => {
+    const diff = Number(g || 0) - Number(p || 0);
+
+    const accent =
+      diff > 0
+        ? "border-green-400 ring-green-300"
+        : diff < 0
+        ? "border-red-400 ring-red-300"
+        : "border-yellow-400 ring-yellow-300";
+
+    const colorText =
+      diff > 0
+        ? "text-green-600"
+        : diff < 0
+        ? "text-red-600"
+        : "text-amber-700";
+
+    return (
+      <td
+        className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}
+      >
+        <span
+          className={`mx-auto inline-flex items-center rounded-full bg-white px-2 py-1 text-[10px] font-extrabold
+          border ring-2 ${accent}`}
+          title={`G/P = ${g} - ${p} = ${diff}`}
+        >
+          <span className={`tabular-nums ${colorText}`}>{diff}</span>
+        </span>
+      </td>
+    );
+  };
+
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden mt-3">
       {/* Título */}
-      <div className="bg-blue-50 px-2.5 py-1.5 font-semibold text-sm text-center">
+      <div className="bg-blue-50 px-2 py-1 font-semibold text-sm text-center">
         {pretty(title)}
       </div>
 
       {/* Tabla */}
-      <table className="w-full text-sm border-separate border-spacing-px bg-white">
+      <table className="w-full text-xs border-separate border-spacing-px bg-white">
         <thead className="bg-blue-100">
           <tr>
-            <th className="px-2.5 py-1.5 text-left border-b border-gray-300">
+            <th className="px-2 py-1 text-left border-b border-gray-300">
               Tipo
             </th>
-            <th className="px-2.5 py-1.5 text-left border-b border-gray-300">
+            <th className="px-2 py-1 text-left border-b border-gray-300">
               Pj
             </th>
-            <th className="px-2.5 py-1.5 text-left border-b border-gray-300">
+            <th className="px-2 py-1 text-left border-b border-gray-300">
               G
             </th>
-            <th className="px-2.5 py-1.5 text-left border-b border-gray-300">
+            <th className="px-2 py-1 text-left border-b border-gray-300">
               E
             </th>
-            <th className="px-2.5 py-1.5 text-left border-b border-gray-300">
+            <th className="px-2 py-1 text-left border-b border-gray-300">
               P
             </th>
-            <th className="px-2.5 py-1.5 text-left border-b border-gray-300">
+            <th className="px-2 py-1 text-left border-b border-gray-300">
+              G/P
+            </th>
+            <th className="px-2 py-1 text-left border-b border-gray-300">
               GF
             </th>
-            <th className="px-2.5 py-1.5 text-left border-b border-gray-300">
+            <th className="px-2 py-1 text-left border-b border-gray-300">
               GC
             </th>
-            <th className="px-2.5 py-1.5 text-left border-b border-gray-300">
+            <th className="px-2 py-1 text-left border-b border-gray-300">
               DIF
             </th>
           </tr>
@@ -92,19 +134,20 @@ const StatsTable = ({ title, rows, colorize = true }) => {
             const rowBg = getRowBg(r); // color para pj,g,e,p,gf,gc
 
             return (
-              <tr key={k} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+              <tr key={k} className={i % 2 === 0 ? "bg-white" : "bg-gray-100"}>
                 {/* Tipo sin color de resultado (como en tu versión vieja) */}
-                <td className="px-2.5 py-1.5 border-b border-gray-100">{k}</td>
+                <td className="px-2 py-1 border-b border-gray-100">{k}</td>
 
                 <Cell bg={rowBg}>{r.pj}</Cell>
                 <Cell bg={rowBg}>{r.g}</Cell>
                 <Cell bg={rowBg}>{r.e}</Cell>
                 <Cell bg={rowBg}>{r.p}</Cell>
+                <GpCell g={r.g} p={r.p} rowBg={rowBg} />
                 <Cell bg={rowBg}>{r.gf}</Cell>
                 <Cell bg={rowBg}>{r.gc}</Cell>
 
                 {/* DIF con color propio */}
-                <DifCell value={r.dif} />
+                <DifCell value={r.dif} rowBg={rowBg} />
               </tr>
             );
           })}

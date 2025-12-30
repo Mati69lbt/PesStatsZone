@@ -137,7 +137,7 @@ const Gol_Tabla = ({
               return (
                 <tr
                   key={g.nombre}
-                  className="odd:bg-white even:bg-slate-100/60 active:bg-slate-200/60 transition-colors"
+                  className="odd:bg-white even:bg-slate-100/60 active:bg-slate-400/60 transition-colors"
                 >
                   <td className="border px-2 py-2 text-center font-bold">
                     {idx + 1}

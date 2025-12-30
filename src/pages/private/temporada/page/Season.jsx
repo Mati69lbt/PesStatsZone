@@ -32,23 +32,53 @@ const metricToKey = {
   DF: "df",
 };
 
+const ringBySign = (n) => {
+  if (n > 0) return "ring-green-400";
+  if (n < 0) return "ring-red-400";
+  return "ring-yellow-400";
+};
+
+const CircleValue = ({ value, title }) => (
+  <span
+    className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringBySign(
+      value
+    )} h-6 w-6 text-[10px] font-extrabold text-black`}
+    title={title}
+  >
+    {value}
+  </span>
+);
+
 // Celdas para mobile: usa mismos colores que el resto de la app
 const renderStatsCells = (stats = {}) =>
   metricas.map((m, idx) => {
-    const prop = metricToKey[m];
-    const val = stats?.[prop] ?? 0;
-
-    const colorClass =
-      m === "DF"
-        ? getColorSegunDiferenciaDeGol(stats?.df ?? 0)
-        : getColorSegunResultado(stats);
-
-    // borde vertical sutil entre columnas (no en la primera métrica)
+    const rowBg = getColorSegunResultado(stats);
+    const colorClass = rowBg;
     const sepClass = idx === 0 ? "" : " border-2 border-white/70";
+
+    // ✅ CAMBIO: valor especial para G/P (g - p)
+    let val = 0;
+    if (m === "G/P") {
+      const g = stats?.g ?? 0;
+      const p = stats?.p ?? 0;
+      val = g - p;
+    } else {
+      const prop = metricToKey[m];
+      val = stats?.[prop] ?? 0;
+    }
 
     return (
       <td key={m} className={`px-2 py-1 text-center ${colorClass}${sepClass}`}>
-        {val}
+        {m === "G/P" ? (
+          <CircleValue
+            value={val}
+            title={`G/P = ${stats?.g ?? 0} - ${stats?.p ?? 0} = ${val}`}
+          />
+        ) : m === "DF" ? (
+          <CircleValue value={val} title={`DF = ${val}`} />
+        ) : (
+          val
+        )}
       </td>
     );
   });
@@ -272,7 +302,7 @@ const Season = () => {
 
                     <th
                       className="px-2 py-2 text-center border-b border-slate-200"
-                      colSpan={14}
+                      colSpan={metricas.length * 2}
                     >
                       {clubKey}
                     </th>
@@ -317,7 +347,7 @@ const Season = () => {
                     {metricas.map((m) => (
                       <th
                         key={`L-${m}`}
-                        className="border-b border-t border-slate-200 px-2 py-1 text-center text-[10px]"
+                        className="border border-black px-2 py-1 text-center text-[12px]"
                       >
                         {m} L
                       </th>
@@ -325,7 +355,7 @@ const Season = () => {
                     {metricas.map((m) => (
                       <th
                         key={`V-${m}`}
-                        className="border-b border-t border-slate-200 px-2 py-1 text-center text-[10px]"
+                        className="border border-black px-2 py-1 text-center text-[12px]"
                       >
                         {m} V
                       </th>

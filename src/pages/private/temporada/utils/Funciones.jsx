@@ -7,7 +7,7 @@ export const emptyTriple = () => ({
   Neutral: plantilla(),
 });
 
-export const metricas = ["PJ", "G", "E", "P", "GF", "GC", "DF"];
+export const metricas = ["PJ", "G", "E", "P", "G/P", "GF", "GC", "DF"];
 
 export function getSeasonKey(fechaStr) {
   // Temporada: del 01/07 al 30/06 (p. ej., "2017-2018")
@@ -48,6 +48,7 @@ export const columnas = [
   "G",
   "E",
   "P",
+  "G/P",
   "GF",
   "GC",
   "DF", // General
@@ -55,6 +56,7 @@ export const columnas = [
   "G L",
   "E L",
   "P L",
+  "G/P L",
   "GF L",
   "GC L",
   "DF L", // Local
@@ -62,6 +64,7 @@ export const columnas = [
   "G N",
   "E N",
   "P N",
+  "G/P N",
   "GF N",
   "GC N",
   "DF N", // Neutral (nuevo)
@@ -69,10 +72,32 @@ export const columnas = [
   "G V",
   "E V",
   "P V",
+  "G/P V",
   "GF V",
   "GC V",
   "DF V", // Visitante
 ];
+
+// ✅ CAMBIO: círculo blanco con ring por signo (mismo estilo que DIF)
+const ringBySign = (n) => {
+  if (n > 0) return "ring-green-400";
+  if (n < 0) return "ring-red-400";
+  return "ring-yellow-400";
+};
+
+const renderCircle = (value, title) => (
+  <span
+    className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringBySign(
+      value
+    )} h-6 w-6 text-[10px] font-extrabold text-black`}
+    title={title}
+  >
+    {value}
+  </span>
+);
+
+const renderGpCircle = (gp) => renderCircle(gp, `G/P = ${gp}`);
+const renderDfCircle = (df) => renderCircle(df, `DF = ${df}`);
 
 export const renderBloques = (triple) => {
   const g = triple?.General ?? plantilla();
@@ -82,23 +107,28 @@ export const renderBloques = (triple) => {
 
   const bloques = [g, l, n, v];
   const celdas = [];
+
   for (const blk of bloques) {
-    celdas.push(blk.pj, blk.g, blk.e, blk.p, blk.gf, blk.gc, blk.df);
+    // ✅ CAMBIO: insertamos G/P = (g - p) entre P y GF
+    const gp = (blk.g ?? 0) - (blk.p ?? 0);
+    celdas.push(blk.pj, blk.g, blk.e, blk.p, gp, blk.gf, blk.gc, blk.df);
   }
 
   return celdas.map((val, i) => {
-    // tramo de 7 columnas por bloque
-    const idx = i % 7;
-    const bloqueIdx = Math.floor(i / 7);
+    // ✅ CAMBIO: tramo de 8 columnas por bloque
+    const idx = i % 8;
+    const bloqueIdx = Math.floor(i / 8);
     const ref = bloques[bloqueIdx];
 
-    const bg =
-      idx === 6
-        ? getColorSegunDiferenciaDeGol(ref.df)
-        : getColorSegunResultado(ref);
+    const bg = getColorSegunResultado(ref);
+
     return (
       <td key={i} className={`border px-2 py-1 text-center ${bg}`}>
-        {val}
+        {idx === 4
+          ? renderGpCircle(val)
+          : idx === 7
+          ? renderDfCircle(val)
+          : val}
       </td>
     );
   });
@@ -112,35 +142,40 @@ export const renderBloquesDe = (triple, orden = []) => {
     Visitante: triple?.Visitante ?? plantilla(),
   };
   const celdas = [];
+
   for (const key of orden) {
     const blk = map[key] ?? plantilla();
-    celdas.push(blk.pj, blk.g, blk.e, blk.p, blk.gf, blk.gc, blk.df);
+
+    // ✅ CAMBIO: G/P = (g - p)
+    const gp = (blk.g ?? 0) - (blk.p ?? 0);
+    celdas.push(blk.pj, blk.g, blk.e, blk.p, gp, blk.gf, blk.gc, blk.df);
   }
+
   return celdas.map((val, i) => {
-    const idx = i % 7;
-    const bloqueIdx = Math.floor(i / 7);
+    // ✅ CAMBIO: 8 columnas por bloque
+    const idx = i % 8;
+    const bloqueIdx = Math.floor(i / 8);
     const refKey = orden[bloqueIdx];
     const refBlk = map[refKey] ?? plantilla();
-    const bg =
-      idx === 6
-        ? getColorSegunDiferenciaDeGol(refBlk.df)
-        : getColorSegunResultado(refBlk);
+
+    const bg = getColorSegunResultado(refBlk);
+
     return (
       <td
         key={`${refKey}-${i}`}
         className={`border px-2 py-1 text-center ${bg}`}
       >
-        {val}
+        {idx === 4
+          ? renderGpCircle(val)
+          : idx === 7
+          ? renderDfCircle(val)
+          : val}
       </td>
     );
   });
 };
 
-export const BloqueHeader = ({
-  etiquetas,
-  sufijos = ["", ""],
-
-}) => (
+export const BloqueHeader = ({ etiquetas, sufijos = ["", ""] }) => (
   <>
     {etiquetas.flatMap((lbl, idxLbl) =>
       metricas.map((m) => (

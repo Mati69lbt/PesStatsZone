@@ -182,7 +182,10 @@ const GoleadoresPorCampeonato = ({ matches }) => {
                   )}
 
                   {jugadoresOrdenados.map((j) => (
-                    <tr key={j.nombre}>
+                    <tr
+                      key={j.nombre}
+                      className="odd:bg-white even:bg-slate-100 hover:bg-slate-100 transition-colors"
+                    >
                       <td className="border px-2 py-1 text-left font-medium">
                         {j.nombre}
                       </td>

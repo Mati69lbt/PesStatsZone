@@ -62,8 +62,8 @@ const Analysis = () => {
 
   const visibleClub = selectedClub;
   return (
-    <div className="p-4 max-w-7xl mx-auto">
-      <div className="mb-6 grid grid-cols-3 items-center">
+    <div className="p-2 max-w-7xl mx-auto">
+      <div className="mb-2 grid grid-cols-3 items-center">
         <div /> {/* spacer */}
         <h1 className="text-center text-3xl font-extrabold tracking-tight text-slate-900">
           📊 Análisis
@@ -101,7 +101,7 @@ const Analysis = () => {
           </span>
         </div>
 
-        <div className="p-3">
+        <div className="p-2">
           <div className="overflow-x-auto">
             <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
               {captains.map((cap) => (
@@ -129,13 +129,13 @@ const Analysis = () => {
             key={tName}
             className="rounded-2xl border border-slate-200 bg-white shadow-sm"
           >
-            <div className="px-4 py-3 border-b border-slate-200">
+            <div className="px-2 py-2 border-b border-slate-200">
               <h3 className="text-sm font-extrabold tracking-wide text-slate-800 uppercase text-center">
                 {tName}
               </h3>
             </div>
 
-            <div className="p-3">
+            <div className="p-2">
               <div className="overflow-x-auto">
                 <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
                   {captains.map((cap) => {

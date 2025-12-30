@@ -16,24 +16,6 @@ function colorResultado(p) {
   return "bg-red-400";
 }
 
-const Titulo = ({ children }) => (
-  <h2 className="font-semibold text-sm whitespace-nowrap col-start-1">
-    {children}
-  </h2>
-);
-const Bolitas = ({ lista }) => (
-  <div className="flex gap-1 flex-wrap col-start-2 -ml-20">
-    {lista.map((p) => (
-      <div
-        key={p.id}
-        className={`w-5 h-5 md:w-6 md:h-6 rounded-full ${colorResultado(p)}`}
-        title={`${p.fecha} vs ${String(p.rival || "").trim()}: ${
-          p.golesFavor
-        }-${p.golesContra}`}
-      />
-    ))}
-  </div>
-);
 
 const UltimosDiez = () => {
   const { uid } = useAuth();
