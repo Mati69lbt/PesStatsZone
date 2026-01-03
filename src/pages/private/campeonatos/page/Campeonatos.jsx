@@ -56,7 +56,7 @@ const Campeonatos = () => {
   const [orden, setOrden] = useState("desc"); // "asc" | "desc"
 
   const resumenes = useRessumenesMemo(matches);
-  const clavesOrdenadas = useClavesOrdenadasMemo(resumenes, orden);
+  const clavesOrdenadas = useClavesOrdenadasMemo(resumenes, orden, matches); 
 
   const clubData = lineupState?.lineups?.[clubKey] || {};
   const hasPlayers = (clubData.players?.length ?? 0) > 0;

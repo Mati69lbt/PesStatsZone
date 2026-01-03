@@ -161,6 +161,7 @@ const GoleadoresPorCampeonato = ({ matches }) => {
               <table className="table-auto border-collapse border mx-auto w-full md:w-max">
                 <thead>
                   <tr className="bg-slate-100">
+                    <th className="border px-2 py-2 text-center w-10">#</th>
                     <th className="border px-2 py-1 text-left">Jugador</th>
                     <th className="border px-2 py-1 text-center">PJ</th>
                     <th className="border px-2 py-1 text-center">Goles</th>
@@ -181,11 +182,17 @@ const GoleadoresPorCampeonato = ({ matches }) => {
                     </tr>
                   )}
 
-                  {jugadoresOrdenados.map((j) => (
+                  {jugadoresOrdenados.map((j, idx) => (
                     <tr
                       key={j.nombre}
                       className="odd:bg-white even:bg-slate-100 hover:bg-slate-100 transition-colors"
                     >
+                      <td
+                        className="border px-2 py-2 text-center font-bold align-middle"
+                       
+                      >
+                        {idx + 1}
+                      </td>
                       <td className="border px-2 py-1 text-left font-medium">
                         {j.nombre}
                       </td>

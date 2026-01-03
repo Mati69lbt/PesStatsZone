@@ -11,6 +11,7 @@ import { usePartido } from "../../../../context/PartidoReducer";
 import { useUserData } from "../../../../hooks/useUserData";
 import { pretty } from "../../match/utils/pretty";
 import { Navigate } from "react-router-dom";
+import { useFiltroTorneo } from "../hooks/FiltroTorneo";
 
 const prettySafe = (s) =>
   typeof s === "string" && s.trim() ? pretty(s) : String(s ?? "");
@@ -59,7 +60,13 @@ const Versus = () => {
     setData(bucket);
   }, [bucket]);
 
-  const matches = Array.isArray(data?.matches) ? data.matches : [];
+  const matchesBase = Array.isArray(data?.matches) ? data.matches : [];
+
+  const { torneoSel, setTorneoSel, torneoOptions, matchesFiltrados } =
+    useFiltroTorneo(matchesBase);
+
+  // usamos los filtrados para TODO lo que calcula stats
+  const matches = matchesFiltrados;
 
   const [ordenAmbito, setOrdenAmbito] = useState("general");
   const [ordenCampo, setOrdenCampo] = useState("rival");
@@ -86,12 +93,22 @@ const Versus = () => {
       </h1>
 
       {/* Controles (iguales a los que ya usabas) */}
-      <div className="flex flex-wrap mb-2 gap-x-20 gap-y-2 justify-center sm:gap-x-4 sm:gap-y-2 sm:items-end sm:justify-center">
+      <div
+        className="
+    mb-3
+    grid grid-cols-2 gap-3
+    items-end
+    md:flex md:flex-wrap md:justify-center md:gap-x-6 md:gap-y-3
+  "
+      >
         {/* Club */}
         <div className="text-center">
-          <label className="text-sm font-medium block">Club</label>
+          <label className="text-sm font-medium block text-slate-700">
+            Club
+          </label>
           <select
-            className="border p-1 rounded text-sm"
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
+                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={selectedClub}
             onChange={(e) => setSelectedClub(e.target.value)}
           >
@@ -105,9 +122,12 @@ const Versus = () => {
 
         {/* Ámbito */}
         <div className="text-center">
-          <label className="text-sm font-medium block">Ámbito</label>
+          <label className="text-sm font-medium block text-slate-700">
+            Ámbito
+          </label>
           <select
-            className="border p-1 rounded text-sm"
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
+                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={ordenAmbito}
             onChange={(e) => setOrdenAmbito(e.target.value)}
           >
@@ -122,12 +142,16 @@ const Versus = () => {
           </select>
         </div>
 
+        {/* Campo */}
         <div className="text-center">
-          <label className="text-sm font-medium block">Campo</label>
+          <label className="text-sm font-medium block text-slate-700">
+            Campo
+          </label>
           <select
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
+                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={ordenCampo}
             onChange={(e) => setOrdenCampo(e.target.value)}
-            className="border p-1 rounded text-sm"
           >
             <option value="rival">Nombre</option>
             <option value="pj">PJ</option>
@@ -141,15 +165,40 @@ const Versus = () => {
           </select>
         </div>
 
+        {/* Orden */}
         <div className="text-center">
-          <label className="text-sm font-medium block">Orden</label>
+          <label className="text-sm font-medium block text-slate-700">
+            Orden
+          </label>
           <select
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
+                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={ordenDireccion}
             onChange={(e) => setOrdenDireccion(e.target.value)}
-            className="border p-1 rounded text-sm"
           >
             <option value="asc">Ascendente</option>
             <option value="desc">Descendente</option>
+          </select>
+        </div>
+
+        {/* Campeonato (full width en mobile) */}
+        <div className="col-span-2 text-center md:col-span-1">
+          <label className="text-sm font-medium block text-slate-700">
+            Campeonato
+          </label>
+          <select
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
+                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500
+                 disabled:bg-slate-100 disabled:text-slate-500"
+            value={torneoSel}
+            onChange={(e) => setTorneoSel(e.target.value)}
+            disabled={torneoOptions.length <= 1}
+          >
+            {torneoOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {prettySafe(o.label)}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -159,7 +208,7 @@ const Versus = () => {
         <table className="min-w-full w-max table-auto text-[11px] md:text-sm border-collapse">
           <thead className="bg-blue-200 sticky top-0 shadow-lg">
             <tr>
-              <th className="border px-2 py-2 min-w-[64px] w-[64px]text-left font-bold">
+              <th className="border px-2 py-2 min-w-[64px] w-[64px] text-left font-bold">
                 Rival
               </th>
               {columnas.map((col) => (
@@ -184,24 +233,46 @@ const Versus = () => {
               </tr>
             ) : (
               estadisticas.map(([rival, stats], index) => {
-                const rivalClean =
+                const rivalText =
                   typeof rival === "string"
                     ? rival.trim().replace(/\s+/g, " ")
-                    : String(rival ?? "");
+                    : String(rival ?? "Sin Rival");
+
+                const rivalKey = normalizeName(rivalText) || `rival-${index}`;
+
+                const rivalCell = (
+                  <div style={{ lineHeight: "1.2", padding: "4px 0" }}>
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        color: "#666",
+                        fontSize: "0.85em",
+                      }}
+                    >
+                      {index + 1} -
+                    </span>
+                    <br />
+                    <span
+                      style={{ fontSize: "1em", textTransform: "capitalize" }}
+                    >
+                      {rivalText}
+                    </span>
+                  </div>
+                );
                 const rowBg = index % 2 === 0 ? "bg-white" : "bg-gray-200";
-                const hasSpace = /\s/.test(rivalClean);
+                const hasSpace = /\s/.test(rivalText);
                 return (
-                  <tr key={rivalClean} className={rowBg}>
+                  <tr key={rivalKey} className={rowBg}>
                     <td className="border px-1 py-2 font-semibold text-left w-[64px] min-w-[64px]">
                       <div
-                        title={rivalClean}
+                        title={rivalText}
                         className={
                           hasSpace
                             ? "block w-full whitespace-normal"
                             : "block w-full truncate"
                         }
                       >
-                        {rivalClean}
+                        {rivalCell}
                       </div>
                     </td>
                     {columnas.map((col) => {

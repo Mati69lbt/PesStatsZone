@@ -113,6 +113,7 @@ const Villanos = ({ matches }) => {
         <table className="table-auto border-collapse border mx-auto ">
           <thead>
             <tr className="bg-slate-100">
+              <th className="border px-2 py-2 text-center w-10">#</th>
               <th className="border px-2 py-1 text-left">Jugador</th>
               <th className="border px-2 py-1 text-left">Club</th>
               <th className="border px-2 py-1 text-center">Goles</th>
@@ -121,11 +122,14 @@ const Villanos = ({ matches }) => {
             </tr>
           </thead>
           <tbody>
-            {villanos.map((v) => (
+            {villanos.map((v, idx) => (
               <tr
                 key={`${v.nombre}-${v.club}`}
                 className="odd:bg-white even:bg-slate-100 hover:bg-slate-100 transition-colors"
               >
+                <td className="border px-2 py-2 text-center font-bold align-middle">
+                  {idx + 1}
+                </td>
                 <td className="border px-2 py-1 text-left font-medium">
                   {v.nombrePretty}
                 </td>

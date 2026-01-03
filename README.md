@@ -1,20 +1,18 @@
-## /Registrar Partido
-- [X] Ver si las sugerencias de partido se pueden poner desde el ultimo usado
 
-## /versus
-- [X] controlar q se vean todos bien con entrada y salida
 
 ## /temporadas
-- [X] Sacar las bolitas, poner ultimos 10 de local y visitante
-- [X] Ordenar las tablas de la mas reciente a la mas vieja
+- [ ] Poner, puntos sacados, posibles, promedio
 
 ## /analisis
-- [X] aca se ve bien, esta desde lo mas reciente a lo mas viejo
-- [X] ver como queda el w-max y poner las dos tablas en una dila
+- [ ] Poner, puntos sacados, posibles, promedio
+
 
 
 ## /campeonatos
-- [X] chekear q se este mostrando del mas nuevo al mas viejo
+- [ ] chekear q se este mostrando del mas nuevo al mas viejo
+
+## /detalle de partidos
+- [ ] Cambiar lo de torneo inicial por primera eta, en deploy
 
 
 ## /partidos
@@ -23,8 +21,6 @@
 - [ ] ver si se puede poner una tabla, capitan, goles, rival
 - [ ] no se separan las tablas de un año al otro
 
-## /goleadores campeonato
-- [ ] ordenar del mas nuevo al mas viejo
+## / Palmares
+- [ ] ver si se puede crear torneo q no se juegan, pero se ganan 
 
-## /goleadores año
-- [ ] se tiene q hacer tablas nuevas a los goleadores, del 2019 salta al 2020 
