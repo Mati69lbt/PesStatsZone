@@ -314,7 +314,7 @@ const Campeonatos = () => {
                       </td>
                       <td className={`px-2 py-1 text-center ${colLoc}`}>
                         <StatCircle
-                          value={gpG}
+                          value={gpL}
                           title={`G/P = ${r.local.g} - ${r.local.p} = ${gpL}`}
                         />
                       </td>
@@ -356,7 +356,7 @@ const Campeonatos = () => {
                       </td>
                       <td className={`px-2 py-1 text-center ${colVis}`}>
                         <StatCircle
-                          value={gpG}
+                          value={gpV}
                           title={`G/P = ${r.visitante.g} - ${r.visitante.p} = ${gpV}`}
                         />
                       </td>
