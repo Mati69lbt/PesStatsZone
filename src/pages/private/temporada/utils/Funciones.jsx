@@ -7,7 +7,7 @@ export const emptyTriple = () => ({
   Neutral: plantilla(),
 });
 
-export const metricas = ["PJ", "G", "E", "P", "G/P", "GF", "GC", "DF"];
+export const metricas = ["PJ", "G", "E", "P", "G/P", "GF", "GC", "DF", "PTS/EFEC"];
 
 export function getSeasonKey(fechaStr) {
   // Temporada: del 01/07 al 30/06 (p. ej., "2017-2018")

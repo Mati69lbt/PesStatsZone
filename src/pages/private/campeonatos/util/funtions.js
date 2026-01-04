@@ -55,7 +55,8 @@ export function getDG({ gf = 0, gc = 0 }) {
 export function puntosYefectividad(box) {
   const puntos = box.g * 3 + box.e;
   const posibles = box.pj * 3;
-  const efectividad = posibles > 0 ? (puntos / posibles).toFixed(2) : "0.00";
+  const efectividad =
+    posibles > 0 ? Math.round((puntos / posibles) * 100) : "0.00";
   return { puntos, efectividad, posibles };
 }
 

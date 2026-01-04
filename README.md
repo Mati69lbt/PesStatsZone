@@ -6,8 +6,6 @@
 ## /analisis
 - [ ] Poner, puntos sacados, posibles, promedio
 
-
-
 ## /campeonatos
 - [ ] chekear q se este mostrando del mas nuevo al mas viejo
 

@@ -15,8 +15,6 @@ const StatsTable = ({ title, rows, colorize = true }) => {
     return "bg-gray-100";
   }
 
- 
-
   // celdita numérica normal (aplica color por resultado dominante)
   const Cell = ({ children, bg }) => (
     <td className={`px-2 py-1 border-b border-gray-100 text-center ${bg}`}>
@@ -24,6 +22,28 @@ const StatsTable = ({ title, rows, colorize = true }) => {
     </td>
   );
 
+  const PtsEfecCell = ({ g = 0, e = 0, pj = 0, rowBg = "" }) => {
+    const G = Number(g || 0);
+    const E = Number(e || 0);
+    const PJ = Number(pj || 0);
+
+    const obtenidos = G * 3 + E * 1;
+    const posibles = PJ * 3;
+    const efec = posibles > 0 ? Math.round((obtenidos / posibles) * 100) : 0;
+
+    return (
+      <td className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}>
+        <div className="flex flex-col items-center leading-none">
+          <span className="text-[10px] font-extrabold tabular-nums text-black">
+            {obtenidos}/{posibles}
+          </span>
+          <span className="mt-0.5 text-[9px] tabular-nums text-slate-600">
+            {efec}%
+          </span>
+        </div>
+      </td>
+    );
+  };
 
   const DifCell = ({ value = 0, rowBg = "" }) => {
     const v = Number(value || 0);
@@ -32,9 +52,7 @@ const StatsTable = ({ title, rows, colorize = true }) => {
       v > 0 ? "ring-green-400" : v < 0 ? "ring-red-400" : "ring-yellow-400";
 
     return (
-      <td
-        className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}
-      >
+      <td className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}>
         <span
           className={`mx-auto inline-flex items-center justify-center rounded-full w-7 h-7 bg-white ring-2 ${ring} text-[10px] font-extrabold text-black`}
           title={`DIF: ${v}`}
@@ -64,9 +82,7 @@ const StatsTable = ({ title, rows, colorize = true }) => {
         : "text-amber-700";
 
     return (
-      <td
-        className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}
-      >
+      <td className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}>
         <span
           className={`mx-auto inline-flex items-center rounded-full bg-white px-2 py-1 text-[10px] font-extrabold
           border ring-2 ${accent}`}
@@ -77,7 +93,6 @@ const StatsTable = ({ title, rows, colorize = true }) => {
       </td>
     );
   };
-
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden mt-3">
@@ -93,29 +108,20 @@ const StatsTable = ({ title, rows, colorize = true }) => {
             <th className="px-2 py-1 text-left border-b border-gray-300">
               Tipo
             </th>
-            <th className="px-2 py-1 text-left border-b border-gray-300">
-              Pj
-            </th>
-            <th className="px-2 py-1 text-left border-b border-gray-300">
-              G
-            </th>
-            <th className="px-2 py-1 text-left border-b border-gray-300">
-              E
-            </th>
-            <th className="px-2 py-1 text-left border-b border-gray-300">
-              P
-            </th>
+            <th className="px-2 py-1 text-left border-b border-gray-300">Pj</th>
+            <th className="px-2 py-1 text-left border-b border-gray-300">G</th>
+            <th className="px-2 py-1 text-left border-b border-gray-300">E</th>
+            <th className="px-2 py-1 text-left border-b border-gray-300">P</th>
             <th className="px-2 py-1 text-left border-b border-gray-300">
               G/P
             </th>
-            <th className="px-2 py-1 text-left border-b border-gray-300">
-              GF
-            </th>
-            <th className="px-2 py-1 text-left border-b border-gray-300">
-              GC
-            </th>
+            <th className="px-2 py-1 text-left border-b border-gray-300">GF</th>
+            <th className="px-2 py-1 text-left border-b border-gray-300">GC</th>
             <th className="px-2 py-1 text-left border-b border-gray-300">
               DIF
+            </th>
+            <th className="px-2 py-1 text-left border-b border-gray-300">
+              PTS/EFEC
             </th>
           </tr>
         </thead>
@@ -145,9 +151,8 @@ const StatsTable = ({ title, rows, colorize = true }) => {
                 <GpCell g={r.g} p={r.p} rowBg={rowBg} />
                 <Cell bg={rowBg}>{r.gf}</Cell>
                 <Cell bg={rowBg}>{r.gc}</Cell>
-
-                {/* DIF con color propio */}
                 <DifCell value={r.dif} rowBg={rowBg} />
+                <PtsEfecCell g={r.g} e={r.e} pj={r.pj} rowBg={rowBg} />
               </tr>
             );
           })}

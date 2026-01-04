@@ -291,7 +291,7 @@ const Campeonatos = () => {
                       </td>
 
                       <td className={`px-2 py-1 text-center ${colGen}`}>
-                        {ptsG} / {poG} {efG}
+                        {ptsG} / {poG} {efG}%
                       </td>
                     </tr>
 
@@ -333,7 +333,7 @@ const Campeonatos = () => {
                         />
                       </td>
                       <td className={`px-2 py-1 text-center ${colLoc}`}>
-                        {ptsL} / {poL} {efL}
+                        {ptsL} / {poL} {efL}%
                       </td>
                     </tr>
 
@@ -376,7 +376,7 @@ const Campeonatos = () => {
                       </td>
 
                       <td className={`px-2 py-1 text-center ${colVis}`}>
-                        {ptsV} / {poV} {efV}
+                        {ptsV} / {poV} {efV}%
                       </td>
                     </tr>
                   </React.Fragment>
@@ -435,7 +435,7 @@ const Campeonatos = () => {
               <th className="px-2 py-2 text-center border-b border-slate-200">
                 DG
               </th>
-              <th className="px-2 py-2 text-center border-b  border-r border-slate-300">
+              <th className="px-2 py-2 text-left border-b  border-r border-slate-300">
                 Pts / Efec.
               </th>
 
@@ -559,9 +559,9 @@ const Campeonatos = () => {
                   </td>
 
                   <td
-                    className={`px-2 py-1 text-center ${colGen} border-r border-slate-200`}
+                    className={`px-2 py-1 text-left ${colGen} border-r border-slate-200`}
                   >
-                    {puntos} / {posibles} - {efectividad}
+                    {puntos}/{posibles} - {efectividad}%
                   </td>
 
                   {/* Local */}

@@ -30,6 +30,7 @@ const metricToKey = {
   GF: "gf",
   GC: "gc",
   DF: "df",
+  "PTS/EFEC": "ptsEfec",
 };
 
 const ringBySign = (n) => {
@@ -58,10 +59,22 @@ const renderStatsCells = (stats = {}) =>
 
     // ✅ CAMBIO: valor especial para G/P (g - p)
     let val = 0;
+
     if (m === "G/P") {
       const g = stats?.g ?? 0;
       const p = stats?.p ?? 0;
       val = g - p;
+    } else if (m === "PTS/EFEC") {
+      const g = Number(stats?.g ?? 0);
+      const e = Number(stats?.e ?? 0);
+      const pj = Number(stats?.pj ?? 0);
+
+      const obtenidos = g * 3 + e * 1;
+      const posibles = pj * 3;
+      const efec = posibles > 0 ? Math.round((obtenidos / posibles) * 100) : 0;
+
+      // lo devolvemos como objeto para renderizar bonito abajo
+      val = { obtenidos, posibles, efec };
     } else {
       const prop = metricToKey[m];
       val = stats?.[prop] ?? 0;
@@ -76,6 +89,15 @@ const renderStatsCells = (stats = {}) =>
           />
         ) : m === "DF" ? (
           <CircleValue value={val} title={`DF = ${val}`} />
+        ) : m === "PTS/EFEC" ? (
+          <div className="flex flex-col items-center leading-none">
+            <span className="text-[10px] font-bold tabular-nums">
+              {val.obtenidos}/{val.posibles}
+            </span>
+            <span className="text-[9px] text-slate-600 tabular-nums">
+              {val.efec}%
+            </span>
+          </div>
         ) : (
           val
         )}
@@ -151,7 +173,7 @@ const Season = () => {
     keys.reduce((acc, k) => (obj?.[k] ? { ...acc, [k]: obj[k] } : acc), {});
 
   return (
-    <div className="p-4 max-w-screen-2xl mx-auto">
+    <div className="p-2 max-w-screen-2xl mx-auto">
       {/* Header + selector de club */}
       <div>
         <h1 className="text-2xl font-bold text-center">📆 Temporadas</h1>
@@ -194,7 +216,7 @@ const Season = () => {
                 <table className="w-full text-[11px] border-collapse">
                   <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
                     <tr>
-                      <th className="px-3 py-2 text-left border-b border-slate-200">
+                      <th className="px-2 py-2 w-[76px] max-w-[76px] text-left border-b border-slate-200">
                         Temporada
                       </th>
                       {metricas.map((m) => (
@@ -212,7 +234,7 @@ const Season = () => {
 
                     {/* General: fila 2 */}
                     <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
-                      <td className="px-2 py-1.5 w-24 whitespace-nowrap font-semibold text-left text-slate-800">
+                      <td className="px-2 py-1.5 w-[76px] max-w-[76px] font-semibold text-left text-slate-800">
                         {temp}
                       </td>
                       {renderStatsCells(tripleSeason.General)}

@@ -442,7 +442,7 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
                       <span className="font-medium">
                         {prettySafe(m.resultMatch || "Sin resultado")}
                       </span>
-                      {" · "}                     
+                      {" · "}
                       {" · "}
                       <br />
                       <span className="text-slate-700">
@@ -503,7 +503,8 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
               </div>
               {/* { 2 renglones */}
               <div className="sm:hidden space-y-1">
-                {camp.matches.map((m) => {
+                {camp.matches.map((m, index) => {
+                  const nroJuego = camp.matches.length - index;
                   return (
                     <div
                       key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
@@ -512,7 +513,7 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
                       {/* Fila 1: Fecha + Resultado + Acciones */}
                       <div className="flex items-center justify-start gap-2 px-3 py-2 bg-slate-100">
                         <div>
-                          <div className="text-xs tabular-nums">
+                          <div className="text-[10px] tabular-nums">
                             {formatDDMM(m)}
                           </div>
                           <span className="text-slate-900 text-[10px]">
@@ -520,14 +521,20 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
                           </span>
                         </div>
 
-                        <span
-                          className={
-                            "px-2 py-0.5 rounded-full text-[12px] whitespace-nowrap " +
-                            getResultadoPartidoClasses(m.final)
-                          }
-                        >
-                          {prettySafe(m.resultMatch || "")}
-                        </span>
+                        <div className="text-[12px] flex flex-col">
+                          <span className="text-slate-700 text-left pl-10">
+                            Fecha: {nroJuego}
+                          </span>
+
+                          <span
+                            className={
+                              "w-max px-2 py-0.5 rounded-full text-[12px] whitespace-nowrap " +
+                              getResultadoPartidoClasses(m.final)
+                            }
+                          >
+                            {prettySafe(m.resultMatch || "")}
+                          </span>
+                        </div>
 
                         <div className="ml-auto flex items-center gap-2">
                           <button

@@ -103,6 +103,10 @@ const Villanos = ({ matches }) => {
     );
   }
 
+  const totalGoles = villanos.reduce((acc, x) => acc + (x.goles || 0), 0);
+  const totalx2 = villanos.reduce((acc, x) => acc + (x.x2 || 0), 0);
+  const totalx3 = villanos.reduce((acc, x) => acc + (x.x3 || 0), 0);
+
   return (
     <div className="mt-4">
       <h2 className="text-xl font-bold mb-4 text-center">
@@ -141,6 +145,17 @@ const Villanos = ({ matches }) => {
                 <td className="border px-2 py-1 text-center">{v.x3}</td>
               </tr>
             ))}
+            <tr>
+              <td
+                className="border px-2 py-1 text-right text-black font-bold "
+                colSpan={3}
+              >
+                TOTALES
+              </td>
+              <td className="border px-2 py-1 text-center ">{totalGoles}</td>
+              <td className="border px-2 py-2 text-center">{totalx2}</td>
+              <td className="border px-2 py-2 text-center">{totalx3}</td>
+            </tr>
           </tbody>
         </table>
       </div>

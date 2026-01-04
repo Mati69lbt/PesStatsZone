@@ -44,6 +44,29 @@ const Gol_Tabla = ({
       ? "Local"
       : "Visitante";
 
+  // ✅ TOTALES (según el ámbito actual)
+  const totals = React.useMemo(() => {
+    const list = goleadoresOrdenados || [];
+
+    const totalGoles = list.reduce(
+      (acc, x) => acc + (x?.[ambito]?.goles || 0),
+      0
+    );
+    const totalx2 = list.reduce((acc, x) => acc + (x?.[ambito]?.x2 || 0), 0);
+    const totalx3 = list.reduce((acc, x) => acc + (x?.[ambito]?.x3 || 0), 0);
+
+    // ✅ Promedio de promedios (cada jugador pesa igual)
+    const sumProms = list.reduce((acc, x) => acc + (x?.[ambito]?.prom || 0), 0);
+    const promProms = list.length ? sumProms / list.length : 0;
+
+    return {
+      totalGoles,
+      totalx2,
+      totalx3,
+      promProms: Number(promProms).toFixed(2),
+    };
+  }, [goleadoresOrdenados, ambito]);
+
   if (!goleadoresOrdenados?.length) {
     return (
       <p className="text-center text-sm text-slate-500 mt-4">
@@ -162,6 +185,25 @@ const Gol_Tabla = ({
                 </tr>
               );
             })}
+            {goleadoresOrdenados.length > 0 && (
+              <tr className="bg-slate-200 font-bold">
+                <td className="border px-2 py-2 text-right" colSpan={3}>
+                  TOTALES
+                </td>
+                <td className="border px-2 py-2 text-center">
+                  {totals.totalGoles}
+                </td>
+                <td className="border px-2 py-2 text-center">
+                  {totals.totalx2}
+                </td>
+                <td className="border px-2 py-2 text-center">
+                  {totals.totalx3}
+                </td>
+                <td className="border px-2 py-2 text-center">
+                  {totals.promProms}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -217,6 +259,7 @@ const Gol_Tabla = ({
           <tbody>
             {goleadoresOrdenados.map((g, idx) => {
               const a = g?.[ambito] || {};
+
               return (
                 <tr
                   key={g.nombre}
@@ -241,6 +284,29 @@ const Gol_Tabla = ({
                 </tr>
               );
             })}
+            {goleadoresOrdenados.length > 0 && (
+              <tr className="bg-slate-200 font-bold">
+                <td className="border px-2 py-2 text-right" colSpan={3}>
+                  TOTALES
+                </td>
+
+                <td className="border px-2 py-2 text-center">
+                  {totals.totalGoles}
+                </td>
+
+                <td className="border px-2 py-2 text-center">
+                  {totals.totalx2}
+                </td>
+
+                <td className="border px-2 py-2 text-center">
+                  {totals.totalx3}
+                </td>
+
+                <td className="border px-2 py-2 text-center">
+                  {totals.promProms}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

@@ -148,6 +148,30 @@ const GoleadoresPorCampeonato = ({ matches }) => {
             (a, b) => b.goles - a.goles || a.nombre.localeCompare(b.nombre)
           );
 
+        const totalGoles = jugadoresOrdenados.reduce(
+          (acc, j) => acc + (j.goles || 0),
+          0
+        );
+        const totalx2 = jugadoresOrdenados.reduce(
+          (acc, j) => acc + (j.x2 || 0),
+          0
+        );
+        const totalx3 = jugadoresOrdenados.reduce(
+          (acc, j) => acc + (j.x3 || 0),
+          0
+        );
+        // ✅ Promedio de promedios (cada jugador pesa igual)
+        const sumProms = jugadoresOrdenados.reduce((acc, j) => {
+          const pj = Number(j.pj || 0);
+          const goles = Number(j.goles || 0);
+          return acc + (pj > 0 ? goles / pj : 0);
+        }, 0);
+
+        const totalPromProm =
+          jugadoresOrdenados.length > 0
+            ? (sumProms / jugadoresOrdenados.length).toFixed(2)
+            : "0.00";
+
         return (
           <div
             key={torneo.label}
@@ -174,7 +198,7 @@ const GoleadoresPorCampeonato = ({ matches }) => {
                   {jugadoresOrdenados.length === 0 && (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="border px-2 py-2 text-center text-slate-500"
                       >
                         No hubo goles en este campeonato.
@@ -187,10 +211,7 @@ const GoleadoresPorCampeonato = ({ matches }) => {
                       key={j.nombre}
                       className="odd:bg-white even:bg-slate-100 hover:bg-slate-100 transition-colors"
                     >
-                      <td
-                        className="border px-2 py-2 text-center font-bold align-middle"
-                       
-                      >
+                      <td className="border px-2 py-2 text-center font-bold align-middle">
                         {idx + 1}
                       </td>
                       <td className="border px-2 py-1 text-left font-medium">
@@ -207,6 +228,27 @@ const GoleadoresPorCampeonato = ({ matches }) => {
                       <td className="border px-2 py-1 text-center">{j.x3}</td>
                     </tr>
                   ))}
+                  {jugadoresOrdenados.length > 0 && (
+                    <tr className="bg-slate-200 font-bold">
+                      <td className="border px-2 py-2 text-right" colSpan={3}>
+                        TOTALES
+                      </td>
+
+                      <td className="border px-2 py-2 text-center">
+                        {totalGoles}
+                      </td>
+
+                      <td className="border px-2 py-2 text-center">
+                        {totalPromProm}
+                      </td>
+                      <td className="border px-2 py-2 text-center">
+                        {totalx2}
+                      </td>
+                      <td className="border px-2 py-2 text-center">
+                        {totalx3}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

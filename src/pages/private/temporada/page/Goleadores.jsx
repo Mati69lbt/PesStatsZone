@@ -17,7 +17,6 @@ const TopGoleadores = ({
   data = null,
   showHomeAway = false,
 }) => {
-  
   // igual que en CampDesgl.jsx (misma lógica)
   const calcularGolesGoleador = (g) => {
     if (!g) return 0;
@@ -132,43 +131,64 @@ const TopGoleadores = ({
     : "";
 
   // vertical
-  const VerticalTable = ({ title, list }) => (
-    <div className="w-max rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="px-3 py-2 border-b border-slate-200 text-[10px] font-semibold tracking-wide text-center uppercase text-slate-800 bg-sky-50">
-        {title}
-      </div>
+  const VerticalTable = ({ title, list }) => {
+    const totalGoles = (list || []).reduce((acc, x) => acc + (x.goals || 0), 0);
+    return (
+      <div className="w-max rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="px-3 py-2 border-b border-slate-200 text-[10px] font-semibold tracking-wide text-center uppercase text-slate-800 bg-sky-50">
+          {title}
+        </div>
 
-      <table className="w-full text-[11px] border-collapse">
-        <tbody>
-          {!list || list.length === 0 ? (
-            <tr>
-              <td className="px-3 py-3 text-center text-slate-500" colSpan={3}>
-                Sin goles
-              </td>
-            </tr>
-          ) : (
-            list.map((j, i) => (
-              <tr key={j.name} className="border-b border-slate-100">
-                <td className="px-2 py-2 text-center align-middle w-12">
-                  <span className="inline-flex items-center justify-center w-9 rounded-full bg-slate-50 ring-1 ring-slate-200 text-base leading-none">
-                    {rankStyles(i).icon}
-                  </span>
-                </td>
-                <td className="px-2 py-2 text-left">
-                  <div className="text-[12px] font-medium text-slate-800">
-                    {prettySafe(j.name)}
-                  </div>
-                </td>
-                <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 w-12">
-                  {j.goals}
+        <table className="w-full text-[11px] border-collapse">
+          <tbody>
+            {!list || list.length === 0 ? (
+              <tr>
+                <td
+                  className="px-3 py-3 text-center text-slate-500"
+                  colSpan={3}
+                >
+                  Sin goles
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+            ) : (
+              list.map((j, i) => {
+                return (
+                  <tr key={j.name} className="border-b border-slate-100">
+                    <td className="px-2 py-2 text-center align-middle w-12">
+                      <span className="inline-flex items-center justify-center w-9 rounded-full bg-slate-50 ring-1 ring-slate-200 text-base leading-none">
+                        {rankStyles(i).icon}
+                      </span>
+                    </td>
+                    <td className="px-2 py-2 text-left">
+                      <div className="text-[12px] font-medium text-slate-800">
+                        {prettySafe(j.name)}
+                      </div>
+                    </td>
+                    <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 w-12">
+                      {j.goals}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+            {(list || []).length > 0 && (
+              <tr className="bg-slate-50 border-t border-slate-200">
+                <td
+                  className="px-2 py-2 text-center font-semibold text-slate-700"
+                  colSpan={2}
+                >
+                  Total
+                </td>
+                <td className="px-2 py-2 text-right tabular-nums font-extrabold text-slate-900">
+                  {totalGoles}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   if (mode === "vertical") {
     const yearsLabel = years?.length
