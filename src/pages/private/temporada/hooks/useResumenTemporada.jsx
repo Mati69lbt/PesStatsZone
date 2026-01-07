@@ -69,7 +69,7 @@ const useResumenTemporada = (matches = []) => {
     const temps = Object.keys(resumen).sort((a, b) => {
       const aY = parseInt(a.split("-")[0], 10);
       const bY = parseInt(b.split("-")[0], 10);
-      return bY - aY;
+      return aY - bY;
     });
 
     const caps = [...captainsSet].sort((a, b) => a.localeCompare(b));

@@ -2,6 +2,7 @@
 import React, { useMemo } from "react";
 import { applyMatch, sumInit, temporadaKey } from "../util/funtions";
 
+
 const useRessumenesMemo = (matches) => {
   return useMemo(() => {
     const acc = {};
@@ -22,16 +23,23 @@ const useRessumenesMemo = (matches) => {
 
       const gf = Number(m.golFavor) || 0;
       const gc = Number(m.golContra) || 0;
-      const esLocal = (m.condition || "").toLowerCase() === "local";
 
-      // general
+      const cond = String(m.condition || "")
+        .trim()
+        .toLowerCase();
+      const esLocal = cond === "local";
+      const esVisitante = cond === "visitante";
+
+      // general (siempre)
       applyMatch(acc[clave].general, { esLocal, gf, gc });
-      // ámbito
-      applyMatch(esLocal ? acc[clave].local : acc[clave].visitante, {
-        esLocal,
-        gf,
-        gc,
-      });
+
+      // ámbito (solo si es local o visitante)
+      if (esLocal) {
+        applyMatch(acc[clave].local, { esLocal: true, gf, gc });
+      } else if (esVisitante) {
+        applyMatch(acc[clave].visitante, { esLocal: false, gf, gc });
+      }
+      // si es neutro/neutral: NO lo contamos ni en local ni en visitante
     }
     return acc;
   }, [matches]);

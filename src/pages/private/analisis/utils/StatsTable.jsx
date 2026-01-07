@@ -17,7 +17,7 @@ const StatsTable = ({ title, rows, colorize = true }) => {
 
   // celdita numérica normal (aplica color por resultado dominante)
   const Cell = ({ children, bg }) => (
-    <td className={`px-2 py-1 border-b border-gray-100 text-center ${bg}`}>
+    <td className={`px-1 py-1 border-b border-gray-100 text-center ${bg}`}>
       {children}
     </td>
   );
@@ -32,7 +32,7 @@ const StatsTable = ({ title, rows, colorize = true }) => {
     const efec = posibles > 0 ? Math.round((obtenidos / posibles) * 100) : 0;
 
     return (
-      <td className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}>
+      <td className={`px-1 py-1 border-b border-gray-100 text-center ${rowBg}`}>
         <div className="flex flex-col items-center leading-none">
           <span className="text-[10px] font-extrabold tabular-nums text-black">
             {obtenidos}/{posibles}
@@ -52,7 +52,7 @@ const StatsTable = ({ title, rows, colorize = true }) => {
       v > 0 ? "ring-green-400" : v < 0 ? "ring-red-400" : "ring-yellow-400";
 
     return (
-      <td className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}>
+      <td className={`px-1 py-1 border-b border-gray-100 text-center ${rowBg}`}>
         <span
           className={`mx-auto inline-flex items-center justify-center rounded-full w-7 h-7 bg-white ring-2 ${ring} text-[10px] font-extrabold text-black`}
           title={`DIF: ${v}`}
@@ -82,7 +82,7 @@ const StatsTable = ({ title, rows, colorize = true }) => {
         : "text-amber-700";
 
     return (
-      <td className={`px-2 py-1 border-b border-gray-100 text-center ${rowBg}`}>
+      <td className={`px-1 py-1 border-b border-gray-100 text-center ${rowBg}`}>
         <span
           className={`mx-auto inline-flex items-center rounded-full bg-white px-2 py-1 text-[10px] font-extrabold
           border ring-2 ${accent}`}

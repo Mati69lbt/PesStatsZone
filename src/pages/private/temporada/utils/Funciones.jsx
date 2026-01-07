@@ -7,7 +7,17 @@ export const emptyTriple = () => ({
   Neutral: plantilla(),
 });
 
-export const metricas = ["PJ", "G", "E", "P", "G/P", "GF", "GC", "DF", "PTS/EFEC"];
+export const metricas = [
+  "PJ",
+  "G",
+  "E",
+  "P",
+  "G/P",
+  "GF",
+  "GC",
+  "DF",
+  "PTS/EFEC",
+];
 
 export function getSeasonKey(fechaStr) {
   // Temporada: del 01/07 al 30/06 (p. ej., "2017-2018")
@@ -99,6 +109,28 @@ const renderCircle = (value, title) => (
 const renderGpCircle = (gp) => renderCircle(gp, `G/P = ${gp}`);
 const renderDfCircle = (df) => renderCircle(df, `DF = ${df}`);
 
+// ✅ NUEVO: PTS/EFEC como {obtenidos, posibles, efec}
+const calcPtsEfec = (blk) => {
+  const g = Number(blk?.g ?? 0);
+  const e = Number(blk?.e ?? 0);
+  const pj = Number(blk?.pj ?? 0);
+
+  const obtenidos = g * 3 + e * 1;
+  const posibles = pj * 3;
+  const efec = posibles > 0 ? Math.round((obtenidos / posibles) * 100) : 0;
+
+  return { obtenidos, posibles, efec };
+};
+
+const renderPtsEfec = (val) => (
+  <div className="leading-tight">
+    <div className="font-semibold">
+      {val?.obtenidos ?? 0} / {val?.posibles ?? 0}
+    </div>
+    <div className="text-[10px] opacity-80">{val?.efec ?? 0}%</div>
+  </div>
+);
+
 export const renderBloques = (triple) => {
   const g = triple?.General ?? plantilla();
   const l = triple?.Local ?? plantilla();
@@ -109,25 +141,34 @@ export const renderBloques = (triple) => {
   const celdas = [];
 
   for (const blk of bloques) {
-    // ✅ CAMBIO: insertamos G/P = (g - p) entre P y GF
     const gp = (blk.g ?? 0) - (blk.p ?? 0);
-    celdas.push(blk.pj, blk.g, blk.e, blk.p, gp, blk.gf, blk.gc, blk.df);
+    const ptsEfec = calcPtsEfec(blk);
+    celdas.push(
+      blk.pj,
+      blk.g,
+      blk.e,
+      blk.p,
+      gp,
+      blk.gf,
+      blk.gc,
+      blk.df,
+      ptsEfec
+    );
   }
 
   return celdas.map((val, i) => {
-    // ✅ CAMBIO: tramo de 8 columnas por bloque
-    const idx = i % 8;
-    const bloqueIdx = Math.floor(i / 8);
+    const idx = i % 9; // ✅ antes % 8
+    const bloqueIdx = Math.floor(i / 9); // ✅ antes / 8
     const ref = bloques[bloqueIdx];
-
     const bg = getColorSegunResultado(ref);
-
     return (
       <td key={i} className={`border px-2 py-1 text-center ${bg}`}>
         {idx === 4
           ? renderGpCircle(val)
           : idx === 7
           ? renderDfCircle(val)
+          : idx === 8
+          ? renderPtsEfec(val)
           : val}
       </td>
     );
@@ -145,16 +186,24 @@ export const renderBloquesDe = (triple, orden = []) => {
 
   for (const key of orden) {
     const blk = map[key] ?? plantilla();
-
-    // ✅ CAMBIO: G/P = (g - p)
     const gp = (blk.g ?? 0) - (blk.p ?? 0);
-    celdas.push(blk.pj, blk.g, blk.e, blk.p, gp, blk.gf, blk.gc, blk.df);
+    const ptsEfec = calcPtsEfec(blk);
+    celdas.push(
+      blk.pj,
+      blk.g,
+      blk.e,
+      blk.p,
+      gp,
+      blk.gf,
+      blk.gc,
+      blk.df,
+      ptsEfec
+    );
   }
 
   return celdas.map((val, i) => {
-    // ✅ CAMBIO: 8 columnas por bloque
-    const idx = i % 8;
-    const bloqueIdx = Math.floor(i / 8);
+    const idx = i % 9; // ✅ antes % 8
+    const bloqueIdx = Math.floor(i / 9); // ✅ antes / 8
     const refKey = orden[bloqueIdx];
     const refBlk = map[refKey] ?? plantilla();
 
@@ -169,6 +218,8 @@ export const renderBloquesDe = (triple, orden = []) => {
           ? renderGpCircle(val)
           : idx === 7
           ? renderDfCircle(val)
+          : idx === 8
+          ? renderPtsEfec(val)
           : val}
       </td>
     );

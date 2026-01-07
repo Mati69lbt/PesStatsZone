@@ -53,10 +53,12 @@ const Campeonatos = () => {
   const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
 
+  console.log("matches", matches);
+
   const [orden, setOrden] = useState("desc"); // "asc" | "desc"
 
   const resumenes = useRessumenesMemo(matches);
-  const clavesOrdenadas = useClavesOrdenadasMemo(resumenes, orden, matches); 
+  const clavesOrdenadas = useClavesOrdenadasMemo(resumenes, orden, matches);
 
   const clubData = lineupState?.lineups?.[clubKey] || {};
   const hasPlayers = (clubData.players?.length ?? 0) > 0;
@@ -518,6 +520,8 @@ const Campeonatos = () => {
               const { puntos, efectividad, posibles } = puntosYefectividad(
                 r.general
               );
+
+              console.log(clave);
 
               return (
                 <tr

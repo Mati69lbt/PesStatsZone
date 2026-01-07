@@ -63,16 +63,21 @@ const Analysis = () => {
   const visibleClub = selectedClub;
   return (
     <div className="p-2 max-w-7xl mx-auto">
-      <div className="mb-2 grid grid-cols-3 items-center">
-        <div /> {/* spacer */}
-        <h1 className="text-center text-3xl font-extrabold tracking-tight text-slate-900">
+      <div className="mb-2 grid grid-cols-1 gap-2 items-center sm:grid-cols-3">
+        {/* Columna izquierda: spacer solo en sm+ */}
+        <div className="hidden sm:block" />
+
+        {/* Título */}
+        <h1 className="text-center text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
           📊 Análisis
-          <span className="ml-3 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+          <span className="ml-2 sm:ml-3 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[11px] sm:text-xs font-semibold text-slate-600">
             por torneo y capitán
           </span>
         </h1>
+
+        {/* Selector club */}
         {clubs.length > 1 ? (
-          <div className="justify-self-end flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2 sm:justify-self-end sm:justify-end">
             <span className="text-sm text-slate-600">Club:</span>
             <select
               className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
@@ -87,7 +92,7 @@ const Analysis = () => {
             </select>
           </div>
         ) : (
-          <div />
+          <div className="hidden sm:block" />
         )}
       </div>
 
