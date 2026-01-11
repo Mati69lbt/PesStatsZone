@@ -148,7 +148,8 @@ export default function Navbar() {
     { path: "/versus", label: "🆚" },
     { path: "/temporadas", label: "🗓️" },
     { path: "/ultimos-diez", label: "🔟" },
-    { path: "/analisis", label: "📈" },
+    { path: "/analisis", label: "🧤" },
+    { path: "/graficos", label: "📈" },
     { path: "/campeonatos", label: "🏆" },
     { path: "/partidos", label: "📋" },
     { path: "/goleadores", label: "⚽" },
@@ -159,7 +160,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md w-full sticky top-0 z-50">
       {!forzarHamburguesa && (
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-6xl mx-auto px-1 py-3 flex items-center gap-2">
           {/* Izquierda: marca */}
           <span
             className="text-2xl font-bold text-blue-600 whitespace-nowrap cursor-pointer"
@@ -292,7 +293,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 22</span>
+                <span>Versión: 23</span>
               </div>
             </div>
           </div>

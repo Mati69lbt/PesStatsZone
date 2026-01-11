@@ -20,6 +20,7 @@ import Partidos from "./pages/private/campeonatos/util/Partidos";
 import UltimosDiez from "./pages/private/Ultimos10/page/UltimosDiez";
 import ScrollToTop from "./components/ScrollToTop";
 import { useUserData } from "./hooks/useUserData";
+import Graficos from "./pages/private/graficos/page/Graficos";
 
 function Hydrator() {
   const { uid } = useAuth();
@@ -65,6 +66,7 @@ const App = () => {
           <Route path="/partidos" element={<Partidos />} />
           <Route path="/ultimos-diez" element={<UltimosDiez />} />
           <Route path="/analisis" element={<Analysis />} />
+          <Route path="/graficos" element={<Graficos />} />
           <Route path="/temporadas" element={<Season />} />
           <Route path="/goleadores" element={<Scorers />} />
           <Route path="/palmares" element={<Palmares />} />

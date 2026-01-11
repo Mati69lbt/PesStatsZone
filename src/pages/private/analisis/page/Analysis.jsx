@@ -70,9 +70,7 @@ const Analysis = () => {
         {/* Título */}
         <h1 className="text-center text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
           📊 Análisis
-          <span className="ml-2 sm:ml-3 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-[11px] sm:text-xs font-semibold text-slate-600">
-            por torneo y capitán
-          </span>
+        
         </h1>
 
         {/* Selector club */}
