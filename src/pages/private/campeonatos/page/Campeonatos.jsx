@@ -4,7 +4,7 @@ import useAuth from "../../../../hooks/useAuth";
 import { usePartido } from "../../../../context/PartidoReducer";
 import { useLineups } from "../../../../context/LineUpProvider";
 import { normalizeName } from "../../../../utils/normalizeName";
-import useRessumenesMemo from "../hooks/useRessumenesMemo";
+import useRessumeenesMemo from "../hooks/useRessumenesMemo";
 import useClavesOrdenadasMemo from "../hooks/useClavesOrdenadasMemo";
 import {
   getColorSegunResultado,
@@ -12,8 +12,9 @@ import {
   prettySafe,
   puntosYefectividad,
 } from "../util/funtions";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { fetchUserData, useUserData } from "../../../../hooks/useUserData";
+import useRessumenesMemo from "../hooks/useRessumenesMemo";
 
 // ✅ NUEVO: círculo para DG y G/P (fondo blanco + ring con color)
 const StatCircle = ({ value = 0, title = "", showPlus = false }) => {
@@ -39,26 +40,26 @@ const Campeonatos = () => {
 
   useUserData(uid, matchDispatch, lineupDispatch);
 
-  const refreshData = async () => {
-    if (!uid) return;
-    await fetchUserData(uid, matchDispatch, lineupDispatch);
-  };
-
   const clubs = Object.keys(lineupState?.lineups || []);
   const [selectedClub, setSelectedClub] = useState(
-    lineupState?.activeClub || clubs[0] || ""
+    lineupState?.activeClub || clubs[0] || "",
   );
 
   const clubKey = normalizeName(selectedClub || "");
   const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
 
-  console.log("matches", matches);
-
   const [orden, setOrden] = useState("desc"); // "asc" | "desc"
 
-  const resumenes = useRessumenesMemo(matches);
-  const clavesOrdenadas = useClavesOrdenadasMemo(resumenes, orden, matches);
+  const torneosConfig = bucket?.torneosConfig || {};
+
+  const resumenes = useRessumenesMemo(matches, torneosConfig);
+  const clavesOrdenadas = useClavesOrdenadasMemo(
+    resumenes,
+    orden,
+    matches,
+    torneosConfig,
+  );
 
   const clubData = lineupState?.lineups?.[clubKey] || {};
   const hasPlayers = (clubData.players?.length ?? 0) > 0;
@@ -134,10 +135,18 @@ const Campeonatos = () => {
 
   return (
     <div className="p-1 max-w-screen-2xl mx-auto">
-      {/* ✅ Header más lindo */}
-      <h1 className="mb-6 text-center text-3xl font-extrabold tracking-tight text-slate-900">
-        🏆 Campeonatos
-      </h1>
+      <div className="flex items-center justify-center gap-4 mb-8">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+          🏆 Campeonatos
+        </h1>
+        <Link
+          to="/campeonatos/ajustes"
+          className="p-2 rounded-full hover:bg-slate-200 transition-all border border-slate-200 shadow-sm bg-white flex items-center justify-center"
+          title="Configuración de Campeonatos"
+        >
+          <span className="text-xl leading-none">⚙️</span>
+        </Link>
+      </div>
 
       {/* ✅ Controles (más prolijos) */}
       <div className="mb-4 flex flex-wrap items-end justify-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -518,10 +527,8 @@ const Campeonatos = () => {
               const colVis = getColorSegunResultado(r.visitante);
 
               const { puntos, efectividad, posibles } = puntosYefectividad(
-                r.general
+                r.general,
               );
-
-              console.log(clave);
 
               return (
                 <tr

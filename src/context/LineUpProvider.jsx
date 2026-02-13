@@ -183,7 +183,7 @@ export function lineupReducer(state, action) {
 
       const before = bucket.formations.length;
       const formations = bucket.formations.filter(
-        (f) => f.id !== action.payload.id
+        (f) => f.id !== action.payload.id,
       );
       if (formations.length === before) return state;
 
@@ -203,6 +203,20 @@ export function lineupReducer(state, action) {
         .filter((k) => k && !seen.has(k) && seen.add(k));
       return { ...state, managedClubs: list };
     }
+    case "UPDATE_TORNEO_CONFIG":
+      return {
+        ...state,
+        lineups: {
+          ...state.lineups,
+          [action.payload.clubKey]: {
+            ...state.lineups[action.payload.clubKey],
+            torneosConfig: {
+              ...state.lineups[action.payload.clubKey].torneosConfig,
+              [action.payload.torneo]: action.payload.settings,
+            },
+          },
+        },
+      };
 
     case "LINEUPS_SET_ALL": {
       const incoming = action.payload?.lineups;
@@ -229,7 +243,7 @@ export function lineupReducer(state, action) {
       const curr = Array.isArray(prevBucket.players) ? prevBucket.players : [];
       if (curr.includes(name)) return state;
       const nextPlayers = [...curr, name].sort((a, b) =>
-        a.localeCompare(b, "es", { sensitivity: "base" })
+        a.localeCompare(b, "es", { sensitivity: "base" }),
       );
       return {
         ...state,

@@ -7,14 +7,9 @@ import { useLineups } from "../../../../context/LineUpProvider";
 import { useUserData } from "../../../../hooks/useUserData";
 import { normalizeName } from "../../../../utils/normalizeName";
 import { Navigate } from "react-router-dom";
+import { pretty } from "../../match/utils/pretty";
 
-function colorResultado(p) {
-  const gf = parseInt(p.golesFavor) || 0;
-  const gc = parseInt(p.golesContra) || 0;
-  if (gf > gc) return "bg-green-400";
-  if (gf === gc) return "bg-yellow-400";
-  return "bg-red-400";
-}
+
 
 
 const UltimosDiez = () => {
@@ -67,7 +62,7 @@ const UltimosDiez = () => {
   const partidosLegacy = usePartidosLegacy(matches);
   return (
     <div className="p-2 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between gap-1 mb-2">
+      <div className="flex items-center justify-evenly gap-1 mb-2 mt-2">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex flex-col gap-0 leading-none">
           <span>Últimos 10</span>
           <span className="mt-1 inline-flex w-fit items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
@@ -88,7 +83,7 @@ const UltimosDiez = () => {
           >
             {clubs.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {pretty(c)}
               </option>
             ))}
           </select>

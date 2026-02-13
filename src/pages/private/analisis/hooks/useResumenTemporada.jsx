@@ -1,38 +1,30 @@
 import React, { useMemo } from "react";
-import { emptyTriple, getSeasonKey, sumarFila } from "../utils/Funciones.jsx";
+import { emptyTriple } from "../utils/funtions";
+import { sumarFila } from "../../temporada/utils/Funciones";
+import { getSeasonKeyForMatch } from "../utils/EuropeFuntions";
 
-const useResumenTemporada = (matches = [], mode = "anual") => {
+
+const useResumenTemporada = (
+  matches = [],
+  torneosConfig = {},
+  mode = "anual",
+) => {
   return useMemo(() => {
-    const resumen = {}; // { temporada: { general: Triple, capitanes: { [cap]: Triple } } }
+    const resumen = {};
     const captainsSet = new Set();
 
     for (const m of matches) {
       if (!m?.fecha) continue;
-      const d = new Date(m.fecha);
-      let temp = "N/A";
 
-      if (Number.isFinite(d.getTime())) {
-        if (mode === "europeo") {
-          const year = d.getFullYear();
-          const month = d.getMonth() + 1; // 1..12
-          const startYear = month >= 7 ? year : year - 1;
-          temp = `${startYear}-${startYear + 1}`;
-        } else {
-          temp = String(d.getFullYear());
-        }
-      }
+      const temp = getSeasonKeyForMatch(m, torneosConfig, mode);
+
       const cap = (m?.captain || "—").trim();
       captainsSet.add(cap);
 
-      if (!resumen[temp]) {
-        resumen[temp] = {
-          general: emptyTriple(),
-          capitanes: {},
-        };
-      }
-      if (!resumen[temp].capitanes[cap]) {
+      if (!resumen[temp])
+        resumen[temp] = { general: emptyTriple(), capitanes: {} };
+      if (!resumen[temp].capitanes[cap])
         resumen[temp].capitanes[cap] = emptyTriple();
-      }
 
       const gf = Number(m.golFavor || 0);
       const gc = Number(m.golContra || 0);
@@ -40,15 +32,13 @@ const useResumenTemporada = (matches = [], mode = "anual") => {
         .trim()
         .toLowerCase();
 
-      // General (siempre)
+      // General
       sumarFila(resumen[temp].general.General, gf, gc);
 
-      // Ámbitos
-      if (cond === "local") {
-        sumarFila(resumen[temp].general.Local, gf, gc);
-      } else if (cond === "visitante") {
+      if (cond === "local") sumarFila(resumen[temp].general.Local, gf, gc);
+      else if (cond === "visitante")
         sumarFila(resumen[temp].general.Visitante, gf, gc);
-      } else if (
+      else if (
         cond === "neutral" ||
         cond === "neutro" ||
         cond === "neutro/neutral"
@@ -60,11 +50,11 @@ const useResumenTemporada = (matches = [], mode = "anual") => {
 
       // Capitán
       sumarFila(resumen[temp].capitanes[cap].General, gf, gc);
-      if (cond === "local") {
+      if (cond === "local")
         sumarFila(resumen[temp].capitanes[cap].Local, gf, gc);
-      } else if (cond === "visitante") {
+      else if (cond === "visitante")
         sumarFila(resumen[temp].capitanes[cap].Visitante, gf, gc);
-      } else if (
+      else if (
         cond === "neutral" ||
         cond === "neutro" ||
         cond === "neutro/neutral"
@@ -76,8 +66,8 @@ const useResumenTemporada = (matches = [], mode = "anual") => {
     }
 
     const temps = Object.keys(resumen).sort((a, b) => {
-      const aY = parseInt(a.split("-")[0], 10);
-      const bY = parseInt(b.split("-")[0], 10);
+      const aY = parseInt(String(a).match(/\d{4}/)?.[0] || "0", 10);
+      const bY = parseInt(String(b).match(/\d{4}/)?.[0] || "0", 10);
       return aY - bY;
     });
 
@@ -88,7 +78,7 @@ const useResumenTemporada = (matches = [], mode = "anual") => {
       resumenPorTemporada: resumen,
       captainsOrdenados: caps,
     };
-  }, [matches]);
+  }, [matches, torneosConfig, mode]);
 };
 
 export default useResumenTemporada;

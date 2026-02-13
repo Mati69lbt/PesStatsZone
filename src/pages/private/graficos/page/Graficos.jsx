@@ -24,7 +24,7 @@ const Graficos = () => {
 
   const clubs = Object.keys(lineupState?.lineups || {});
   const [selectedClub, setSelectedClub] = useState(
-    lineupState?.activeClub || clubs[0] || ""
+    lineupState?.activeClub || clubs[0] || "",
   );
 
   const clubKey = normalizeName(selectedClub || "");
@@ -37,6 +37,7 @@ const Graficos = () => {
   }, [bucket]);
 
   const matches = Array.isArray(data?.matches) ? data.matches : [];
+  const torneosConfig = data?.torneosConfig || {};
 
   const clubData = lineupState?.lineups?.[clubKey] || {};
   const hasPlayers = (clubData.players?.length ?? 0) > 0;
@@ -64,7 +65,8 @@ const Graficos = () => {
       view,
       breakdown,
       selectedYear,
-      selectedTournament,    
+      selectedTournament,
+      torneosConfig,
     });
 
   return (
@@ -106,7 +108,6 @@ const Graficos = () => {
           selectedTournament={selectedTournament}
           setSelectedTournament={setSelectedTournament}
         />
-       
 
         <PointsLineChart chartData={chartData} yMax={yMax} />
       </div>

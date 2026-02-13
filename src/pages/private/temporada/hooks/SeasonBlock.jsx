@@ -29,7 +29,7 @@ const ringBySign = (n) => {
 const CircleValue = ({ value, title }) => (
   <span
     className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringBySign(
-      value
+      value,
     )} h-6 w-6 text-[10px] font-extrabold text-black`}
     title={title}
   >
@@ -92,7 +92,13 @@ const renderStatsCells = (stats = {}) =>
     );
   });
 
-const SeasonBlock = ({ clubKey, bucket, year, matchesForYear }) => {
+const SeasonBlock = ({
+  clubKey,
+  bucket,
+  year,
+  matchesForYear,
+  mode = "anual",
+}) => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -106,12 +112,18 @@ const SeasonBlock = ({ clubKey, bucket, year, matchesForYear }) => {
 
   // Resumen por temporada (acá te va a devolver solo ese year)
   const { temporadasOrdenadas, resumenPorTemporada, captainsOrdenados } =
-    useResumenTemporada(matches);
+    useResumenTemporada(matches, mode);
 
+ const temporadasDesc = [...(temporadasOrdenadas || [])].sort((a, b) => {
+   const yearsA = String(a).match(/\d{4}/g) || [];
+   const yearsB = String(b).match(/\d{4}/g) || [];
 
-  const temporadasDesc = [...(temporadasOrdenadas || [])].sort(
-    (a, b) => Number(b) - Number(a)
-  );
+   const keyA = yearsA.length ? Math.max(...yearsA.map(Number)) : -Infinity;
+   const keyB = yearsB.length ? Math.max(...yearsB.map(Number)) : -Infinity;
+
+   return keyB - keyA; // más reciente primero
+ });
+
 
   // Para TopGoleadores: year actual
   const years = String(year).match(/\d{4}/g) || [String(year)];

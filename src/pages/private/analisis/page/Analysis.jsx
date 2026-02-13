@@ -20,7 +20,7 @@ const Analysis = () => {
 
   const clubs = Object.keys(lineupState?.lineups || {});
   const [selectedClub, setSelectedClub] = useState(
-    lineupState?.activeClub || clubs[0] || ""
+    lineupState?.activeClub || clubs[0] || "",
   );
 
   const clubKey = normalizeName(selectedClub || "");
@@ -34,8 +34,6 @@ const Analysis = () => {
 
   const matches = Array.isArray(data?.matches) ? data.matches : [];
 
- 
-
   const clubData = lineupState?.lineups?.[clubKey] || {};
   const hasPlayers = (clubData.players?.length ?? 0) > 0;
   const hasFormations = (clubData.formations?.length ?? 0) > 0;
@@ -47,11 +45,12 @@ const Analysis = () => {
     return <Navigate to="/formacion" replace />;
   }
 
+ const torneosConfig = data?.torneosConfig || {};
 
-  const { captains, tournamentsOrdered } = useMemo(
-    () => buildBreakdown(matches),
-    [matches]
-  );
+ const { captains, tournamentsOrdered } = useMemo(
+   () => buildBreakdown(matches, torneosConfig),
+   [matches, data?.torneosConfig],
+ );
 
   const toRows = (triple) => ({
     General: triple?.General || emptyRow(),
@@ -63,35 +62,32 @@ const Analysis = () => {
   const visibleClub = selectedClub;
   return (
     <div className="p-2 max-w-7xl mx-auto">
-      <div className="mb-2 grid grid-cols-1 gap-2 items-center sm:grid-cols-3">
-        {/* Columna izquierda: spacer solo en sm+ */}
-        <div className="hidden sm:block" />
-
-        {/* Título */}
-        <h1 className="text-center text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-          📊 Análisis
-        
+      <div className="flex items-center justify-evenly gap-1 mb-2 mt-2">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex flex-col gap-0 leading-none">
+          <span>📊 Análisis</span>
+          <span className="mt-1 inline-flex w-fit items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+            🔎 Resumen
+          </span>
         </h1>
 
-        {/* Selector club */}
-        {clubs.length > 1 ? (
-          <div className="flex items-center justify-center gap-2 sm:justify-self-end sm:justify-end">
-            <span className="text-sm text-slate-600">Club:</span>
-            <select
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
-              value={visibleClub}
-              onChange={(e) => setSelectedClub(e.target.value)}
-            >
-              {clubs.map((c) => (
-                <option key={c} value={c}>
-                  {pretty(c)}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : (
-          <div className="hidden sm:block" />
-        )}
+        <label className="w-full max-w-[220px]">
+          <span className="text-sm font-medium text-slate-700">Club</span>
+
+          <select
+            value={visibleClub} // o selectedClub (pero que sea el mismo state que usás en Análisis)
+            onChange={(e) => setSelectedClub(e.target.value)}
+            disabled={clubs.length <= 1}
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-1 text-sm text-slate-800 shadow-sm
+        focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500
+        disabled:bg-slate-100 disabled:text-slate-500"
+          >
+            {clubs.map((c) => (
+              <option key={c} value={c}>
+                {pretty(c)}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">

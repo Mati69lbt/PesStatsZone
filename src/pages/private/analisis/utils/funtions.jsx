@@ -45,12 +45,70 @@ export function addMatchToTriple(triple, m) {
   }
 }
 
-/** Devuelve un array de { captain, total: triple, byTournament: { [torneoDisplay]: triple } } */
-export function buildBreakdown(matches) {
-  const byCaptain = new Map(); // captain => { captain, total: Triple, byTournament: { name: Triple }, tourneyMaxTs: {name: ts} }
+export function buildBreakdown(matches, torneosConfig = {}) {
+  const stripYears = (name = "") => {
+    return name
+      .toString()
+      .replace(/\b(19|20)\d{2}\s*[-–]\s*(19|20)\d{2}\b/g, "") // rango
+      .replace(/\b(19|20)\d{2}\b/g, "") // año suelto
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  };
+
+  const norm = (s) =>
+    (s || "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+  const getFormato = (torneosConfig, torneoName) => {
+    if (!torneosConfig || !torneoName) return "anual";
+
+    const target = norm(stripYears(torneoName));
+    for (const [k, v] of Object.entries(torneosConfig)) {
+      if (norm(stripYears(k)) === target) {
+        const f = (v?.formato ?? "").toString().trim().toLowerCase();
+        return f === "europeo" ? "europeo" : "anual"; // "" => anual
+      }
+    }
+    return "anual";
+  };
+
+  const getSeasonLabel = (m, formato) => {
+    const d = new Date(m?.fecha);
+    if (!Number.isFinite(d.getTime())) return "N/A";
+
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+
+    if (formato === "europeo") {
+      const startYear = month >= 7 ? year : year - 1;
+      return `${startYear}-${startYear + 1}`; // <-- como querés: 2022-2023
+    }
+
+    return String(year); // anual: 2022
+  };
+
+  const getTs = (m) => {
+    const c = m?.createdAt;
+    if (typeof c === "number") return c;
+    if (c && typeof c.toMillis === "function") return c.toMillis();
+    if (c && typeof c.seconds === "number") return c.seconds * 1000;
+
+    if (m?.fecha) {
+      const d = new Date(m.fecha);
+      if (Number.isFinite(d.getTime())) return d.getTime();
+    }
+    return 0;
+  };
+
+  const byCaptain = new Map(); // captain => { captain, total, byTournament, tourneyMaxTs }
 
   for (const m of matches || []) {
     const captain = (m?.captain || "—").trim();
+
     if (!byCaptain.has(captain)) {
       byCaptain.set(captain, {
         captain,
@@ -59,35 +117,40 @@ export function buildBreakdown(matches) {
         tourneyMaxTs: {},
       });
     }
+
     const node = byCaptain.get(captain);
 
-    // Totales del capitán
+    // Totales del capitán (no cambia)
     addMatchToTriple(node.total, m);
 
-    // Por torneo
-    const tName = m?.torneoDisplay || "Sin torneo";
-    if (!node.byTournament[tName]) node.byTournament[tName] = emptyTriple();
-    addMatchToTriple(node.byTournament[tName], m);
+    const torneoRaw = m?.torneoDisplay || "Sin torneo";
+    const torneoBase = stripYears(torneoRaw); // <-- clave
 
-    // Recencia por torneo (por fecha o createdAt)
-    const ts = m?.createdAt ?? (m?.fecha ? new Date(m.fecha).getTime() : 0);
-    node.tourneyMaxTs[tName] = Math.max(node.tourneyMaxTs[tName] || 0, ts);
+    const formato = getFormato(torneosConfig, torneoBase);
+    const season = getSeasonLabel(m, formato);
+
+    const tKey = `${torneoBase} ${season}`; 
+
+    if (!node.byTournament[tKey]) node.byTournament[tKey] = emptyTriple();
+    addMatchToTriple(node.byTournament[tKey], m);
+
+    const ts = getTs(m);
+    node.tourneyMaxTs[tKey] = Math.max(node.tourneyMaxTs[tKey] || 0, ts);
   }
 
-  // Ordena capitanes alfabéticamente (pedido tuyo)
+  // capitanes alfabético
   const captains = [...byCaptain.values()].sort((a, b) =>
-    a.captain.localeCompare(b.captain)
+    a.captain.localeCompare(b.captain),
   );
 
-  // Conjunto de torneos global para alinear columnas entre capitanes
-  const allTournaments = new Map(); // name => maxTsGlobal
+  // orden global de torneos por recencia (para alinear)
+  const allTournaments = new Map();
   captains.forEach((c) => {
     Object.entries(c.tourneyMaxTs).forEach(([name, ts]) => {
       allTournaments.set(name, Math.max(allTournaments.get(name) || 0, ts));
     });
   });
 
-  // Orden torneos: recientes primero
   const tournamentsOrdered = [...allTournaments.entries()]
     .sort((a, b) => b[1] - a[1])
     .map(([name]) => name);

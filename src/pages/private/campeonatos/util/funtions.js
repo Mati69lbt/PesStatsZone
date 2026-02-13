@@ -12,20 +12,59 @@ export function isLigaOCampeonato(name = "") {
   return n.includes("liga") || n.includes("campeonato");
 }
 
-export function temporadaKey({ torneoName, torneoYear, fecha }) {
-  // Si es liga/campeonato => temporada julio-junio, si no => año simple
-  if (isLigaOCampeonato(torneoName)) {
-    const f = fecha ? new Date(fecha) : null;
-    const anio = f ? f.getFullYear() : Number(torneoYear) || 0;
-    if (!f) return `${torneoName} ${anio}`; // fallback
-    const mes = f.getMonth() + 1;
-    const temp = mes >= 7 ? `${anio}-${anio + 1}` : `${anio - 1}-${anio}`;
-    return `${torneoName} ${temp}`;
+const stripYears = (name = "") =>
+  name
+    .toString()
+    .replace(/\b(19|20)\d{2}\s*[-–]\s*(19|20)\d{2}\b/g, "") // 2022-2023
+    .replace(/\b(19|20)\d{2}\b/g, "") // 2022
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+const norm = (s) =>
+  (s || "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const getFormato = (torneosConfig, torneoName) => {
+  if (!torneosConfig || !torneoName) return "anual";
+
+  const target = norm(stripYears(torneoName));
+  for (const [k, v] of Object.entries(torneosConfig || {})) {
+    if (norm(stripYears(k)) === target) {
+      const f = (v?.formato ?? "").toString().trim().toLowerCase();
+      return f === "europeo" ? "europeo" : "anual"; // "" o undefined => anual
+    }
   }
-  // copas u otros torneos dentro del mismo año
-  const anio =
-    Number(torneoYear) || (fecha ? new Date(fecha).getFullYear() : "");
-  return `${torneoName} ${anio}`;
+  return "anual";
+};
+
+export function temporadaKey({ torneoName, torneoYear, fecha, torneosConfig }) {
+  const nombre = stripYears(torneoName || "").trim() || "Sin torneo";
+
+  const formato = getFormato(torneosConfig, nombre);
+
+  const d = fecha ? new Date(fecha) : null;
+  const y = Number(torneoYear) || (d && d.getFullYear()) || 0;
+
+  if (formato === "europeo") {
+    if (d && Number.isFinite(d.getTime())) {
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1;
+      const startYear = month >= 7 ? year : year - 1;
+      return `${nombre} ${startYear}-${startYear + 1}`; // ✅ 2022-2023
+    }
+    // fallback si no hay fecha pero hay torneoYear
+    if (y) return `${nombre} ${y - 1}-${y}`;
+    return `${nombre}`;
+  }
+
+  // anual
+  if (y) return `${nombre} ${y}`; // ✅ Liga Aguila 1 2022
+  if (d && Number.isFinite(d.getTime())) return `${nombre} ${d.getFullYear()}`;
+  return `${nombre}`;
 }
 
 export function sumInit() {
@@ -69,7 +108,7 @@ export function borrarPartido({ match, uid, clubKey, onDone }) {
   Notiflix.Confirm.show(
     "Borrar Partido",
     `¿Estás seguro de borrar el partido de ${match.condition} vs ${prettySafe(
-      match.rival || ""
+      match.rival || "",
     )}?`,
     "Sí",
     "No",
@@ -99,6 +138,6 @@ export function borrarPartido({ match, uid, clubKey, onDone }) {
         Notiflix.Notify.failure("No se pudo borrar el partido.");
       }
     },
-    () => Notiflix.Notify.info("El partido no se borró")
+    () => Notiflix.Notify.info("El partido no se borró"),
   );
 }

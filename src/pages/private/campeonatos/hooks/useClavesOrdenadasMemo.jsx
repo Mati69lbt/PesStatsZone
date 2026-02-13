@@ -19,8 +19,12 @@ const toMs = (v) => {
   return 0;
 };
 
-const useClavesOrdenadasMemo = (resumenes, orden, matches = []) => {
-  // <-- CAMBIO: matches opcional
+const useClavesOrdenadasMemo = (
+  resumenes,
+  orden,
+  matches = [],
+  torneosConfig = {},
+) => {
   return useMemo(() => {
     const extractEndYear = (str) => {
       const match = String(str).match(/(\d{4})(?:-(\d{4}))?$/);
@@ -35,6 +39,7 @@ const useClavesOrdenadasMemo = (resumenes, orden, matches = []) => {
         torneoName: m?.torneoName,
         torneoYear: m?.torneoYear,
         fecha: m?.fecha,
+        torneosConfig, // ✅ nuevo
       });
 
       const ts = Math.max(toMs(m?.createdAt), toMs(m?.fecha));
@@ -62,7 +67,7 @@ const useClavesOrdenadasMemo = (resumenes, orden, matches = []) => {
     });
 
     return arr;
-  }, [resumenes, orden, matches]);
+  }, [resumenes, orden, matches, torneosConfig]);
 };
 
 export default useClavesOrdenadasMemo;

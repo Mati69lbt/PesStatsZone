@@ -2,8 +2,7 @@
 import React, { useMemo } from "react";
 import { applyMatch, sumInit, temporadaKey } from "../util/funtions";
 
-
-const useRessumenesMemo = (matches) => {
+const useRessumenesMemo = (matches, torneosConfig = {}) => {
   return useMemo(() => {
     const acc = {};
     for (const m of matches) {
@@ -11,6 +10,7 @@ const useRessumenesMemo = (matches) => {
         torneoName: m.torneoName,
         torneoYear: m.torneoYear,
         fecha: m.fecha,
+        torneosConfig, // ✅ nuevo
       });
 
       if (!acc[clave]) {

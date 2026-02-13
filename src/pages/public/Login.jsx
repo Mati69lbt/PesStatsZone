@@ -15,7 +15,7 @@ const Login = () => {
 
   useEffect(() => {
     if (user && !loading) {
-      navigate("/formacion", { replace: true });
+      navigate("/partidos", { replace: true });
     } else {
       return;
     }
