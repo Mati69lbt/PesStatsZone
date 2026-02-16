@@ -13,6 +13,24 @@ import { Navigate } from "react-router-dom";
 import TopGoleadores from "../../temporada/page/Goleadores";
 import RachaN from "../utils/RachaN";
 import Goleadores_Desglozados from "../utils/goleadores_Desglozados/page/Goleadores_Desglozados";
+import GolEuropa from "../utils/GolEuropa";
+
+const getSeasonKeyFromMatch = (m) => {
+  const raw = m?.fecha || m?.createdAt;
+  if (raw) {
+    const d =
+      typeof raw === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw)
+        ? new Date(`${raw}T00:00:00`)
+        : new Date(raw);
+
+    if (!Number.isNaN(d.getTime())) {
+      const y = d.getFullYear();
+      const month = d.getMonth() + 1;
+      return month >= 7 ? `${y}-${y + 1}` : `${y - 1}-${y}`;
+    }
+  }
+  return null;
+};
 
 const prettySafe = (str) => {
   if (!str) return "";
@@ -34,7 +52,7 @@ const Scorers = () => {
 
   const clubs = Object.keys(lineupState?.lineups || []);
   const [selectedClub, setSelectedClub] = useState(
-    lineupState?.activeClub || clubs[0] || ""
+    lineupState?.activeClub || clubs[0] || "",
   );
 
   const clubKey = normalizeName(selectedClub || "");
@@ -66,14 +84,19 @@ const Scorers = () => {
       matches
         .map((m) => m?.torneoYear ?? m?.tournamentYear ?? m?.year ?? m?.anio)
         .filter((y) => y !== undefined && y !== null)
-        .map(String)
-    )
+        .map(String),
+    ),
   ).sort();
+
+  const seasons = Array.from(
+    new Set(matches.map(getSeasonKeyFromMatch).filter(Boolean)),
+  ).sort((a, b) => parseInt(b.slice(0, 4), 10) - parseInt(a.slice(0, 4), 10));
 
   const viewOptions = [
     { value: "scorers", label: "Scorers" },
     { value: "campeonatos", label: "Campeonato" },
     { value: "año", label: "Año" },
+    { value: "europa", label: "Año Europeo" },
     { value: "racha", label: "Rachas de Sequía Goleadora" },
     { value: "villanos", label: "Villanos" },
     { value: "carniceros", label: "Carniceros" },
@@ -126,7 +149,23 @@ const Scorers = () => {
       {/* Contenido según vista */}
       {view === "scorers" && <Goleadores_Desglozados matches={matches} />}
       {view === "goleadores" && <GoleadoresGral matches={matches} />}
-      {view === "campeonatos" && <GoleadoresPorCampeonato matches={matches} />}
+      {view === "campeonatos" && (
+        <GoleadoresPorCampeonato matches={matches} bucket={bucket} />
+      )}
+      {view === "europa" && (
+        <div className="flex flex-col gap-4">
+          {seasons.map((s) => (
+            <GolEuropa
+              key={s}
+              mode="vertical"
+              topN={15}
+              years={[s]} // temporada "2023-2024"
+              data={data}
+              showHomeAway
+            />
+          ))}
+        </div>
+      )}
       {view === "villanos" && <Villanos matches={matches} />}
       {view === "expulsados" && <Expulsados matches={matches} />}
       {view === "carniceros" && <Carniceros matches={matches} />}

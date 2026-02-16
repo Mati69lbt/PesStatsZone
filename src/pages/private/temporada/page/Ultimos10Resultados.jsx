@@ -70,7 +70,7 @@ const Bolitas = ({ lista = [] }) => {
                 {/* Bolita centrada debajo */}
                 <span
                   className={`mt-1 block w-5 h-5 md:w-6 md:h-6 rounded-full ${colorResultado(
-                    p
+                    p,
                   )}`}
                   title={`${p.fecha} vs ${rival}: ${gf}-${gc}`}
                 />
@@ -137,7 +137,7 @@ const Ultimos10Resultados = ({ partidos = [], fixedCaptains }) => {
     ultimos10PorCapitan,
   } = useMemo(() => {
     const ordenados = [...(partidos || [])].sort(
-      (a, b) => new Date(b.fecha) - new Date(a.fecha)
+      (a, b) => new Date(b.fecha) - new Date(a.fecha),
     );
 
     const top10 = (arr) => arr.slice(0, 10);
@@ -148,21 +148,32 @@ const Ultimos10Resultados = ({ partidos = [], fixedCaptains }) => {
     // visitante: por compatibilidad con tu modelo actual, todo lo que NO es local
     const visitante = top10(ordenados.filter((p) => !p.esLocal));
 
-    const caps =
+    const capsRaw =
       Array.isArray(fixedCaptains) && fixedCaptains.length
         ? fixedCaptains.map((c) => c.toLowerCase())
         : [
             ...new Set(
               ordenados
                 .map((p) => (p.equipo || "").toLowerCase())
-                .filter(Boolean)
+                .filter(Boolean),
             ),
-          ].sort();
+          ];
+
+    const caps = capsRaw
+      .map((cap) => {
+        const lastIndex = ordenados.findIndex(
+          (p) => (p.equipo || "").toLowerCase() === cap,
+        );
+        return { cap, lastIndex };
+      })
+      .filter((x) => x.lastIndex !== -1 && x.lastIndex < 10) // regla #2
+      .sort((a, b) => a.lastIndex - b.lastIndex) // regla #1
+      .map((x) => x.cap);
 
     const porCap = Object.fromEntries(
       caps.map((cap) => {
         const base = ordenados.filter(
-          (p) => (p.equipo || "").toLowerCase() === cap
+          (p) => (p.equipo || "").toLowerCase() === cap,
         );
         return [
           cap,
@@ -172,7 +183,7 @@ const Ultimos10Resultados = ({ partidos = [], fixedCaptains }) => {
             visitante: top10(base.filter((p) => !p.esLocal)),
           },
         ];
-      })
+      }),
     );
 
     return {

@@ -11,163 +11,21 @@ import {
 } from "firebase/firestore";
 import Notiflix from "notiflix";
 import { useNavigate } from "react-router-dom";
+import {
+  RESULT_OPTIONS,
+  normKey,
+  splitCampFromMatch,
+  getYearFromCamp,
+} from "./utils";
 
-// Opciones del select "Resultado" del campeonato
 
-const formatDDMM = (m) => {
-  const raw = m?.fecha || m?.createdAt;
-  if (!raw) return "—";
 
-  const d =
-    typeof raw === "string" ? new Date(`${raw}T00:00:00`) : new Date(raw);
-  if (Number.isNaN(d.getTime())) return "—";
+import DuplicatesWarning from "./DuplicatesWarning";
+import MatchCardMobile from "./MatchCardMobile";
+import MatchRowDesktop from "./MatchRowDesktop";
 
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  return `${dd}/${mm}`;
-};
 
-const RESULT_OPTIONS = [
-  { value: "", label: "Sin definir" },
-  { value: "campeon", label: "Campeón" },
-  { value: "subcampeon", label: "Sub Campeón" },
-  { value: "3ro", label: "Tercero" },
-  { value: "4to", label: "Cuarto" },
-  { value: "5to", label: "Quinto" },
-  { value: "6to", label: "Sexto" },
-  { value: "7mo", label: "Séptimo" },
-  { value: "8vo", label: "Octavo" },
-  { value: "9no", label: "Noveno" },
-  { value: "10mo", label: "Décimo" },
-  { value: "lejos", label: "Lejos" },
-  { value: "fase de grupos", label: "Fase de Grupos" },
-  { value: "16 avos de final", label: "16 avos de Final" },
-  { value: "32 avos de final", label: "32 avos de Final" },
-  { value: "octavos de final", label: "Octavos de Final" },
-  { value: "cuartos de final", label: "Cuartos de Final" },
-  { value: "semi Final", label: "Semi Final" },
-];
 
-// Colores para el resultado del PARTIDO (ganado / empatado / perdido)
-const getResultadoPartidoClasses = (final) => {
-  switch (final) {
-    case "ganado":
-      return "bg-emerald-100 text-emerald-800 font-semibold";
-    case "empatado":
-      return "bg-amber-100 text-amber-800 font-semibold";
-    case "perdido":
-      return "bg-rose-100 text-rose-800 font-semibold";
-    default:
-      return "bg-slate-100 text-slate-700";
-  }
-};
-
-// Badge para condición (local / visitante / neutral)
-const CondicionBadge = ({ condition }) => {
-  const base =
-    "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold";
-
-  if (condition === "local") {
-    return <span className={`${base} bg-blue-100 text-blue-800`}>Local</span>;
-  }
-  if (condition === "visitante") {
-    return (
-      <span className={`${base} bg-purple-100 text-purple-800`}>Visitante</span>
-    );
-  }
-  if (condition === "neutral" || condition === "neutro") {
-    return (
-      <span className={`${base} bg-slate-100 text-slate-800`}>Neutral</span>
-    );
-  }
-
-  return <span className={`${base} bg-slate-100 text-slate-600`}>-</span>;
-};
-
-const cleanToken = (v) => String(v ?? "").trim();
-
-const isOG = (g) =>
-  g?.isOwnGoal === true || cleanToken(g?.name).toLowerCase() === "__og__";
-
-const prettyScorerName = (g) => (isOG(g) ? "En contra" : prettySafe(g?.name));
-
-// Calcula cuántos goles hizo un goleador según las banderas (gol, doblete, triplete, etc.)
-const calcularGolesGoleador = (g) => {
-  if (!g) return 0;
-
-  // Ajustá esto si tenés poker, manito, etc. en el modelo
-  if (g.triplete || g.hattrick) return 3;
-  if (g.doblete) return 2;
-  if (g.gol) return 1;
-
-  return 0;
-};
-
-// Devuelve el string de goleadores propios: "Riquelme (2), Silva (1)"
-const getGoleadoresPropiosTexto = (match) => {
-  const lista = Array.isArray(match.goleadoresActiveClub)
-    ? match.goleadoresActiveClub
-    : [];
-
-  const items = lista
-    .map((g) => {
-      const goles = calcularGolesGoleador(g);
-      if (!g.name || goles <= 0) return null;
-      return goles === 1
-        ? `${prettyScorerName(g)}`
-        : `${prettyScorerName(g)} (${goles})`;
-    })
-    .filter(Boolean);
-
-  if (!items.length) return "—";
-
-  return items.join(", ");
-};
-
-const getGoleadoresRivalesTexto = (match) => {
-  const lista = Array.isArray(match.goleadoresRivales)
-    ? match.goleadoresRivales
-    : [];
-
-  const items = lista
-    .map((g) => {
-      const goles = calcularGolesGoleador(g);
-      if (!g.name || goles <= 0) return null;
-      return goles === 1
-        ? `${prettyScorerName(g)}`
-        : `${prettyScorerName(g)} (${goles})`;
-    })
-    .filter(Boolean);
-
-  if (!items.length) return "—";
-
-  return items.join(", ");
-};
-
-// Saca el "year" a partir del torneoYear de los partidos del campeonato
-const getYearFromCamp = (camp) => {
-  if (!camp || !Array.isArray(camp.matches) || !camp.matches.length) {
-    return null;
-  }
-
-  // Tomamos todos los torneoYear válidos
-  const years = Array.from(
-    new Set(
-      camp.matches
-        .map((m) => m.torneoYear)
-        .filter((y) => y !== undefined && y !== null)
-    )
-  );
-
-  if (!years.length) return null;
-
-  // Si por algún motivo hubiera más de uno, nos quedamos con el primero.
-  // (En tu data real debería ser siempre el mismo para ese torneo)
-  return years[0];
-};
-
-// Guarda el resultado del campeonato en la colección "palmares"
-// Guarda el resultado del campeonato en la colección "palmares"
 const saveResultadoEnPalmares = async ({ uid, clubKey, camp, value }) => {
   if (!uid || !camp || !value) return;
 
@@ -218,30 +76,14 @@ const saveResultadoEnPalmares = async ({ uid, clubKey, camp, value }) => {
   }
 };
 
-const normKey = (v) =>
-  String(v ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
 
-const extractYearFromMatch = (m) => {
-  const y = m?.torneoYear;
-  if (y !== undefined && y !== null && y !== "") return Number(y);
-
-  // fallback: si el display viene tipo "Primera Etapa 2020"
-  const mYear = String(m?.torneoDisplay || "").match(/\b(19|20)\d{2}\b/);
-  return mYear ? Number(mYear[0]) : null;
-};
-
-const getCampKeyFromMatch = (m) => {
-  const base = normKey(
-    m?.torneoName || m?.torneo || m?.torneoDisplay || "Sin torneo"
-  );
-  const year = extractYearFromMatch(m);
-  return `${base}__${year ?? "NA"}`;
-};
-
-const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
+const CampDesgl = ({
+  matches = [],
+  torneosConfig = {},
+  clubKey,
+  uid,
+  onRefresh,
+}) => {
   const navigate = useNavigate();
 
   const [resumenResultados, setResumenResultados] = useState({});
@@ -265,9 +107,8 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
   };
 
   const getCampTitleFromMatch = (m) => {
-    const base = m?.torneoName || m?.torneo || m?.torneoDisplay || "Sin torneo";
-    const year = extractYearFromMatch(m);
-    return `${prettySafe(base)}${year ? ` ${year}` : ""}`;
+    const { base, season } = splitCampFromMatch(m, torneosConfig);
+    return `${prettySafe(base)}${season ? ` ${season}` : ""}`;
   };
 
   // ✅ NUEVO: detectar duplicados por fecha
@@ -287,23 +128,20 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
       .sort(([a], [b]) => a.localeCompare(b));
   }, [matches]);
 
-  // Al entrar a la página, cargar de Firestore los resultados ya guardados
   const campeonatos = useMemo(() => {
     if (!Array.isArray(matches)) return [];
 
     const map = new Map();
 
     matches.forEach((m) => {
-      const baseName =
-        m.torneoName || m.torneo || m.torneoDisplay || "Sin torneo";
-      const year = extractYearFromMatch(m);
-      const key = getCampKeyFromMatch(m); // ✅ torneo + año (normalizado)
+      const { base, season } = splitCampFromMatch(m, torneosConfig);
+      const key = `${normKey(base)}__${season ?? "NA"}`;
 
       if (!map.has(key)) {
         map.set(key, {
-          key, // ✅ clave interna
-          nombre: baseName, // 👈 lo que se muestra (sin “ensuciar”)
-          year, // ✅ año del grupo
+          key,
+          nombre: base, // nombre limpio
+          year: season ?? null, // "2022" o "2022-2023"
           matches: [],
           lastDate: null,
         });
@@ -320,7 +158,7 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
 
     const arr = Array.from(map.values());
 
-    // ordenamos partidos dentro de cada torneo (más recientes primero)
+    // ordenar partidos (más recientes primero)
     arr.forEach((camp) => {
       camp.matches.sort((a, b) => {
         const fa = new Date(a.fecha || a.createdAt || 0).getTime();
@@ -329,15 +167,15 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
       });
     });
 
-    // ordenamos torneos por lastDate (más reciente primero)
+    // ordenar campeonatos por último partido
     arr.sort((a, b) => {
-      const ta = (a.lastDate || 0).getTime ? a.lastDate.getTime() : 0;
-      const tb = (b.lastDate || 0).getTime ? b.lastDate.getTime() : 0;
+      const ta = a.lastDate ? a.lastDate.getTime() : 0;
+      const tb = b.lastDate ? b.lastDate.getTime() : 0;
       return tb - ta;
     });
 
     return arr;
-  }, [matches]);
+  }, [matches, torneosConfig]);
 
   // 2️⃣ Después: usamos campeonatos en el useEffect
   useEffect(() => {
@@ -415,354 +253,138 @@ const CampDesgl = ({ matches = [], clubKey, uid, onRefresh }) => {
     });
   };
 
-  return (
-    <div className="mt-4">
-      {/* ✅ NUEVO: advertencia fechas duplicadas */}
-      {duplicadosPorFecha.length > 0 && (
-        <div className="mx-auto mb-4 max-w-3xl rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900 shadow-sm">
-          <div className="font-semibold text-sm">
-            ⚠️ Hay {duplicadosPorFecha.length} fecha
-            {duplicadosPorFecha.length !== 1 ? "s" : ""} con 2+ partidos
-            cargados
-          </div>
+ return (
+   <div className="mt-4">
+     {/* ✅ NUEVO: advertencia fechas duplicadas */}
+     <DuplicatesWarning
+       duplicadosPorFecha={duplicadosPorFecha}
+       prettySafe={prettySafe}
+       getCampTitleFromMatch={getCampTitleFromMatch}
+     />
 
-          <div className="mt-2 space-y-2 text-[12px]">
-            {duplicadosPorFecha.map(([fechaKey, arr]) => (
-              <div
-                key={fechaKey}
-                className="rounded-lg border border-amber-200 bg-white/60 p-2"
-              >
-                <div className="font-semibold tabular-nums">
-                  Fecha: {fechaKey}
-                </div>
+     {campeonatos.map((camp) => {
+       const torneoKey = camp.key;
+       const valorSelect = resumenResultados[torneoKey] || "";
+       const year = camp.year ?? getYearFromCamp(camp);
+       const tituloCamp = `${prettySafe(camp.nombre)}${year ? ` ${year}` : ""}`;
 
-                <ul className="mt-1 list-disc pl-5 space-y-1">
-                  {arr.map((m) => (
-                    <li key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}>
-                      <span className="font-medium">
-                        {prettySafe(m.resultMatch || "Sin resultado")}
-                      </span>
-                      {" · "}
-                      {" · "}
-                      <br />
-                      <span className="text-slate-700">
-                        {getCampTitleFromMatch(m)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+       return (
+         <div key={torneoKey} className="mb-6 flex justify-center">
+           {/* Card única: header + tabla comparten ancho */}
+           <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-max">
+             {/* Header del campeonato + select Resultado */}
+             <div className="flex items-center flex-row justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-100 rounded-t-lg">
+               <div className="min-w-0">
+                 <h3 className="font-semibold text-sm lg:text-base text-slate-800 truncate">
+                   {tituloCamp}
+                 </h3>
+                 <p className="text-[11px] text-slate-500">
+                   {camp.matches.length} partido
+                   {camp.matches.length !== 1 ? "s" : ""} jugado
+                   {camp.matches.length !== 1 ? "s" : ""} en este campeonato.
+                 </p>
+               </div>
 
-      {campeonatos.map((camp) => {
-        const torneoKey = camp.key;
-        const valorSelect = resumenResultados[torneoKey] || "";
-        const year = camp.year ?? getYearFromCamp(camp);
-        const tituloCamp = `${prettySafe(camp.nombre)}${
-          year ? ` ${year}` : ""
-        }`;
-        return (
-          <div key={torneoKey} className="mb-6 flex justify-center">
-            {/* Card única: header + tabla comparten ancho */}
-            <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-max ">
-              {/* Header del campeonato + select Resultado */}
-              <div className="flex   items-center  flex-row  justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-100 rounded-t-lg">
-                <div className="min-w-0">
-                  <h3 className="font-semibold text-sm lg:text-base text-slate-800 truncate">
-                    {tituloCamp}
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    {camp.matches.length} partido
-                    {camp.matches.length !== 1 ? "s" : ""} jugado
-                    {camp.matches.length !== 1 ? "s" : ""} en este campeonato.
-                  </p>
-                </div>
+               <div className="text-[11px] md:text-sm shrink-0 md:flex md:items-center md:gap-2">
+                 <label className="font-medium whitespace-nowrap mr-2">
+                   Resultado:
+                 </label>
 
-                <div className="text-[11px] md:text-sm shrink-0 md:flex md:items-center md:gap-2">
-                  <label className="font-medium whitespace-nowrap mr-2">
-                    Resultado:
-                  </label>
+                 <select
+                   className="border border-slate-300 rounded px-2 py-1 text-[11px] md:text-sm bg-white"
+                   value={valorSelect}
+                   onChange={(e) => handleResultadoChange(camp, e.target.value)}
+                 >
+                   {RESULT_OPTIONS.map((opt) => (
+                     <option key={opt.value} value={opt.value}>
+                       {opt.label}
+                     </option>
+                   ))}
+                 </select>
+               </div>
+             </div>
 
-                  <select
-                    className="border border-slate-300 rounded px-2 py-1 text-[11px] md:text-sm bg-white"
-                    value={valorSelect}
-                    onChange={(e) =>
-                      handleResultadoChange(camp, e.target.value)
-                    }
-                  >
-                    {RESULT_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              {/* { 2 renglones */}
-              <div className="sm:hidden space-y-1">
-                {camp.matches.map((m, index) => {
-                  const nroJuego = camp.matches.length - index;
-                  return (
-                    <div
-                      key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
-                      className="border border-slate-200 rounded-lg overflow-hidden bg-white"
-                    >
-                      {/* Fila 1: Fecha + Resultado + Acciones */}
-                      <div className="flex items-center justify-start gap-2 px-3 py-2 bg-slate-100">
-                        <div>
-                          <div className="text-[10px] tabular-nums">
-                            {formatDDMM(m)}
-                          </div>
-                          <span className="text-slate-900 text-[10px]">
-                            {m.captain ? prettySafe(m.captain) : "—"}
-                          </span>
-                        </div>
+             {/* Mobile (cards) */}
+             <div className="sm:hidden space-y-1">
+               {camp.matches.map((m, index) => {
+                 const nroJuego = camp.matches.length - index;
 
-                        <div className="text-[12px] flex flex-col">
-                          <span className="text-slate-700 text-left pl-10">
-                            Fecha: {nroJuego}
-                          </span>
+                 return (
+                   <MatchCardMobile
+                     key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
+                     m={m}
+                     nroJuego={nroJuego}
+                     prettySafe={prettySafe}
+                     onEdit={(mm) => navigate(`/editar-partido/${mm.id}`)}
+                     onDelete={handleDelete}
+                   />
+                 );
+               })}
+             </div>
 
-                          <span
-                            className={
-                              "w-max px-2 py-0.5 rounded-full text-[12px] whitespace-nowrap " +
-                              getResultadoPartidoClasses(m.final)
-                            }
-                          >
-                            {prettySafe(m.resultMatch || "")}
-                          </span>
-                        </div>
+             {/* Desktop (tabla) */}
+             <div className="hidden sm:block overflow-x-auto">
+               <table className="w-full table-fixed border-collapse text-[11px] lg:text-xs lg:w-max lg:min-w-[980px] lg:table-auto">
+                 <thead className="bg-slate-100 text-slate-700">
+                   <tr>
+                     <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-12">
+                       Fecha
+                     </th>
 
-                        <div className="ml-auto flex items-center gap-2">
-                          <button
-                            type="button"
-                            className="cursor-pointer disabled:opacity-40"
-                            disabled={!m.id}
-                            title="Editar partido"
-                            onClick={() => navigate(`/editar-partido/${m.id}`)}
-                          >
-                            <img
-                              src="pencil.png"
-                              alt="Editar"
-                              className="h-6 w-6"
-                            />
-                          </button>
+                     <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap">
+                       Resultado
+                     </th>
 
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(m)}
-                            className="cursor-pointer"
-                            title="Borrar partido"
-                          >
-                            <img
-                              src="bas.png"
-                              alt="Borrar"
-                              className="h-6 w-6"
-                            />
-                          </button>
-                        </div>
-                      </div>
+                     <th className="border border-slate-200 px-2 py-2 text-center w-10 whitespace-nowrap">
+                       <img
+                         src="pencil.png"
+                         alt="Editar"
+                         className="inline-block h-5 w-5 opacity-60"
+                       />
+                     </th>
 
-                      {/* Fila 2: Detalles */}
-                      {/* Fila 2: Goleadores (2 columnas) */}
-                      <div className="px-3 py-2 text-[12px] bg-white">
-                        {/* títulos */}
-                        <div className="flex items-center justify-between px-1 text-[10px] uppercase tracking-wide text-slate-500">
-                          <span className="flex-1 text-center ">
-                            Goles {m.club}
-                          </span>
-                          <span className="flex-1 text-center ">
-                            Goles {m.rival}
-                          </span>
-                        </div>
+                     <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap w-24">
+                       Capitán
+                     </th>
 
-                        {/* valores */}
-                        <div className="mt-1 flex items-start justify-between px-4">
-                          <span className="flex-1 text-center  text-slate-800 break-words">
-                            {getGoleadoresPropiosTexto(m)}
-                          </span>
+                     <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap">
+                       Goleadores Propios
+                     </th>
 
-                          <span className="flex-1 text-center text-slate-800 break-words">
-                            {getGoleadoresRivalesTexto(m)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                     <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap">
+                       Goles del Rival
+                     </th>
 
-              {/* { fin 2 renglones */}
+                     <th className="border border-slate-200 px-2 py-2 text-center w-10 whitespace-nowrap">
+                       <img
+                         src="bas.png"
+                         alt="Borrar"
+                         className="inline-block h-5 w-5 opacity-60"
+                       />
+                     </th>
+                   </tr>
+                 </thead>
 
-              {/* Tabla */}
-              <div className="hidden sm:block overflow-x-auto">
-                {/* ✅ NUEVO: advertencia fechas duplicadas */}
-                {duplicadosPorFecha.length > 0 && (
-                  <div className="mx-auto mb-4 max-w-3xl rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900 shadow-sm">
-                    <div className="font-semibold text-sm">
-                      ⚠️ Hay {duplicadosPorFecha.length} fecha
-                      {duplicadosPorFecha.length !== 1 ? "s" : ""} con 2+
-                      partidos cargados
-                    </div>
+                 <tbody>
+                   {camp.matches.map((m) => (
+                     <MatchRowDesktop
+                       key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
+                       m={m}
+                       prettySafe={prettySafe}
+                       onEdit={(mm) => navigate(`/editar-partido/${mm.id}`)}
+                       onDelete={handleDelete}
+                     />
+                   ))}
+                 </tbody>
+               </table>
+             </div>
+           </div>
+         </div>
+       );
+     })}
+   </div>
+ );
 
-                    <div className="mt-2 space-y-2 text-[12px]">
-                      {duplicadosPorFecha.map(([fechaKey, arr]) => (
-                        <div
-                          key={fechaKey}
-                          className="rounded-lg border border-amber-200 bg-white/60 p-2"
-                        >
-                          <div className="font-semibold tabular-nums">
-                            Fecha: {fechaKey}
-                          </div>
-
-                          <ul className="mt-1 list-disc pl-5 space-y-1">
-                            {arr.map((m) => (
-                              <li
-                                key={
-                                  m.id ||
-                                  `${m.fecha}-${m.rival}-${m.resultMatch}`
-                                }
-                              >
-                                <span className="font-medium">
-                                  {prettySafe(m.resultMatch || "Sin resultado")}
-                                </span>
-                                {" · "}
-                                vs {prettySafe(m.rival || "Sin rival")}
-                                {" · "}
-                                <span className="text-slate-700">
-                                  {getCampTitleFromMatch(m)}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex justify-center">
-                  <table className="w-full table-fixed border-collapse text-[11px] lg:text-xs lg:w-max lg:min-w-[980px] lg:table-auto">
-                    <thead className="bg-slate-100 text-slate-700">
-                      <tr>
-                        <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-12">
-                          Fecha
-                        </th>
-
-                        <th className="border border-slate-200 px-2 py-2 text-center sm:w-80">
-                          Resultado
-                        </th>
-
-                        <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-14">
-                          <img
-                            src="penc.png"
-                            alt="Editar"
-                            className="inline-block h-5 w-5 align-middle"
-                          />
-                        </th>
-
-                        <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap md:w-12">
-                          Capitán
-                        </th>
-
-                        <th className="border border-slate-200 px-2 py-2 text-left min-w-[200px] md:w-40">
-                          Goleadores Propios
-                        </th>
-
-                        <th className="border border-slate-200 px-2 py-2 text-left min-w-[200px] md:w-40">
-                          Goles del Rival
-                        </th>
-
-                        <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-14">
-                          <img
-                            src="basu.png"
-                            alt="Borrar"
-                            className="inline-block h-5 w-5 align-middle"
-                          />
-                        </th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {camp.matches.map((m) => (
-                        <tr
-                          key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
-                          className="even:bg-slate-50"
-                        >
-                          <td className="border border-slate-200 px-2 py-2 text-center tabular-nums">
-                            {formatDDMM(m)}
-                          </td>
-
-                          <td className="border border-slate-200 px-2 py-2 text-left">
-                            <span
-                              className={
-                                "inline-block px-2 py-0.5 rounded-full text-[12px] whitespace-nowrap " +
-                                getResultadoPartidoClasses(m.final)
-                              }
-                            >
-                              {prettySafe(m.resultMatch || "")}
-                            </span>
-                          </td>
-
-                          <td className="border border-slate-200 px-2 py-2 text-center">
-                            <button
-                              type="button"
-                              className="cursor-pointer"
-                              disabled={!m.id}
-                              title="Editar partido"
-                              onClick={() =>
-                                navigate(`/editar-partido/${m.id}`)
-                              }
-                            >
-                              <img
-                                src="pencil.png"
-                                alt="Editar"
-                                className="inline-block h-6 w-6"
-                              />
-                            </button>
-                          </td>
-
-                          <td className="border border-slate-200 px-2 py-2 text-left">
-                            {m.captain ? prettySafe(m.captain) : "—"}
-                          </td>
-
-                          <td className="border border-slate-200 px-2 py-2 text-left">
-                            {getGoleadoresPropiosTexto(m)}
-                          </td>
-
-                          <td className="border border-slate-200 px-2 py-2 text-left">
-                            {getGoleadoresRivalesTexto(m)}
-                          </td>
-
-                          <td className="border border-slate-200 px-2 py-2 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleDelete(m)}
-                              className="inline-flex items-center justify-center cursor-pointer"
-                              title="Borrar partido"
-                            >
-                              <img
-                                src="bas.png"
-                                alt="Borrar"
-                                className="inline-block h-6 w-6"
-                              />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
 };
 
 export default CampDesgl;

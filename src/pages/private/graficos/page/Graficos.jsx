@@ -46,6 +46,12 @@ const Graficos = () => {
     ? Object.keys(clubData.playersStats).length > 0
     : false;
 
+  // UI states
+  const [view, setView] = useState("general");
+  const [breakdown, setBreakdown] = useState("all"); // all | year | tournament
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedTournament, setSelectedTournament] = useState(null);
+
   if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
     return <Navigate to="/formacion" replace />;
   }
@@ -53,12 +59,6 @@ const Graficos = () => {
   const visibleClub = selectedClub;
 
   console.log("matches", matches);
-
-  // UI states
-  const [view, setView] = useState("general");
-  const [breakdown, setBreakdown] = useState("all"); // all | year | tournament
-  const [selectedYear, setSelectedYear] = useState(null);
-  const [selectedTournament, setSelectedTournament] = useState(null);
 
   const { years, tournaments, chartData, yMax, captainA, captainB } =
     usePointsChartData(matches, {

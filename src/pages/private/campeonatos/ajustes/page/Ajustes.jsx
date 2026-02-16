@@ -25,7 +25,7 @@ const Ajustes = () => {
   const clubKey = normalizeName(selectedClub || "");
   const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
-  console.log(bucket);
+
 
   const torneosUnicos = useMemo(() => {
     if (!matches) return [];

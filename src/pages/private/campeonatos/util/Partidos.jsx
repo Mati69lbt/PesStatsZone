@@ -28,6 +28,10 @@ const Partidos = () => {
   const clubKey = normalizeName(selectedClub || "");
   const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
+  const torneosConfig = bucket?.torneosConfig || {};
+
+  
+  
 
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
@@ -64,6 +68,7 @@ const Partidos = () => {
         clubKey={clubKey}
         uid={uid}
         onRefresh={refreshData}
+        torneosConfig={torneosConfig}
       />
     </div>
   );

@@ -45,12 +45,12 @@ const Analysis = () => {
     return <Navigate to="/formacion" replace />;
   }
 
- const torneosConfig = data?.torneosConfig || {};
+  const torneosConfig = data?.torneosConfig || {};
 
- const { captains, tournamentsOrdered } = useMemo(
-   () => buildBreakdown(matches, torneosConfig),
-   [matches, data?.torneosConfig],
- );
+  const { captains, tournamentsOrdered } = useMemo(
+    () => buildBreakdown(matches, torneosConfig),
+    [matches, data?.torneosConfig],
+  );
 
   const toRows = (triple) => ({
     General: triple?.General || emptyRow(),
@@ -60,6 +60,11 @@ const Analysis = () => {
   });
 
   const visibleClub = selectedClub;
+
+  const captainsVisible = captains.filter(
+    (cap) => (cap?.total?.General?.pj ?? 0) > 0,
+  );
+
   return (
     <div className="p-2 max-w-7xl mx-auto">
       <div className="flex items-center justify-evenly gap-1 mb-2 mt-2">
@@ -96,14 +101,16 @@ const Analysis = () => {
             Totales Generales
           </h2>
           <span className="text-xs text-slate-500">
-            {captains.length ? `${captains.length} capitanes` : "—"}
+            {captainsVisible.length
+              ? `${captainsVisible.length} capitanes`
+              : "—"}
           </span>
         </div>
 
         <div className="p-2">
           <div className="overflow-x-auto">
             <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
-              {captains.map((cap) => (
+              {captainsVisible.map((cap) => (
                 <div
                   key={`total-${cap.captain}`}
                   className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"
@@ -111,7 +118,7 @@ const Analysis = () => {
                   <StatsTable title={cap.captain} rows={toRows(cap.total)} />
                 </div>
               ))}
-              {!captains.length && (
+              {!captainsVisible.length && (
                 <div className="text-slate-500 text-sm px-2 py-4">
                   — Sin partidos —
                 </div>
@@ -137,8 +144,9 @@ const Analysis = () => {
             <div className="p-2">
               <div className="overflow-x-auto">
                 <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
-                  {captains.map((cap) => {
+                  {captainsVisible.map((cap) => {
                     const triple = cap.byTournament[tName] || emptyTriple();
+                    if ((triple?.General?.pj ?? 0) === 0) return null;
                     return (
                       <div
                         key={`${tName}-${cap.captain}`}

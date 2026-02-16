@@ -1,7 +1,21 @@
 import React, { useMemo } from "react";
-import { prettySafe } from "../../campeonatos/util/funtions";
+import { prettySafe, temporadaKey } from "../../campeonatos/util/funtions";
 
-const GoleadoresPorCampeonato = ({ matches }) => {
+const GoleadoresPorCampeonato = ({ matches, bucket }) => {
+  const torneosConfig = bucket?.torneosConfig || {};
+
+  const stripYearFromDisplay = (s) =>
+    String(s || "")
+      .replace(/\s+\b(19|20)\d{2}(?:\s*[-–]\s*(19|20)\d{2})?\b$/, "")
+      .trim();
+
+  const splitSeasonFromLabel = (label, fallback) => {
+    const rx = /\b(19|20)\d{2}(?:\s*[-–]\s*(19|20)\d{2})?\b$/;
+    const mm = String(label || "").match(rx);
+    if (mm) return mm[0].replace(/\s+/g, "");
+    return fallback ?? null;
+  };
+
   const golesDelEvento = (g) => {
     if (!g) return 0;
     if (g.dobleHattrick) return 6;
@@ -25,15 +39,32 @@ const GoleadoresPorCampeonato = ({ matches }) => {
         substitutes,
       } = match || {};
 
-      if (!torneoYear) return;
+      // Base name (sin año pegado)
+      const baseName =
+        torneoName || stripYearFromDisplay(torneoDisplay) || "Torneo";
 
-      const label = torneoDisplay || `${torneoName ?? "Torneo"} ${torneoYear}`;
-      const key = `${torneoName ?? label}-${torneoYear}`;
+      // Label final (respeta europeo/anual según torneosConfig)
+      const labelFull = temporadaKey({
+        torneoName: baseName,
+        torneoYear: torneoYear, // sirve para anual; para europeo se ajusta por fecha
+        fecha: match?.fecha || match?.createdAt,
+        torneosConfig,
+      });
+
+      // season: "2023-2024" o "2023"
+      const season = splitSeasonFromLabel(
+        labelFull,
+        torneoYear ? String(torneoYear) : null,
+      );
+
+      // Key estable: base + season
+      const key = `${baseName}__${season || "NA"}`;
+      const label = labelFull;
 
       if (!torneos[key]) {
         torneos[key] = {
           label,
-          year: torneoYear,
+          year: season || torneoYear, // puede ser "2023-2024"
           jugadores: {},
           lastPlayed: 0,
         };
@@ -55,7 +86,7 @@ const GoleadoresPorCampeonato = ({ matches }) => {
         ...new Set(
           [...startersArr, ...subsArr]
             .map((n) => (n ?? "").toString().trim())
-            .filter(Boolean)
+            .filter(Boolean),
         ),
       ];
 
@@ -118,9 +149,11 @@ const GoleadoresPorCampeonato = ({ matches }) => {
       if (b.lastPlayed !== a.lastPlayed) return b.lastPlayed - a.lastPlayed;
 
       // fallback: año + label
-      return b.year - a.year || a.label.localeCompare(b.label);
+      const ya = parseInt(String(a.year || "").slice(0, 4), 10) || 0;
+      const yb = parseInt(String(b.year || "").slice(0, 4), 10) || 0;
+      return yb - ya || a.label.localeCompare(b.label);
     });
-  }, [matches]);
+  }, [matches, torneosConfig]);
 
   const calcularPromedio = (goles, pj) => {
     if (!pj) return "0.00";
@@ -145,20 +178,20 @@ const GoleadoresPorCampeonato = ({ matches }) => {
         const jugadoresOrdenados = Object.values(torneo.jugadores)
           .filter((j) => j.goles > 0)
           .sort(
-            (a, b) => b.goles - a.goles || a.nombre.localeCompare(b.nombre)
+            (a, b) => b.goles - a.goles || a.nombre.localeCompare(b.nombre),
           );
 
         const totalGoles = jugadoresOrdenados.reduce(
           (acc, j) => acc + (j.goles || 0),
-          0
+          0,
         );
         const totalx2 = jugadoresOrdenados.reduce(
           (acc, j) => acc + (j.x2 || 0),
-          0
+          0,
         );
         const totalx3 = jugadoresOrdenados.reduce(
           (acc, j) => acc + (j.x3 || 0),
-          0
+          0,
         );
         // ✅ Promedio de promedios (cada jugador pesa igual)
         const sumProms = jugadoresOrdenados.reduce((acc, j) => {

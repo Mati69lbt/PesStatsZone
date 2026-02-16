@@ -42,11 +42,17 @@ const getFormato = (torneosConfig, torneoName) => {
 };
 
 export function temporadaKey({ torneoName, torneoYear, fecha, torneosConfig }) {
+
   const nombre = stripYears(torneoName || "").trim() || "Sin torneo";
 
   const formato = getFormato(torneosConfig, nombre);
 
-  const d = fecha ? new Date(fecha) : null;
+  const d = fecha
+    ? typeof fecha === "string" && /^\d{4}-\d{2}-\d{2}$/.test(fecha)
+      ? new Date(`${fecha}T00:00:00`) // ✅ local midnight
+      : new Date(fecha)
+    : null;
+
   const y = Number(torneoYear) || (d && d.getFullYear()) || 0;
 
   if (formato === "europeo") {

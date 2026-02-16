@@ -139,21 +139,36 @@ export function usePointsChartData(
       });
     }
 
-    const chart = buildPointsChartData(subset, captainA, captainB);
+    // Capitanes presentes en el subset (ordenados por “el último que jugó”)
+    const captainsInSubset = (() => {
+      const seen = new Set();
+      const arr = [];
+      for (let i = subset.length - 1; i >= 0; i--) {
+        const c = subset[i]?.captain;
+        if (!c || seen.has(c)) continue;
+        seen.add(c);
+        arr.push(c); // primero el más reciente
+      }
+      return arr;
+    })();
 
-    const allowedKinds =
+    const chart = buildPointsChartData(subset, captainsInSubset);
+
+    const filteredDatasets =
       view === "general"
-        ? new Set(["unificado", "mitadU"])
-        : new Set(["capA", "capB", "mitadA", "mitadB"]);
-
-    const filteredDatasets = chart.datasets.filter((ds) =>
-      allowedKinds.has(ds._kind),
-    );
+        ? chart.datasets.filter(
+            (ds) => ds._kind === "unificado" || ds._kind === "mitadU",
+          )
+        : chart.datasets.filter(
+            (ds) =>
+              String(ds._kind || "").startsWith("cap:") ||
+              String(ds._kind || "").startsWith("mitad:"),
+          );
 
     const yMax =
       view === "general"
         ? chart.meta.posiblesU
-        : Math.max(chart.meta.posiblesA, chart.meta.posiblesB);
+        : Math.max(0, ...Object.values(chart.meta.posiblesByCaptain || {}));
 
     return {
       years,
