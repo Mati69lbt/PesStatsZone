@@ -192,7 +192,7 @@ const Campeonatos = () => {
           <table className="w-max text-[12px] md:text-sm border-separate border-spacing-px bg-white">
             <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
               <tr>
-                <th className="px-3 py-2 text-left border-b border-slate-200 w-[40px]">
+                <th className="px-2 py-2 text-left border-b border-slate-200 w-[40px]">
                   Campeonato
                 </th>
                 <th className="px-2 py-2 text-center border-b border-slate-200">

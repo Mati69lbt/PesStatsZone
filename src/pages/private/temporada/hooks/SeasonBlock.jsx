@@ -79,7 +79,7 @@ const renderStatsCells = (stats = {}) =>
         ) : m === "PTS/EFEC" ? (
           <div className="flex flex-col items-center leading-none">
             <span className="text-[10px] font-bold tabular-nums">
-              {val.obtenidos}/{val.posibles}
+              {val.obtenidos} / {val.posibles}
             </span>
             <span className="text-[9px] text-slate-600 tabular-nums">
               {val.efec}%
@@ -114,21 +114,27 @@ const SeasonBlock = ({
   const { temporadasOrdenadas, resumenPorTemporada, captainsOrdenados } =
     useResumenTemporada(matches, mode);
 
- const temporadasDesc = [...(temporadasOrdenadas || [])].sort((a, b) => {
-   const yearsA = String(a).match(/\d{4}/g) || [];
-   const yearsB = String(b).match(/\d{4}/g) || [];
+  const temporadasDesc = [...(temporadasOrdenadas || [])].sort((a, b) => {
+    const yearsA = String(a).match(/\d{4}/g) || [];
+    const yearsB = String(b).match(/\d{4}/g) || [];
 
-   const keyA = yearsA.length ? Math.max(...yearsA.map(Number)) : -Infinity;
-   const keyB = yearsB.length ? Math.max(...yearsB.map(Number)) : -Infinity;
+    const keyA = yearsA.length ? Math.max(...yearsA.map(Number)) : -Infinity;
+    const keyB = yearsB.length ? Math.max(...yearsB.map(Number)) : -Infinity;
 
-   return keyB - keyA; // más reciente primero
- });
-
+    return keyB - keyA; // más reciente primero
+  });
 
   // Para TopGoleadores: year actual
   const years = String(year).match(/\d{4}/g) || [String(year)];
 
   const clubLabel = bucket?.clubName ? bucket.clubName : pretty(clubKey);
+
+  // Ajuste fino para MOBILE: achicar la 1ra columna (Bloque/General/Local/Visitante)
+  // y evitar que algunas tablas queden un poquito más anchas que otras.
+  // No afecta el bloque DESKTOP (lg:block) porque solo se usa dentro del layout mobile.
+  const COL_BLOQUE_W = "w-[60px] max-w-[60px]";
+  const COL_BLOQUE_TH = `px-1.5 py-2 ${COL_BLOQUE_W} text-left border-b border-slate-200`;
+  const COL_BLOQUE_TD = `px-1.5 py-1 ${COL_BLOQUE_W} text-left text-[10px] uppercase tracking-wide text-slate-600 whitespace-nowrap`;
 
   return (
     <div className="m-2 space-y-3">
@@ -155,9 +161,7 @@ const SeasonBlock = ({
                       </th>
                     </tr>
                     <tr>
-                      <th className="px-2 py-2 w-[76px] max-w-[76px] text-left border-b border-slate-200">
-                        Bloque
-                      </th>
+                      <th className={COL_BLOQUE_TH}>Bloque</th>
                       {metricas.map((m) => (
                         <th
                           key={`head-${m}`}
@@ -172,7 +176,9 @@ const SeasonBlock = ({
                   <tbody>
                     {/* Temporada - General */}
                     <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
-                      <td className="px-2 py-1.5 w-[76px] max-w-[76px] font-semibold text-left text-slate-800">
+                      <td
+                        className={`px-1.5 py-1.5 ${COL_BLOQUE_W} font-semibold text-left text-slate-800 whitespace-nowrap`}
+                      >
                         General
                       </td>
                       {renderStatsCells(tripleSeason.General)}
@@ -180,26 +186,20 @@ const SeasonBlock = ({
 
                     {/* Temporada - Local */}
                     <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                      <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                        Local
-                      </td>
+                      <td className={COL_BLOQUE_TD}>Local</td>
                       {renderStatsCells(tripleSeason.Local)}
                     </tr>
 
                     {/* Temporada - Visitante */}
                     <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                      <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                        Visitante
-                      </td>
+                      <td className={COL_BLOQUE_TD}>Visitante</td>
                       {renderStatsCells(tripleSeason.Visitante)}
                     </tr>
 
                     {/* Temporada - Neutral (solo si hay PJ) */}
                     {(tripleSeason?.Neutral?.pj ?? 0) > 0 ? (
                       <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                        <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                          Neutral
-                        </td>
+                        <td className={COL_BLOQUE_TD}>Neutral</td>
                         {renderStatsCells(tripleSeason.Neutral)}
                       </tr>
                     ) : null}
@@ -210,21 +210,24 @@ const SeasonBlock = ({
                       return (
                         <React.Fragment key={`${temp}-${cap}`}>
                           <tr className="border-t border-slate-200 bg-white hover:bg-slate-50/80 transition-colors">
-                            <td className="px-3 py-1.5 font-semibold text-left text-slate-800">
+                            <td
+                              className={`px-1.5 py-1.5 ${COL_BLOQUE_W} font-semibold text-left text-slate-800 whitespace-nowrap truncate`}
+                              title={pretty(cap)}
+                            >
                               {pretty(cap)}
                             </td>
                             {renderStatsCells(tripleCap.General)}
                           </tr>
 
                           <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                            <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                            <td className="px-2 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
                               Local
                             </td>
                             {renderStatsCells(tripleCap.Local)}
                           </tr>
 
                           <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                            <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                            <td className="px-2 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
                               Visitante
                             </td>
                             {renderStatsCells(tripleCap.Visitante)}
@@ -232,7 +235,7 @@ const SeasonBlock = ({
 
                           {(tripleCap?.Neutral?.pj ?? 0) > 0 ? (
                             <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                              <td className="px-3 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                              <td className="px-2 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
                                 Neutral
                               </td>
                               {renderStatsCells(tripleCap.Neutral)}
