@@ -29,7 +29,7 @@ const Expulsados = ({ matches = [] }) => {
       .map(([nombre, expulsiones]) => ({ nombre, expulsiones }))
       .sort(
         (a, b) =>
-          b.expulsiones - a.expulsiones || a.nombre.localeCompare(b.nombre)
+          b.expulsiones - a.expulsiones || a.nombre.localeCompare(b.nombre),
       );
   }, [matches]);
 
@@ -44,7 +44,7 @@ const Expulsados = ({ matches = [] }) => {
   return (
     <div className="p-4 max-w-3xl mx-auto">
       <h2 className="text-lg md:text-xl font-bold mb-3 text-center">
-        Expulsados
+        🛑 Expulsados
       </h2>
 
       <div className="overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm  w-full sm:w-4/5 md:w-3/5  mx-auto">

@@ -22,7 +22,7 @@ const Partidos = () => {
 
   const clubs = Object.keys(lineupState?.lineups || {});
   const [selectedClub, setSelectedClub] = useState(
-    lineupState?.activeClub || clubs[0] || ""
+    lineupState?.activeClub || clubs[0] || "",
   );
 
   const clubKey = normalizeName(selectedClub || "");
@@ -30,8 +30,7 @@ const Partidos = () => {
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
   const torneosConfig = bucket?.torneosConfig || {};
 
-  
-  
+  console.log("matches", matches);
 
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">

@@ -21,7 +21,7 @@ const StatCircle = ({ value = 0, title = "", showPlus = false }) => {
   const n = Number(value || 0);
   const ring =
     n > 0 ? "ring-emerald-600" : n < 0 ? "ring-rose-600" : "ring-yellow-500";
-  const txt = showPlus && n > 0 ? `+${n}` : `${n}`;
+  const txt = showPlus && n > 0 ? `${n}` : `${n}`;
   return (
     <span
       className={`mx-auto inline-flex items-center justify-center rounded-full bg-white ring-2 ${ring}

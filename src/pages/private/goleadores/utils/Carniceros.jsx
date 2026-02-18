@@ -36,7 +36,7 @@ const Carniceros = ({ matches = [] }) => {
         (a, b) =>
           b.expulsiones - a.expulsiones ||
           a.club.localeCompare(b.club, "es", { sensitivity: "base" }) ||
-          a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" })
+          a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }),
       );
   }, [matches]);
 
@@ -51,7 +51,7 @@ const Carniceros = ({ matches = [] }) => {
   return (
     <div className="p-4 max-w-3xl mx-auto">
       <h2 className="text-lg md:text-xl font-bold mb-3 text-center">
-        Carniceros
+        🔪 Carniceros
       </h2>
 
       <div className="overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm  w-full sm:w-4/5 md:w-3/5  mx-auto">

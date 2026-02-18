@@ -35,7 +35,7 @@ const StatsTable = ({ title, rows, colorize = true }) => {
       <td className={`px-1 py-1 border-b border-gray-100 text-center ${rowBg}`}>
         <div className="flex flex-col items-center leading-none">
           <span className="text-[10px] font-extrabold tabular-nums text-black">
-            {obtenidos}/{posibles}
+            {obtenidos} / {posibles}
           </span>
           <span className="mt-0.5 text-[9px] tabular-nums text-slate-600">
             {efec}%

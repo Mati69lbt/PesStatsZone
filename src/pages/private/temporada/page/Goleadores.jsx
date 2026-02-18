@@ -20,11 +20,18 @@ const TopGoleadores = ({
   // igual que en CampDesgl.jsx (misma lógica)
   const calcularGolesGoleador = (g) => {
     if (!g) return 0;
-    if (g.triplete || g.hattrick) return 3;
+
+    const t = !!(g.triplete || g.hattrick);
+
+    if (t && g.doblete && g.gol) return 6;
+    if (t && g.doblete) return 5;
+    if (t && g.gol) return 4;
+    if (t) return 3;
+ 
     if (g.doblete) return 2;
     if (g.gol) return 1;
-    // fallback por si algún día guardás number directo:
-    if (typeof g.goals === "number") return g.goals;
+   
+
     return 0;
   };
 

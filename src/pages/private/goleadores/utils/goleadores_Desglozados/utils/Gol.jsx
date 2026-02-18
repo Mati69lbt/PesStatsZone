@@ -14,10 +14,12 @@ const Gol = ({ scope, matches }) => {
 
     const computeGolesEvento = (g) => {
       if (!g) return 0;
-      if (g.dobleHattrick) return 6;
-      if (g.manito) return 5;
-      if (g.poker) return 4;
-      if (g.hattrick || g.triplete) return 3;
+      const t = !!(g.triplete || g.hattrick);
+      if (t && g.doblete && g.gol) return 6; // 3 + 2 + 1
+      if (t && g.doblete) return 5; // 3 + 2
+      if (t && g.gol) return 4; // 3 + 1
+      if (t) return 3;
+      if (g.doblete && g.gol) return 3; // 2 + 1 (si lo usás en tu modelo)
       if (g.doblete) return 2;
       if (g.gol) return 1;
       return 0;
@@ -96,6 +98,12 @@ const Gol = ({ scope, matches }) => {
           resumen[nombre][amb].goles += goles;
           if (goles === 2) resumen[nombre][amb].x2 += 1;
           if (goles === 3) resumen[nombre][amb].x3 += 1;
+          if (goles === 4) resumen[nombre][amb].x3 += 1;
+          if (goles === 5) {
+            resumen[nombre][amb].x3 += 1; // hat-trick
+            resumen[nombre][amb].x2 += 1; // doblete
+          }
+          if (goles === 6) resumen[nombre][amb].x3 += 2;
         });
       });
 

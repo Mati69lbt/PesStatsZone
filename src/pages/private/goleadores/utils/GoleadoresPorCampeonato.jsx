@@ -18,12 +18,14 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
 
   const golesDelEvento = (g) => {
     if (!g) return 0;
-    if (g.dobleHattrick) return 6;
-    if (g.manito) return 5;
-    if (g.poker) return 4;
-    if (g.hattrick || g.triplete) return 3;
+    const t = !!(g.triplete || g.hattrick);
+    if (t && g.doblete && g.gol) return 6;
+    if (t && g.doblete) return 5;
+    if (t && g.gol) return 4;
+    if (t) return 3;
     if (g.doblete) return 2;
-    return g.gol ? 1 : 0;
+    if (g.gol) return 1;
+    return 0;
   };
 
   const torneosOrdenados = useMemo(() => {
@@ -138,8 +140,16 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
 
         stats.goles += golesEnPartido;
 
-        if (g.doblete) stats.x2 += 1;
-        if (g.hattrick || g.triplete) stats.x3 += 1;
+        if (golesEnPartido === 2) stats.x2 += 1;
+        if (golesEnPartido === 3) stats.x3 += 1;
+        if (golesEnPartido === 4) stats.x3 += 1;
+        if (golesEnPartido === 5) {
+          stats.x3 += 1;
+          stats.x2 += 1;
+        }
+        if (golesEnPartido === 6) {
+          stats.x3 += 2;         
+        }
       });
     });
 

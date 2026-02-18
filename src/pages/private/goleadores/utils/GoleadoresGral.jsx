@@ -13,12 +13,17 @@ const GoleadoresGral = ({ matches }) => {
 
     const computeGolesEvento = (g) => {
       if (!g) return 0;
-      if (g.dobleHattrick) return 6;
-      if (g.manito) return 5;
-      if (g.poker) return 4;
-      if (g.hattrick || g.triplete) return 3;
+
+      const t = !!(g.triplete || g.hattrick);
+
+      if (t && g.doblete && g.gol) return 6;
+      if (t && g.doblete) return 5;
+      if (t && g.gol) return 4;
+      if (t) return 3;
+
       if (g.doblete) return 2;
       if (g.gol) return 1;
+
       return 0;
     };
 
@@ -94,8 +99,16 @@ const GoleadoresGral = ({ matches }) => {
 
         ambitos.forEach((amb) => {
           resumen[nombre][amb].goles += goles;
-          if (goles === 2) resumen[nombre][amb].x2 += 1;
-          if (goles === 3) resumen[nombre][amb].x3 += 1;
+         if (goles === 2) resumen[nombre][amb].x2 += 1;     
+         if (goles === 3) resumen[nombre][amb].x3 += 1;     
+         if (goles === 4) resumen[nombre][amb].x3 += 1;   
+         if (goles === 5) {
+           resumen[nombre][amb].x3 += 1;
+           resumen[nombre][amb].x2 += 1;
+         }        
+         if (goles === 6) {
+           resumen[nombre][amb].x3 += 2;        
+         }
         });
       });
 
@@ -186,9 +199,7 @@ const GoleadoresGral = ({ matches }) => {
 
   return (
     <div className="mt-6">
-      <h2 className="text-xl font-bold mb-4 text-center">
-        👤 Goleadores del equipo
-      </h2>
+      <h2 className="text-xl font-bold mb-4 text-center">🥇 Capocannonieri</h2>
 
       {/* Controles de orden */}
       <div className="flex flex-wrap gap-4 mb-4 items-end text-sm justify-center">

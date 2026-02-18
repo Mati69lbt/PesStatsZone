@@ -55,9 +55,16 @@ const prettyScorerName = (g) => (isOG(g) ? "En contra" : prettySafe(g?.name));
 
 export const calcularGolesGoleador = (g) => {
   if (!g) return 0;
-  if (g.triplete || g.hattrick) return 3;
+  const t = !!(g.triplete || g.hattrick);
+
+  if (t && g.doblete && g.gol) return 6;
+  if (t && g.doblete) return 5;
+  if (t && g.gol) return 4;
+  if (t) return 3;
+
   if (g.doblete) return 2;
   if (g.gol) return 1;
+
   return 0;
 };
 
@@ -143,4 +150,3 @@ export const getYearFromCamp = (camp) => {
 
   return years.length ? years[0] : null;
 };
-

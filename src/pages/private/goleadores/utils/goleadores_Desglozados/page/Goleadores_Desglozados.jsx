@@ -5,9 +5,7 @@ const Goleadores_Desglozados = ({ matches }) => {
   const [scope, setScope] = useState("general");
   return (
     <div className="mt-2">
-      <h2 className="text-xl font-bold mb-2 text-center">
-        👤 Goleadores del equipo
-      </h2>
+      <h2 className="text-3xl font-bold mb-2 text-center">🔥 Top Scorer</h2>
       <div className="mb-1 flex justify-center gap-2">
         {["general", "local", "visitante"].map((k) => (
           <button
@@ -25,8 +23,8 @@ const Goleadores_Desglozados = ({ matches }) => {
             {k === "general"
               ? "General"
               : k === "local"
-              ? "Local"
-              : "Visitante"}
+                ? "Local"
+                : "Visitante"}
           </button>
         ))}
       </div>

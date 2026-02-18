@@ -10,6 +10,22 @@ const Villanos = ({ matches }) => {
         ? match.goleadoresRivales
         : [];
 
+      const golesDelEvento = (g) => {
+        if (!g) return 0;
+
+        const t = !!(g.triplete || g.hattrick);
+
+        if (t && g.doblete && g.gol) return 6;
+        if (t && g.doblete) return 5;
+        if (t && g.gol) return 4;
+        if (t) return 3;
+
+        if (g.doblete) return 2;
+        if (g.gol) return 1;
+
+        return 0;
+      };
+
       lista.forEach((g) => {
         if (!g) return;
 
@@ -42,25 +58,28 @@ const Villanos = ({ matches }) => {
 
         const stats = mapa[key];
 
-        const hizoDoblete = !!g.doblete;
-        const hizoTriplete = !!g.triplete;
-        const hizoGol = !!g.gol;
-        const fueExpulsado = !!g.expulsion;
+        const goles = golesDelEvento(g);
+        if (goles <= 0) return;
 
-        // Contamos goles según el tipo de evento
-        if (hizoTriplete) {
-          stats.goles += 3;
+        stats.goles += goles;
+
+        // ⚽x2 / ⚽x3 (eventos)
+        if (goles === 2) stats.x2 += 1;
+
+        if (goles === 3) stats.x3 += 1;
+        if (goles === 4) stats.x3 += 1; // hat-trick + 1
+
+        if (goles === 5) {
+          // hat-trick + doblete
           stats.x3 += 1;
-        } else if (hizoDoblete) {
-          stats.goles += 2;
           stats.x2 += 1;
-        } else if (hizoGol) {
-          stats.goles += 1;
         }
 
-        if (fueExpulsado) {
-          stats.expulsiones += 1;
+        if (goles === 6) {
+          // hat-trick + doblete + 1
+          stats.x3 += 2;
         }
+    
       });
     });
 
@@ -83,7 +102,7 @@ const Villanos = ({ matches }) => {
           }) ||
           a.nombrePretty.localeCompare(b.nombrePretty, "es", {
             sensitivity: "base",
-          })
+          }),
       );
   }, [matches]);
 
