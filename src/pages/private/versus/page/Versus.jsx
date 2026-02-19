@@ -377,7 +377,7 @@ const Versus = () => {
                                   } h-6 w-6 text-[10px] font-extrabold text-black`}
                                   title={`DF = ${df}`}
                                 >
-                                  {df > 0 ? `+${df}` : df}
+                                  {df > 0 ? `${df}` : df}
                                 </span>
                               </span>
                             </div>

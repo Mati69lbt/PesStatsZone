@@ -88,7 +88,7 @@ export default function Navbar() {
                 // agrega aquí cualquier otro bucket que quieras vaciar
                 // playersStats: {},
               },
-              { merge: true }
+              { merge: true },
             );
           }
 
@@ -97,7 +97,7 @@ export default function Navbar() {
           Notiflix.Notify.failure("No se pudo reiniciar.");
         }
       },
-      () => {}
+      () => {},
     );
   };
 
@@ -139,13 +139,14 @@ export default function Navbar() {
         messageColor: "#555",
         okButtonBackground: "#4CAF50",
         cancelButtonBackground: "#f44336",
-      }
+      },
     );
   };
 
   const links = [
     { path: "/registrar-partido", label: "🏠" },
     { path: "/versus", label: "🆚" },
+    { path: "/nextmatch", label: "⚔️" },
     { path: "/temporadas", label: "🗓️" },
     { path: "/ultimos-diez", label: "🔟" },
     { path: "/analisis", label: "🧤" },
@@ -252,7 +253,7 @@ export default function Navbar() {
                   key={path}
                   to={path}
                   className={`${linkClass(
-                    path
+                    path,
                   )} flex items-center justify-center rounded-xl p-3 text-3xl`}
                   onClick={() => setMenuAbierto(false)}
                   aria-label={path}
@@ -293,7 +294,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 27</span>
+                <span>Versión: 28</span>
               </div>
             </div>
           </div>

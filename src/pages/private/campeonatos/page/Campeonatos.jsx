@@ -81,57 +81,7 @@ const Campeonatos = () => {
     return <Navigate to="/formacion" replace />;
   }
 
-  const clavesPorAnio = useMemo(() => {
-    const norm = (s) =>
-      String(s || "")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ");
 
-    // 1) índice por torneoDisplay y torneoName (por si tu clave coincide con uno u otro)
-    const yearByDisplay = new Map();
-    const yearByName = new Map();
-
-    for (const m of matches || []) {
-      const y = Number(m?.torneoYear) || null;
-      if (!y) continue;
-
-      const d = norm(m?.torneoDisplay);
-      const n = norm(m?.torneoName);
-
-      if (d) yearByDisplay.set(d, y);
-      if (n) yearByName.set(n, y);
-    }
-
-    // 2) agrupar claves
-    const groups = new Map(); // year -> claves[]
-    for (const clave of clavesOrdenadas || []) {
-      const k = norm(clave);
-
-      // a) si la clave ya tiene año en el texto (ej: "Primera Etapa 2020")
-      const mYear = String(clave).match(/\b(19|20)\d{2}\b/);
-      let year = mYear ? Number(mYear[0]) : null;
-
-      // b) fallback: buscar en matches por display o name
-      if (!year) year = yearByDisplay.get(k) || yearByName.get(k) || null;
-
-      const bucket = year ?? 0; // 0 = "Sin año"
-      if (!groups.has(bucket)) groups.set(bucket, []);
-      groups.get(bucket).push(clave);
-    }
-
-    // 3) ordenar años desc (más nuevo primero), dejando "Sin año" al final
-    const years = Array.from(groups.keys()).sort((a, b) => {
-      if (a === 0) return 1;
-      if (b === 0) return -1;
-      return b - a;
-    });
-
-    return years.map((y) => ({
-      year: y,
-      claves: groups.get(y),
-    }));
-  }, [matches, clavesOrdenadas]);
 
   return (
     <div className="p-1 max-w-screen-2xl mx-auto">

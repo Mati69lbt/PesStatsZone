@@ -22,6 +22,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import { useUserData } from "./hooks/useUserData";
 import Graficos from "./pages/private/graficos/page/Graficos";
 import Ajustes from "./pages/private/campeonatos/ajustes/page/Ajustes";
+import NextMatch from "./pages/private/nextMatch/page/NextMatch";
 
 function Hydrator() {
   const { uid } = useAuth();
@@ -61,6 +62,7 @@ const App = () => {
         >
           <Route path="/registrar-partido" element={<Partido />} />
           <Route path="/editar-partido/:matchId" element={<Partido />} />
+          <Route path="/nextmatch" element={<NextMatch />} />
           <Route path="/formacion" element={<TeamForm />} />
           <Route path="/versus" element={<Versus />} />
           <Route path="/campeonatos" element={<Campeonatos />} />
