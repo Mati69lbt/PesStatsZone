@@ -294,7 +294,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 28</span>
+                <span>Versión: 28.1</span>
               </div>
             </div>
           </div>

@@ -61,6 +61,9 @@ const NextMatch = () => {
   const orderedMatches = useOrderedMatches(filteredMatches);
   const resumen = useResumen(filteredMatches);
 
+  const clubRows = goleadoresClub(orderedMatches);
+  const rivalRows = goleadoresRival(orderedMatches);
+
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
       <div className="flex items-center justify-center gap-3 mb-4">
@@ -279,14 +282,8 @@ const NextMatch = () => {
 
       {selectedRival && (
         <div className="mb-1 grid grid-cols-2 gap-2">
-          <TablaGoleadores
-            title={prettySafe(activeClub)}
-            rows={goleadoresClub(orderedMatches)}
-          />
-          <TablaGoleadores
-            title={prettySafe(selectedRival)}
-            rows={goleadoresRival(orderedMatches)}
-          />
+          <TablaGoleadores title={prettySafe(activeClub)} rows={clubRows} />
+          <TablaGoleadores title={prettySafe(selectedRival)} rows={rivalRows} />
         </div>
       )}
 
