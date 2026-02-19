@@ -21,3 +21,21 @@ export const formatearResumen = ({
     : `🏆 ${g}Ga - ❌ ${p}Pe
 📊 ${pj}PJ - 🤝 ${e}Em
 😄 ${gf}GF - 😢 ${gc}GC`;
+
+
+export const displayNoMinus = (v) => {
+  // si viene number => abs
+  if (typeof v === "number" && Number.isFinite(v)) return Math.abs(v);
+
+  // si viene string "-3" => "3"
+  if (typeof v === "string") {
+    const s = v.trim();
+    // intenta convertir a número
+    const n = Number(s.replace(",", "."));
+    if (!Number.isNaN(n) && s !== "") return Math.abs(n);
+    // fallback simple por si viene "-2" con texto raro
+    return s.startsWith("-") ? s.slice(1) : s;
+  }
+
+  return v;
+};

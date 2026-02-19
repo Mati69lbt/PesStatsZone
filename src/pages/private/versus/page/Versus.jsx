@@ -5,7 +5,7 @@ import { normalizeName } from "../../../../utils/normalizeName";
 import useCaptainsMemo from "../hooks/useCaptainsMemo";
 import useResumenesMemo from "../hooks/useResumenesMemo";
 import useEstadisticasMemo from "../hooks/useEstadisticasMemo";
-import { formatearResumen, getColorSegunResultado } from "../util/funtions";
+import { displayNoMinus, formatearResumen, getColorSegunResultado } from "../util/funtions";
 import useAuth from "../../../../hooks/useAuth";
 import { usePartido } from "../../../../context/PartidoReducer";
 import { useUserData } from "../../../../hooks/useUserData";
@@ -342,7 +342,7 @@ const Versus = () => {
                                   className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${gpRing} h-6 w-6 text-[10px] font-extrabold text-black`}
                                   title={`G/P = ${box.g} - ${box.p} = ${gp}`}
                                 >
-                                  {gp}
+                                  {displayNoMinus(gp)}
                                 </span>
                               </span>
                             </div>
@@ -372,12 +372,12 @@ const Versus = () => {
                                     df > 0
                                       ? "ring-emerald-500"
                                       : df < 0
-                                      ? "ring-rose-500"
-                                      : "ring-yellow-400"
+                                        ? "ring-rose-500"
+                                        : "ring-yellow-400"
                                   } h-6 w-6 text-[10px] font-extrabold text-black`}
                                   title={`DF = ${df}`}
                                 >
-                                  {df > 0 ? `${df}` : df}
+                                  {df > 0 ? `${df}` : displayNoMinus(df)}
                                 </span>
                               </span>
                             </div>

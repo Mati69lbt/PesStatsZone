@@ -26,16 +26,19 @@ const ringBySign = (n) => {
   return "ring-yellow-400";
 };
 
-const CircleValue = ({ value, title }) => (
-  <span
-    className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringBySign(
-      value,
-    )} h-6 w-6 text-[10px] font-extrabold text-black`}
-    title={title}
-  >
-    {value}
-  </span>
-);
+const CircleValue = ({ value, title }) => {
+   const shown = typeof value === "number" ? Math.abs(value) : value;
+  return (
+    <span
+      className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringBySign(
+        value,
+      )} h-6 w-6 text-[10px] font-extrabold text-black`}
+      title={title}
+    >
+      {shown}
+    </span>
+  );
+};
 
 // Celdas para mobile: usa mismos colores que el resto de la app
 const renderStatsCells = (stats = {}) =>

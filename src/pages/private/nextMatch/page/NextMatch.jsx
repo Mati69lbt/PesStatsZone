@@ -22,6 +22,7 @@ import {
 import { pretty } from "../../match/utils/pretty";
 import { goleadoresClub, goleadoresRival } from "../hooks/useGoleadores";
 import TablaGoleadores from "../utils/TablaGoleadores";
+import { displayNoMinus } from "../../versus/util/funtions";
 
 const NextMatch = () => {
   const { hasLineupsLoaded, clubs, activeClub, lineupState } = useClubData();
@@ -156,7 +157,7 @@ const NextMatch = () => {
               <div
                 className={`rounded-xl border px-2 py-1 ${pillBg(resumen.gp)} ${numColor(resumen.gp)}`}
               >
-                {resumen.gp}
+                {displayNoMinus(resumen.gp)}
               </div>
 
               <div className="rounded-xl border px-2 py-1">{resumen.gf}</div>
@@ -165,7 +166,7 @@ const NextMatch = () => {
               <div
                 className={`rounded-xl border px-2 py-1 ${pillBg(resumen.dif)} ${numColor(resumen.dif)}`}
               >
-                {resumen.dif}
+                {displayNoMinus(resumen.dif)}
               </div>
             </div>
             <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
@@ -205,7 +206,7 @@ const NextMatch = () => {
                 <div
                   className={`rounded-xl border px-2 py-1 ${pillBg(resumen.local.gp)} ${numColor(resumen.local.gp)}`}
                 >
-                  {resumen.local.gp}
+                  {displayNoMinus(resumen.local.gp)}
                 </div>
 
                 <div className="rounded-xl border px-2 py-1">
@@ -218,7 +219,7 @@ const NextMatch = () => {
                 <div
                   className={`rounded-xl border px-2 py-1 ${pillBg(resumen.local.dif)} ${numColor(resumen.local.dif)}`}
                 >
-                  {resumen.local.dif}
+                  {displayNoMinus(resumen.local.dif)}
                 </div>
               </div>
               <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
@@ -256,7 +257,7 @@ const NextMatch = () => {
                 <div
                   className={`rounded-xl border px-2 py-1 ${pillBg(resumen.visitante.gp)} ${numColor(resumen.visitante.gp)}`}
                 >
-                  {resumen.visitante.gp}
+                  {displayNoMinus(resumen.visitante.gp)}
                 </div>
 
                 <div className="rounded-xl border px-2 py-1">
@@ -269,7 +270,7 @@ const NextMatch = () => {
                 <div
                   className={`rounded-xl border px-2 py-1 ${pillBg(resumen.visitante.dif)} ${numColor(resumen.visitante.dif)}`}
                 >
-                  {resumen.visitante.dif}
+                  {displayNoMinus(resumen.visitante.dif)}
                 </div>
               </div>
               <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
