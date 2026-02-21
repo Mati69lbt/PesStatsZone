@@ -1,5 +1,6 @@
 import React from "react";
 import { pretty } from "../../match/utils/pretty";
+import { displayNoMinus } from "../../versus/util/funtions";
 
 const StatsTable = ({ title, rows, colorize = true }) => {
   const order = ["General", "Local", "Visitante", "Neutral"];
@@ -57,7 +58,7 @@ const StatsTable = ({ title, rows, colorize = true }) => {
           className={`mx-auto inline-flex items-center justify-center rounded-full w-7 h-7 bg-white ring-2 ${ring} text-[10px] font-extrabold text-black`}
           title={`DIF: ${v}`}
         >
-          {v}
+          {displayNoMinus(v)}
         </span>
       </td>
     );
@@ -76,10 +77,10 @@ const StatsTable = ({ title, rows, colorize = true }) => {
 
     const colorText =
       diff > 0
-        ? "text-green-600"
+        ? "text-green-700"
         : diff < 0
-        ? "text-red-600"
-        : "text-amber-700";
+        ? "text-red-700"
+        : "text-amber-800";
 
     return (
       <td className={`px-1 py-1 border-b border-gray-100 text-center ${rowBg}`}>
@@ -88,7 +89,9 @@ const StatsTable = ({ title, rows, colorize = true }) => {
           border ring-2 ${accent}`}
           title={`G/P = ${g} - ${p} = ${diff}`}
         >
-          <span className={`tabular-nums ${colorText}`}>{diff}</span>
+          <span className={`tabular-nums ${colorText}`}>
+            {displayNoMinus(diff)}
+          </span>
         </span>
       </td>
     );

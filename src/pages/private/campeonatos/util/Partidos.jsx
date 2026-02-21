@@ -30,7 +30,7 @@ const Partidos = () => {
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
   const torneosConfig = bucket?.torneosConfig || {};
 
-  console.log("matches", matches);
+
 
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">

@@ -283,8 +283,15 @@ const NextMatch = () => {
 
       {selectedRival && (
         <div className="mb-1 grid grid-cols-2 gap-2">
-          <TablaGoleadores title={prettySafe(activeClub)} rows={clubRows} />
-          <TablaGoleadores title={prettySafe(selectedRival)} rows={rivalRows} />
+          <div className="min-w-0">
+            <TablaGoleadores title={prettySafe(activeClub)} rows={clubRows} />
+          </div>
+          <div className="min-w-0">
+            <TablaGoleadores
+              title={prettySafe(selectedRival)}
+              rows={rivalRows}
+            />
+          </div>
         </div>
       )}
 

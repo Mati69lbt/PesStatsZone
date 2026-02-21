@@ -58,7 +58,7 @@ const Graficos = () => {
 
   const visibleClub = selectedClub;
 
-  console.log("matches", matches);
+
 
   const { years, tournaments, chartData, yMax, captainA, captainB } =
     usePointsChartData(matches, {

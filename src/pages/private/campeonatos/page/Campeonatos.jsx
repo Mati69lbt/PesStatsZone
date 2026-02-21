@@ -15,6 +15,7 @@ import {
 import { Link, Navigate } from "react-router-dom";
 import { fetchUserData, useUserData } from "../../../../hooks/useUserData";
 import useRessumenesMemo from "../hooks/useRessumenesMemo";
+import { displayNoMinus } from "../../versus/util/funtions";
 
 // ✅ NUEVO: círculo para DG y G/P (fondo blanco + ring con color)
 const StatCircle = ({ value = 0, title = "", showPlus = false }) => {
@@ -28,7 +29,7 @@ const StatCircle = ({ value = 0, title = "", showPlus = false }) => {
         h-6 w-6 md:h-7 md:w-7 text-[10px] md:text-[11px] font-extrabold text-black tabular-nums`}
       title={title}
     >
-      {txt}
+      {displayNoMinus(txt)}
     </span>
   );
 };
