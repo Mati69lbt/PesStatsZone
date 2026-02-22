@@ -5,9 +5,13 @@ export const formatDate = (iso) => {
   if (!iso) return "—";
   // iso esperado: "YYYY-MM-DD"
   try {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    return d.toLocaleDateString("es-AR", {
+    const [y, m, d] = String(iso).split("-").map(Number);
+    if (!y || !m || !d) return iso;
+
+    // ⚠️ Fecha local (evita el corrimiento por UTC)
+    const date = new Date(y, m - 1, d);
+
+    return date.toLocaleDateString("es-AR", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -46,36 +50,61 @@ export const prettyCondition = (c) => {
   return prettySafe(c);
 };
 
+const getGolesFromFlags = (g) => {
+  if (!g) return 0;
+  const t = !!(g.triplete || g.hattrick);
+
+  if (t && g.doblete && g.gol) return 6;
+  if (t && g.doblete) return 5;
+  if (t && g.gol) return 4;
+  if (t) return 3;
+  if (g.doblete) return 2;
+  if (g.gol) return 1;
+
+  return 0;
+};
+
 export const joinScorers = (arr) => {
   if (!Array.isArray(arr) || arr.length === 0) return "—";
 
   // Formato viejo: array de strings
   if (typeof arr[0] === "string") {
-    const clean = arr.map((s) => String(s).trim()).filter(Boolean);
+    const clean = arr
+      .map((s) => String(s).trim())
+      .filter(Boolean)
+      .map((s) => (s === "__OG__" ? "En Contra" : s));
+
     return clean.length ? clean.join(" · ") : "—";
   }
 
   // Formato nuevo: array de objetos
   const clean = arr
     .map((g) => {
-      const name = String(g?.name ?? "").trim();
-      if (!name) return null;
+      if (!g) return null;
 
-      // cantidad de goles (si hay flags)
-      let n = 1;
-      if (g?.doblete) n = 2;
-      if (g?.hattrick || g?.triplete) n = 3;
+      const rawName = String(g?.name ?? "").trim();
+      if (!rawName) return null;
 
-      // si en algún momento te llega un número real, lo usamos
+      const isOGName = rawName === "__OG__";
+      const displayName = isOGName ? "En Contra" : rawName;
+
+      // tu lógica de goles por flags (0..6)
+      let n = getGolesFromFlags(g);
+
+      // si llega un número real, lo priorizamos
       if (Number.isFinite(g?.goles)) n = g.goles;
       if (Number.isFinite(g?.goals)) n = g.goals;
 
-      const suffix = n >= 2 ? ` (${n})` : "";
+      // autogol (si viene marcado o si name es "__OG__")
+      const own = g?.isOwnGoal || isOGName ? " En Contra" : "";
 
-      // autogol
-      const own = g?.isOwnGoal ? " En Contra" : "";
+      // si ya es "__OG__", evitamos duplicar "En Contra En Contra"
+      const finalOwn = isOGName ? "" : own;
 
-      return `${name}${suffix}${own}`;
+      // sufijo (n) solo si corresponde y no es "__OG__"
+      const suffix = !isOGName && n >= 2 ? ` (${n})` : "";
+
+      return `${displayName}${suffix}${finalOwn}`;
     })
     .filter(Boolean);
 
