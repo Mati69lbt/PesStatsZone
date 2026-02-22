@@ -1,3 +1,4 @@
+import { normalizeName } from "../../../../utils/normalizeName";
 import { prettySafe } from "../../campeonatos/util/funtions";
 
 export const formatDate = (iso) => {
@@ -226,3 +227,18 @@ export const buildRanking = (matches, getter) => {
   );
 };
 
+export const getPlayedPlayers = (m) => {  
+  const starters = Array.isArray(m?.starters) ? m.starters : [];
+  const subs = Array.isArray(m?.subs) ? m.subs : []; 
+
+  
+  const toName = (x) => {
+    if (!x) return "";
+    if (typeof x === "string") return x;
+    if (typeof x === "object") return String(x?.name ?? x?.player ?? "").trim();
+    return String(x).trim();
+  };
+
+  const played = [...starters, ...subs].map(toName).filter(Boolean); 
+  return Array.from(new Set(played.map((n) => normalizeName(n))));
+};

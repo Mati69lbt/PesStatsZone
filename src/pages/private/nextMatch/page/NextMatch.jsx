@@ -23,6 +23,8 @@ import { pretty } from "../../match/utils/pretty";
 import { goleadoresClub, goleadoresRival } from "../hooks/useGoleadores";
 import TablaGoleadores from "../utils/TablaGoleadores";
 import { displayNoMinus } from "../../versus/util/funtions";
+import usePlayed from "../hooks/usePlayed";
+import useclubRowsWithPJ from "../hooks/useclubRowsWithPJ";
 
 const NextMatch = () => {
   const { hasLineupsLoaded, clubs, activeClub, lineupState } = useClubData();
@@ -50,6 +52,8 @@ const NextMatch = () => {
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
   const torneosConfig = bucket?.torneosConfig || {};
 
+
+
   const [selectedRival, setSelectedRival] = useState("");
 
   useEffect(() => {
@@ -64,6 +68,9 @@ const NextMatch = () => {
 
   const clubRows = goleadoresClub(orderedMatches);
   const rivalRows = goleadoresRival(orderedMatches);
+
+  const pjByPlayer = usePlayed(filteredMatches);
+  const clubRowsWithPJ = useclubRowsWithPJ(clubRows, pjByPlayer);
 
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
@@ -284,12 +291,16 @@ const NextMatch = () => {
       {selectedRival && (
         <div className="mb-1 grid grid-cols-2 gap-2">
           <div className="min-w-0">
-            <TablaGoleadores title={prettySafe(activeClub)} rows={clubRows} />
+            <TablaGoleadores
+              title={prettySafe(activeClub)}
+              rows={clubRowsWithPJ}
+            />
           </div>
           <div className="min-w-0">
             <TablaGoleadores
               title={prettySafe(selectedRival)}
               rows={rivalRows}
+              hidePJ
             />
           </div>
         </div>
