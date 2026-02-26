@@ -156,6 +156,7 @@ export default function Navbar() {
     { path: "/goleadores", label: "⚽" },
     { path: "/formacion", label: "📝" },
     { path: "/palmares", label: "👑" },
+    { path: "/config", label: "⚙️" },
   ];
 
   return (
@@ -294,7 +295,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 28.6</span>
+                <span>Versión: 29</span>
               </div>
             </div>
           </div>

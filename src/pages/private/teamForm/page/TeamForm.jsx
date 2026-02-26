@@ -70,7 +70,7 @@ const TeamForm = () => {
     uid,
     dispatch,
     lineupState.activeClub,
-    lineupState.managedClubs
+    lineupState.managedClubs,
   );
 
   useSaveClub(lineups, activeClub, dispatch, hydrated);
@@ -86,7 +86,7 @@ const TeamForm = () => {
 
   const clubSuggestions = useClubSuggestions(
     lineupState?.managedClubs,
-    lineups
+    lineups,
   );
 
   return (
@@ -190,6 +190,7 @@ const TeamForm = () => {
                 dispatch={dispatch}
                 setShowForm={setShowForm}
                 setTeamName={setTeamName}
+                players={clubPlayers}
               />
             </div>
           )}

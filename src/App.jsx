@@ -23,6 +23,7 @@ import { useUserData } from "./hooks/useUserData";
 import Graficos from "./pages/private/graficos/page/Graficos";
 import Ajustes from "./pages/private/campeonatos/ajustes/page/Ajustes";
 import NextMatch from "./pages/private/nextMatch/page/NextMatch";
+import Config from "./pages/private/config/page/Config";
 
 function Hydrator() {
   const { uid } = useAuth();
@@ -74,6 +75,7 @@ const App = () => {
           <Route path="/temporadas" element={<Season />} />
           <Route path="/goleadores" element={<Scorers />} />
           <Route path="/palmares" element={<Palmares />} />
+          <Route path="/config" element={<Config />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
