@@ -58,24 +58,22 @@ const buildResumen = (matches, scope = "all") => {
 const PersonalRecord = () => {
   const { state: lineupState } = useLineups();
 
-   const allMatches = useMemo(() => {
-     const lineups = lineupState?.lineups ?? {};
+  const allMatches = useMemo(() => {
+    const lineups = lineupState?.lineups ?? {};
 
-     return Object.entries(lineups).flatMap(([clubKey, bucket]) => {
-       const label = bucket?.label ?? clubKey;
-       const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
+    return Object.entries(lineups).flatMap(([clubKey, bucket]) => {
+      const label = bucket?.label ?? clubKey;
+      const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
 
-       return matches
-         .filter(
-           (m) => m?.condition === "local" || m?.condition === "visitante",
-         ) // ✅ ignora neutro
-         .map((m) => ({
-           ...m,
-           __clubKey: clubKey,
-           __clubLabel: label,
-         }));
-     });
-   }, [lineupState]);
+      return matches
+        .filter((m) => m?.condition === "local" || m?.condition === "visitante") // ✅ ignora neutro
+        .map((m) => ({
+          ...m,
+          __clubKey: clubKey,
+          __clubLabel: label,
+        }));
+    });
+  }, [lineupState]);
 
   const resumenGeneral = useMemo(
     () => buildResumen(allMatches, "all"),
@@ -90,8 +88,6 @@ const PersonalRecord = () => {
     [allMatches],
   );
 
- 
-
   const resumen = useMemo(() => buildResumen(allMatches), [allMatches]);
 
   return (
@@ -100,7 +96,7 @@ const PersonalRecord = () => {
         📌 Personal Record
       </h1>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
         {/* Header */}
         <div className="hidden md:grid md:grid-cols-9 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
           <div>Partidos Jugados</div>
@@ -115,10 +111,7 @@ const PersonalRecord = () => {
         </div>
 
         <div className="space-y-3">
-          <ResumenBlock
-            title="General"
-            r={resumenGeneral}
-          />
+          <ResumenBlock title="General" r={resumenGeneral} />
           <ResumenBlock title="Local" r={resumenLocal} />
           <ResumenBlock title="Visitante" r={resumenVisitante} />
         </div>
@@ -129,25 +122,31 @@ const PersonalRecord = () => {
 
 export default PersonalRecord;
 
-const Stat = ({ label, value, tone, wide }) => {
+const Stat = ({ label, value, tone, wide, compact = false }) => {
   const isDiff = tone === "diff";
   const num = typeof value === "number" ? value : null;
 
   return (
     <div
       className={[
-        "rounded-xl border px-2 py-2 text-center",
-        "bg-white",
+        "min-w-0 rounded-xl border px-2 py-2 text-center bg-white",
         wide ? "col-span-3 sm:col-span-4 md:col-span-1" : "",
         isDiff && num !== null ? `${pillBg(num)} ${numColor(num)}` : "",
       ].join(" ")}
     >
-      {/* label visible SOLO en mobile */}
       <div className="md:hidden text-[10px] font-semibold uppercase tracking-wide text-slate-500">
         {label}
       </div>
 
-      <div className="text-sm font-bold text-slate-900 whitespace-nowrap">
+      <div
+        className={[
+          "min-w-0 font-bold text-slate-900",
+          compact ? "text-[11px] leading-tight" : "text-sm",
+          // clave: permitir que el texto no rompa el layout
+          "truncate",
+        ].join(" ")}
+        title={typeof value === "string" ? value : undefined}
+      >
         {value}
       </div>
     </div>
@@ -155,23 +154,42 @@ const Stat = ({ label, value, tone, wide }) => {
 };
 
 const ResumenBlock = ({ title, r }) => (
-  <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-    <div className="text-sm font-extrabold text-slate-900 mb-2">{title}</div>
+  <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
+    <div className="text-sm font-extrabold text-slate-900 m-2">{title}</div>
 
-    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-9 gap-2">
-      <Stat label="Ganados" value={r.g} />
-      <Stat label="Perdidos" value={r.p} />
-      <Stat label="Gan/Per" value={r.gp} tone="diff" />
-      <Stat label="Goles a Favor" value={r.gf} />
-      <Stat label="Goles en Contra" value={r.gc} />
-      <Stat label="DIFerencia de goles" value={r.dif} tone="diff" />
-      <Stat label="Empatados" value={r.e} />
-      <Stat label="Partidos jugados" value={r.total} />
-      <Stat
-        label="PTS / EFEC."
-        value={`${r.pts} / ${r.maxPts} ${r.pct}%`}
-        
-      />
+    {/* MOBILE: 2 filas */}
+    <div className="md:hidden space-y-2">
+      <div className="grid grid-cols-5 gap-2">
+        <Stat label="PJ" value={r.total} />
+        <Stat label="G" value={r.g} />
+        <Stat label="E" value={r.e} />
+        <Stat label="P" value={r.p} />
+        <Stat label="G/P" value={r.gp} tone="diff" />
+      </div>
+
+      <div className="grid grid-cols-4 gap-2">
+        <Stat label="GF" value={r.gf} />
+        <Stat label="GC" value={r.gc} />
+        <Stat label="DIF" value={r.dif} tone="diff" />
+        <Stat
+          label="PTS/EFEC"
+          value={`${r.pts} / ${r.maxPts} ${r.pct}%`}
+          compact
+        />
+      </div>
+    </div>
+
+    {/* DESKTOP: 1 fila */}
+    <div className="hidden md:grid md:grid-cols-9 gap-2">
+      <Stat label="PJ" value={r.total} />
+      <Stat label="G" value={r.g} />
+      <Stat label="E" value={r.e} />
+      <Stat label="P" value={r.p} />
+      <Stat label="G/P" value={r.gp} tone="diff" />
+      <Stat label="GF" value={r.gf} />
+      <Stat label="GC" value={r.gc} />
+      <Stat label="DIF" value={r.dif} tone="diff" />
+      <Stat label="PTS/EFEC" value={`${r.pts} / ${r.maxPts} ${r.pct}%`} compact />
     </div>
   </div>
 );

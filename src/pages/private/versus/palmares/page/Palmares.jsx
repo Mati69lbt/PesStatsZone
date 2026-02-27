@@ -57,10 +57,7 @@ const Palmares = () => {
   const { state: matchState, dispatch: matchDispatch } = usePartido();
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
 
-  useUserData(uid, matchDispatch, lineupDispatch);
-
-  console.log(lineupState.lineups);
-  
+  useUserData(uid, matchDispatch, lineupDispatch);  
 
   const [data, setData] = useState(null);
 
