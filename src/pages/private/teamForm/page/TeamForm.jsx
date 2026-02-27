@@ -91,35 +91,37 @@ const TeamForm = () => {
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-1">
         {/* Columna 1: Header  Club  Jugadores  Nueva formación */}
         <div className="space-y-2">
-          <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
-            <HeaderTeam teamName={teamName} />
+          <div className="bg-white shadow-md rounded-xl p-6 space-y-1">
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              <div className="flex-1 w-full">
+                <HeaderTeam teamName={teamName} />
+                <InputTeamName
+                  value={teamName}
+                  onChange={setTeamName}
+                  onBlurSave={() =>
+                    loadClubOnBlur({ uid, teamName, lineups, dispatch })
+                  }
+                  onConfirm={() =>
+                    confirmClubSave({ uid, teamName, lineups, dispatch })
+                  }
+                  disabled={clubPlayers.length > 0}
+                  suggestions={clubSuggestions}
+                />
 
-            <InputTeamName
-              value={teamName}
-              onChange={setTeamName}
-              onBlurSave={() =>
-                loadClubOnBlur({ uid, teamName, lineups, dispatch })
-              }
-              onConfirm={() =>
-                confirmClubSave({ uid, teamName, lineups, dispatch })
-              }
-              disabled={clubPlayers.length > 0}
-              suggestions={clubSuggestions}
-            />
-
-            <InputNewPlayer
-              activeClub={activeClub}
-              lineups={lineups}
-              form={formNewPlayer}
-              changed={changedNewPlayer}
-              players={clubPlayers}
-              dispatch={dispatch}
-              setValue={setValueNewPlayer}
-            />
-
+                <InputNewPlayer
+                  activeClub={activeClub}
+                  lineups={lineups}
+                  form={formNewPlayer}
+                  changed={changedNewPlayer}
+                  players={clubPlayers}
+                  dispatch={dispatch}
+                  setValue={setValueNewPlayer}
+                />
+              </div>
+            </div>
             <PlayersLists
               players={clubPlayers}
               selectedOption={selectedOption}

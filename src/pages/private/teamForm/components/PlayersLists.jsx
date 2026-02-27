@@ -49,7 +49,7 @@ const PlayersLists = ({
         <span className="text-sm text-gray-500">Total: {players.length}</span>
       </div>
 
-      <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-1.5">
+      <div className="mt-2 grid grid-cols-2 md:grid-cols-9 gap-1.5">
         {[...players]
           .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }))
           .map((player) => (

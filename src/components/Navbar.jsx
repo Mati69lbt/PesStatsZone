@@ -1,5 +1,5 @@
 // cspell: ignore hamburguesa forzarHamburguesa Confirmacion analisis goleadoresxcampeonato formacion cerrarSesion Notiflix notiflix Firestore firestore
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Notiflix from "notiflix";
 import useAuth from "../hooks/useAuth";
@@ -14,6 +14,8 @@ import { db } from "../configuration/firebase.js";
 export default function Navbar() {
   const { user, handleLogout, uid, isAuthenticated } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  
 
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [forzarHamburguesa, setForzarHamburguesa] = useState(false);
@@ -171,26 +173,26 @@ export default function Navbar() {
             ⚽ Pes Stats Zone
           </span>
 
-          {/* Centro: iconos (no wrap, si no entra, scroll horizontal) */}
-          <div className="flex-1 flex justify-center min-w-0">
-            <div className="flex items-center flex-nowrap overflow-x-auto">
+          {/* Centro: select navegación */}
+          <div className="flex-1 flex justify-center min-w-0 w-full">
+            <select
+              value={location.pathname}
+              onChange={(e) => navigate(e.target.value)}
+              className="px-14 py-3 rounded-xl border border-gray-300 bg-white text-lg font-bold shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            >
               {links.map(({ path, label }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  className={`${linkClass(path)} flex items-center text-xl`}
-                >
-                  <span className={iconClass(path)}>{label}</span>
-                </Link>
+                <option key={path} value={path}>
+                  {label}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
 
           {/* Derecha: DT + acciones (siempre en la misma línea) */}
           <div className="flex items-center gap-2 flex-nowrap whitespace-nowrap">
             {user && (
-              <div className="flex flex-col items-center justify-center border p-2 rounded-lg">
-                <label>Dt</label>
+              <div className="flex items-center gap-2 border p-2 rounded-lg">
+                <label className="text-gray-500 font-medium">Dt</label>
                 <span className="text-gray-700 font-semibold max-w-[140px] truncate">
                   {pretty(user.displayName)}
                 </span>
@@ -295,7 +297,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 29</span>
+                <span>Versión: 29.4</span>
               </div>
             </div>
           </div>

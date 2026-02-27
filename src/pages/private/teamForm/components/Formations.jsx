@@ -3,6 +3,7 @@ import handleDelete from "../util/handleDelete";
 import handleNewCLub from "../util/handleNewCLub";
 import { pretty } from "../../match/utils/pretty";
 import trash from "../../../../../public/trash.png";
+import Notiflix from "notiflix";
 
 import { LINEUPS_UPSERT_BUCKET } from "../../../../context/LineUpProvider";
 
@@ -20,8 +21,6 @@ const Formations = ({
   setTeamName,
 }) => {
   if (!Array.isArray(ordered) || ordered.length === 0) return null;
-
-
 
   // ✅ estados reales (acá estaba tu error: editMode no existía)
   const [editMode, setEditMode] = useState(false);
@@ -76,47 +75,6 @@ const Formations = ({
     setDraftCaptain((prev) => (prev === player ? null : prev));
   };
 
-  const handleUpdate = () => {
-    if (!orig) return;
-
-    if (draftStarters.length !== 11) {
-      alert("Tu formación debe tener 11 jugadores para actualizar.");
-      return;
-    }
-
-    const nextCaptain =
-      draftCaptain && draftStarters.includes(draftCaptain)
-        ? draftCaptain
-        : (draftStarters[0] ?? null);
-
-    if (!nextCaptain) {
-      alert("No se pudo determinar capitán.");
-      return;
-    }
-
-    const ok = window.confirm("¿Actualizar esta formación?");
-    if (!ok) return;
-
-    const updated = {
-      ...orig,
-      captain: nextCaptain,
-      starters: [...draftStarters],
-    };
-
-    const updatedList = ordered.map((l) => {
-      const k = getLineupKey(l);
-      if (k === editingId) return updated;
-      return l;
-    });
-
-    dispatch({
-      type: LINEUPS_UPSERT_BUCKET,
-      payload: { club: activeClub, bucket: { formations: updatedList } },
-    });
-
-    stopEdit();
-  };
-
   const playerKey = (p) =>
     typeof p === "string"
       ? p
@@ -130,10 +88,10 @@ const Formations = ({
   const startersSet = new Set(draftStarters.map(starterKey));
 
   // Lista de opciones como strings (keys) para el select
- const availablePlayers = players
-   .map(playerKey)
-   .filter((k) => k && !startersSet.has(k))
-   .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+  const availablePlayers = players
+    .map(playerKey)
+    .filter((k) => k && !startersSet.has(k))
+    .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
 
   return (
     <div>
@@ -224,11 +182,19 @@ const Formations = ({
                                 className="shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-red-50"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  const ok = window.confirm(
+
+                                  Notiflix.Confirm.show(
+                                    "Eliminar jugador",
                                     `¿Quitar a ${pretty(player)} de esta formación?`,
+                                    "Sí, Eliminar",
+                                    "Cancelar",
+                                    function okCb() {
+                                      removeFromDraft(player);
+                                    },
+                                    function cancelCb() {
+                                      // no hacemos nada
+                                    },
                                   );
-                                  if (!ok) return;
-                                  removeFromDraft(player);
                                 }}
                               >
                                 <img
@@ -254,10 +220,10 @@ const Formations = ({
                                   ? "bg-green-600 text-white hover:bg-green-700"
                                   : "bg-gray-200 text-gray-500 cursor-not-allowed"
                               }`}
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
                                 if (!canUpdate) return;
-                                handleUpdateStarters({
+                                const ok = await handleUpdateStarters({
                                   formationId: editingId,
                                   starters: draftStarters,
                                   captainName: draftCaptain,
@@ -268,6 +234,8 @@ const Formations = ({
                                   dispatch,
                                   setShowForm,
                                 });
+
+                                if (ok) stopEdit(); // ✅ solo si actualizó bien
                               }}
                               disabled={!canUpdate}
                               title={
