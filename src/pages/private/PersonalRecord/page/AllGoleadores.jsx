@@ -35,10 +35,12 @@ const AllGoleadores = () => {
         // Caso 1: "alvarez": { goals: 3 }
         if (isPlayerNode(v)) {
           const goals = Number(v?.goals ?? 0);
+          const pj = Number(v?.totals?.matchesPlayed ?? 0);
           rows.push({
             name: String(k),
             team,
             goals,
+            pj,
           });
           continue;
         }
@@ -48,11 +50,13 @@ const AllGoleadores = () => {
           for (const [innerK, innerV] of Object.entries(v)) {
             if (!isPlayerNode(innerV)) continue;
             const goals = Number(innerV?.goals ?? 0);
+            const pj = Number(innerV?.totals?.matchesPlayed ?? 0);
 
             rows.push({
               name: formatName(k, innerK), // "p.guerrero"
               team,
               goals,
+              pj,
             });
           }
         }
@@ -76,8 +80,8 @@ const AllGoleadores = () => {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-3">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-            ⚽ Goleadores 
-          </h1>          
+            ⚽ Goleadores
+          </h1>
         </div>
 
         <div className="flex items-center gap-2">
@@ -95,40 +99,72 @@ const AllGoleadores = () => {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="grid grid-cols-12 gap-2 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-slate-500 bg-slate-50 border-b">
-          <div className="col-span-2 text-center">Goles</div>
-          <div className="col-span-5">Jugador</div>
-          <div className="col-span-5">Equipo</div>
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          {/* Header fijo y alineado */}
+          <div className="sticky top-0 z-10 bg-slate-700 border-b border-slate-200">
+            <div className="grid grid-cols-[10%_15%_50%_15%] gap-3 px-4 py-3 text-[11px] font-extrabold uppercase tracking-wide text-white">
+              <div className="text-center">N°</div>
+              <div className="text-center">Goles</div>
+              <div>Jugador</div>
+              <div className="text-center">PJ</div>
+            </div>
+          </div>
+
+          {goleadores.length === 0 ? (
+            <div className="p-4 text-sm text-slate-500">
+              No hay jugadores con {minGoals}+ goles.
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {goleadores.map((r, idx) => (
+                <div
+                  key={`${r.team}-${r.name}-${idx}`}
+                  className={[
+                    "grid grid-cols-[10%_15%_50%_15%] gap-3 px-4 py-3 items-center transition",
+                    idx % 2 === 0 ? "bg-white" : "bg-slate-200", // ✅ zebra
+                    "hover:bg-slate-100", // ✅ hover más notorio
+                  ].join(" ")}
+                >
+                  {/* N° */}
+                  <div className="flex justify-center">
+                    <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 bg-blue-400 text-sm font-extrabold text-slate-700">
+                      {idx + 1}
+                    </span>
+                  </div>
+
+                  {/* GOLES */}
+                  <div className="flex justify-center">
+                    <span className="inline-flex items-center justify-center w-14 h-9 rounded-xl bg-slate-900 text-white text-sm font-extrabold shadow-sm">
+                      {r.goals}
+                    </span>
+                  </div>
+
+                  {/* JUGADOR */}
+                  <div className="min-w-0">
+                    <div className="font-semibold text-slate-900">
+                      {pretty(r.name)}
+                    </div>
+                    {/* opcional: subtítulo más chico */}
+                    <div className="text-xs text-slate-500 ">{r.team}</div>
+                  </div>
+
+                  {/* EQUIPO */}
+                  <div className="min-w-0 hidden sm:block ">
+                    <div className="inline-flex max-w-full items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-700 truncate">
+                      {r.team}
+                    </div>
+                  </div>
+                  {/* PJ */}
+                  <div className="flex justify-center ">
+                    <span className="inline-flex items-center justify-center w-14 h-9 rounded-xl border border-slate-200 bg-white text-sm font-extrabold text-slate-800">
+                      {r.pj}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-
-        {goleadores.length === 0 ? (
-          <div className="p-4 text-sm text-slate-500">
-            No hay jugadores con {minGoals}+ goles.
-          </div>
-        ) : (
-          <div className="divide-y">
-            {goleadores.map((r, idx) => (
-              <div
-                key={`${r.team}-${r.name}-${idx}`}
-                className="grid grid-cols-12 gap-2 px-3 py-2 items-center"
-              >
-                <div className="col-span-2 text-center">
-                  <span className="inline-flex items-center justify-center min-w-[44px] rounded-full border px-2 py-1 text-sm font-extrabold">
-                    {r.goals}
-                  </span>
-                </div>
-
-                <div className="col-span-5 font-semibold text-slate-900 truncate">
-                  {pretty(r.name)}
-                </div>
-
-                <div className="col-span-5 text-slate-700 truncate">
-                  {r.team}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
