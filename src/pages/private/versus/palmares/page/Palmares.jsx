@@ -5,11 +5,10 @@ import { pretty } from "../../../match/utils/pretty";
 
 import { collection, getDocs, query, where } from "firebase/firestore";
 import useAuth from "../../../../../hooks/useAuth";
-import { db } from "../../../../../configuration/firebase";
-import { useLineups } from "../../../../../context/LineUpProvider";
-import { useLineupsData } from "../../../../../hooks/useLineupsData";
-import { usePartido } from "../../../../../context/PartidoReducer";
-import { normalizeName } from "../../../../../utils/normalizeName";
+import { db } from "../../../../../configuration/firebase"; 
+import { useLineups } from "../../../../../context/LineUpProvider"; 
+import { usePartido } from "../../../../../context/PartidoReducer"; 
+import { normalizeName } from "../../../../../utils/normalizeName"; 
 import { useUserData } from "../../../../../hooks/useUserData";
 
 // Badge de color según resultado del campeonato
@@ -59,6 +58,9 @@ const Palmares = () => {
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
 
   useUserData(uid, matchDispatch, lineupDispatch);
+
+  console.log(lineupState.lineups);
+  
 
   const [data, setData] = useState(null);
 

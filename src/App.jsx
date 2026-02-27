@@ -15,7 +15,6 @@ import Campeonatos from "./pages/private/campeonatos/page/Campeonatos";
 import Analysis from "./pages/private/analisis/page/Analysis";
 import Season from "./pages/private/temporada/page/Season";
 import Scorers from "./pages/private/goleadores/page/Scorers";
-import Palmares from "./pages/private/versus/palmares/page/Palmares";
 import Partidos from "./pages/private/campeonatos/util/Partidos";
 import UltimosDiez from "./pages/private/Ultimos10/page/UltimosDiez";
 import ScrollToTop from "./components/ScrollToTop";
@@ -24,6 +23,7 @@ import Graficos from "./pages/private/graficos/page/Graficos";
 import Ajustes from "./pages/private/campeonatos/ajustes/page/Ajustes";
 import NextMatch from "./pages/private/nextMatch/page/NextMatch";
 import Config from "./pages/private/config/page/Config";
+import IndexPR from "./pages/private/PersonalRecord/page/IndexPR";
 
 function Hydrator() {
   const { uid } = useAuth();
@@ -74,7 +74,7 @@ const App = () => {
           <Route path="/graficos" element={<Graficos />} />
           <Route path="/temporadas" element={<Season />} />
           <Route path="/goleadores" element={<Scorers />} />
-          <Route path="/palmares" element={<Palmares />} />
+          <Route path="/record" element={<IndexPR />} />
           <Route path="/config" element={<Config />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

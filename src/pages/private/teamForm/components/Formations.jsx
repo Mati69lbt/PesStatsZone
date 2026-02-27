@@ -9,6 +9,10 @@ import { LINEUPS_UPSERT_BUCKET } from "../../../../context/LineUpProvider";
 
 import { getLineupKey, originalLineup, isDirty } from "../hooks/useFormations";
 import handleUpdateStarters from "../util/handleUpdateStarters";
+import { useNavigate } from "react-router-dom";
+import { fetchUserData } from "../../../../hooks/useUserData";
+import { usePartido } from "../../../../context/PartidoReducer";
+import useAuth from "../../../../hooks/useAuth";
 
 const Formations = ({
   ordered = [],
@@ -28,6 +32,14 @@ const Formations = ({
 
   const [draftStarters, setDraftStarters] = useState([]);
   const [draftCaptain, setDraftCaptain] = useState(null);
+
+  const { dispatch: matchDispatch } = usePartido();
+
+  const recargarDatos = async () => {
+    if (uid) {
+      await fetchUserData(uid, matchDispatch);
+    }
+  };
 
   // ✅ helpers
   const orig = useMemo(
@@ -235,7 +247,7 @@ const Formations = ({
                                   setShowForm,
                                 });
 
-                                if (ok) stopEdit(); // ✅ solo si actualizó bien
+                                if (ok) setDraftStarters(draftStarters);
                               }}
                               disabled={!canUpdate}
                               title={
