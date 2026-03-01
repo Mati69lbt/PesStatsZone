@@ -5,7 +5,11 @@ import { normalizeName } from "../../../../utils/normalizeName";
 import useCaptainsMemo from "../hooks/useCaptainsMemo";
 import useResumenesMemo from "../hooks/useResumenesMemo";
 import useEstadisticasMemo from "../hooks/useEstadisticasMemo";
-import { displayNoMinus, formatearResumen, getColorSegunResultado } from "../util/funtions";
+import {
+  displayNoMinus,
+  formatearResumen,
+  getColorSegunResultado,
+} from "../util/funtions";
 import useAuth from "../../../../hooks/useAuth";
 import { usePartido } from "../../../../context/PartidoReducer";
 import { useUserData } from "../../../../hooks/useUserData";
@@ -33,58 +37,80 @@ const Versus = () => {
 
   useUserData(uid, matchDispatch, lineupDispatch);
 
-  const [data, setData] = useState(null);
+   const lineupsObj = lineupState?.lineups || {};
+   const activeClubFromState = lineupState?.activeClub || "";
+   const clubs = Object.keys(lineupsObj);
+   const lineupsReady = clubs.length > 0;
 
-  const clubs = Object.keys(lineupState?.lineups || []);
-  const [selectedClub, setSelectedClub] = useState(
-    lineupState?.activeClub || clubs[0] || ""
-  );
+   // --- estados ---
+   const [selectedClub, setSelectedClub] = useState(
+     activeClubFromState || clubs[0] || "",
+   );
 
-  const clubKey = normalizeName(selectedClub || "");
-  const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
+   const [ordenAmbito, setOrdenAmbito] = useState("general");
+   const [ordenCampo, setOrdenCampo] = useState("rival");
+   const [ordenDireccion, setOrdenDireccion] = useState("asc");
 
-  const clubData = lineupState?.lineups?.[clubKey] || {};
-  const hasPlayers = (clubData.players?.length ?? 0) > 0;
-  const hasFormations = (clubData.formations?.length ?? 0) > 0;
-  const hasPlayerStats = clubData.playersStats
-    ? Object.keys(clubData.playersStats).length > 0
-    : false;
+   // --- “espera” para hidratación async (evita redirección en renders vacíos) ---
+   const [graceDone, setGraceDone] = useState(false);
+   const [lineupsLoadedOnce, setLineupsLoadedOnce] = useState(false);
 
-  if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
-    return <Navigate to="/formacion" replace />;
-  }
+   useEffect(() => {
+     const t = setTimeout(() => setGraceDone(true), 1200);
+     return () => clearTimeout(t);
+   }, []);
 
-  useEffect(() => {
-    if (!bucket) return;
-    if (Object.keys(bucket).length === 0) return;
-    setData(bucket);
-  }, [bucket]);
+   useEffect(() => {
+     if (lineupsReady) setLineupsLoadedOnce(true);
+   }, [lineupsReady]);
 
-  const matchesBase = Array.isArray(data?.matches) ? data.matches : [];
+   // --- sincronizar selectedClub cuando llega activeClub o clubs async ---
+   useEffect(() => {
+     if (selectedClub) return;
+     if (activeClubFromState) return setSelectedClub(activeClubFromState);
+     if (clubs[0]) setSelectedClub(clubs[0]);
+   }, [activeClubFromState, clubs.join("|"), selectedClub]);
 
-  const { torneoSel, setTorneoSel, torneoOptions, matchesFiltrados } =
-    useFiltroTorneo(matchesBase);
+   // --- club/bucket ---
+   const clubKey = normalizeName(selectedClub || "");
+   const bucket = clubKey ? lineupsObj?.[clubKey] : null;
+   const bucketReady = !!bucket && Object.keys(bucket).length > 0;
 
-  // usamos los filtrados para TODO lo que calcula stats
-  const matches = matchesFiltrados;
+   // ✅ IMPORTANTE: hooks SIEMPRE se ejecutan (con defaults seguros)
+   const matchesBase = Array.isArray(bucket?.matches) ? bucket.matches : [];
 
-  const [ordenAmbito, setOrdenAmbito] = useState("general");
-  const [ordenCampo, setOrdenCampo] = useState("rival");
-  const [ordenDireccion, setOrdenDireccion] = useState("asc");
+   const { torneoSel, setTorneoSel, torneoOptions, matchesFiltrados } =
+     useFiltroTorneo(matchesBase);
 
-  const captains = useCaptainsMemo(matches);
-  const resumenes = useResumenesMemo(matches);
-  const estadisticas = useEstadisticasMemo(
-    resumenes,
-    ordenAmbito,
-    ordenCampo,
-    ordenDireccion
-  );
+   const matches = matchesFiltrados;
 
-  const columnas = useMemo(
-    () => ["general", "local", "visitante", ...captains],
-    [captains]
-  );
+   const captains = useCaptainsMemo(matches);
+   const resumenes = useResumenesMemo(matches);
+   const estadisticas = useEstadisticasMemo(
+     resumenes,
+     ordenAmbito,
+     ordenCampo,
+     ordenDireccion,
+   );
+
+   const columnas = useMemo(
+     () => ["general", "local", "visitante", ...captains],
+     [captains],
+   );
+
+   // --- decisiones de UI / navegación (recién después de hooks) ---
+   const shouldShowLoading = !lineupsLoadedOnce || !graceDone;
+   const shouldGoToFormacion = !shouldShowLoading && (!clubKey || !bucketReady);
+
+   if (shouldShowLoading) {
+     return (
+       <div className="p-4 text-center text-slate-600">Cargando datos...</div>
+     );
+   }
+
+   if (shouldGoToFormacion) {
+     return <Navigate to="/formacion" replace />;
+   }
 
   return (
     <div className="p-2 max-w-7xl mx-auto">
@@ -284,8 +310,8 @@ const Versus = () => {
                         df > 0
                           ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500"
                           : df < 0
-                          ? "bg-rose-50 text-rose-800 ring-1 ring-rose-500"
-                          : "bg-slate-50 text-slate-700 ring-1 ring-slate-200";
+                            ? "bg-rose-50 text-rose-800 ring-1 ring-rose-500"
+                            : "bg-slate-50 text-slate-700 ring-1 ring-slate-200";
 
                       const gp = (box.g ?? 0) - (box.p ?? 0);
 
@@ -293,8 +319,8 @@ const Versus = () => {
                         gp > 0
                           ? "ring-emerald-500"
                           : gp < 0
-                          ? "ring-rose-500"
-                          : "ring-yellow-400";
+                            ? "ring-rose-500"
+                            : "ring-yellow-400";
 
                       if (box.pj === 0) {
                         return (
