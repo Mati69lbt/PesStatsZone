@@ -18,13 +18,9 @@ import {
   getYearFromCamp,
 } from "./utils";
 
-
-
 import DuplicatesWarning from "./DuplicatesWarning";
 import MatchCardMobile from "./MatchCardMobile";
 import MatchRowDesktop from "./MatchRowDesktop";
-
-
 
 const saveResultadoEnPalmares = async ({ uid, clubKey, camp, value }) => {
   if (!uid || !camp || !value) return;
@@ -76,7 +72,6 @@ const saveResultadoEnPalmares = async ({ uid, clubKey, camp, value }) => {
   }
 };
 
-
 const CampDesgl = ({
   matches = [],
   torneosConfig = {},
@@ -85,6 +80,7 @@ const CampDesgl = ({
   onRefresh,
 }) => {
   const navigate = useNavigate();
+  const [openMobile, setOpenMobile] = useState({});
 
   const [resumenResultados, setResumenResultados] = useState({});
 
@@ -216,6 +212,17 @@ const CampDesgl = ({
     cargarResultados();
   }, [uid, campeonatos]);
 
+  useEffect(() => {
+    if (!campeonatos.length) return;
+    setOpenMobile((prev) => {
+      const next = {};
+      campeonatos.forEach((camp) => {
+        next[camp.key] = prev[camp.key] ?? false;
+      });
+      return next;
+    });
+  }, [campeonatos]);
+
   const handleResultadoChange = async (camp, value) => {
     const torneoKey = camp.key;
 
@@ -253,138 +260,190 @@ const CampDesgl = ({
     });
   };
 
- return (
-   <div className="mt-4">
-     {/* ✅ NUEVO: advertencia fechas duplicadas */}
-     <DuplicatesWarning
-       duplicadosPorFecha={duplicadosPorFecha}
-       prettySafe={prettySafe}
-       getCampTitleFromMatch={getCampTitleFromMatch}
-     />
+  const toggleMobileAccordion = (torneoKey) => {
+    setOpenMobile((prev) => ({
+      ...prev,
+      [torneoKey]: !prev[torneoKey],
+    }));
+  };
 
-     {campeonatos.map((camp) => {
-       const torneoKey = camp.key;
-       const valorSelect = resumenResultados[torneoKey] || "";
-       const year = camp.year ?? getYearFromCamp(camp);
-       const tituloCamp = `${prettySafe(camp.nombre)}${year ? ` ${year}` : ""}`;
+  return (
+    <div className="mt-4">
+      {/* ✅ NUEVO: advertencia fechas duplicadas */}
+      <DuplicatesWarning
+        duplicadosPorFecha={duplicadosPorFecha}
+        prettySafe={prettySafe}
+        getCampTitleFromMatch={getCampTitleFromMatch}
+      />
 
-       return (
-         <div key={torneoKey} className="mb-6 flex justify-center">
-           {/* Card única: header + tabla comparten ancho */}
-           <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-max">
-             {/* Header del campeonato + select Resultado */}
-             <div className="flex items-center flex-row justify-between gap-3 px-3 py-2 border-b border-slate-200 bg-slate-100 rounded-t-lg">
-               <div className="min-w-0">
-                 <h3 className="font-semibold text-sm lg:text-base text-slate-800 truncate">
-                   {tituloCamp}
-                 </h3>
-                 <p className="text-[11px] text-slate-500">
-                   {camp.matches.length} partido
-                   {camp.matches.length !== 1 ? "s" : ""} jugado
-                   {camp.matches.length !== 1 ? "s" : ""} en este campeonato.
-                 </p>
-               </div>
+      {campeonatos.map((camp) => {
+        const torneoKey = camp.key;
+        const valorSelect = resumenResultados[torneoKey] || "";
+        const year = camp.year ?? getYearFromCamp(camp);
+        const tituloCamp = `${prettySafe(camp.nombre)}${year ? ` ${year}` : ""}`;
 
-               <div className="text-[11px] md:text-sm shrink-0 md:flex md:items-center md:gap-2">
-                 <label className="font-medium whitespace-nowrap mr-2">
-                   Resultado:
-                 </label>
+        return (
+          <div key={torneoKey} className="mb-6 flex justify-center">
+            {/* Card única: header + tabla comparten ancho */}
+            <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-full lg:w-max">
+              {/* Header del campeonato + select Resultado */}
+              <div
+                className="px-3 py-2 border-b border-slate-200 bg-slate-100 rounded-t-lg cursor-pointer sm:cursor-default"
+                onClick={() => toggleMobileAccordion(torneoKey)}
+                aria-expanded={!!openMobile[torneoKey]}
+                aria-controls={`mobile-camp-${torneoKey}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-sm lg:text-base text-slate-800 truncate">
+                      {tituloCamp}
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      {camp.matches.length} partido
+                      {camp.matches.length !== 1 ? "s" : ""} jugado
+                      {camp.matches.length !== 1 ? "s" : ""} en este campeonato.
+                    </p>
+                  </div>
 
-                 <select
-                   className="border border-slate-300 rounded px-2 py-1 text-[11px] md:text-sm bg-white"
-                   value={valorSelect}
-                   onChange={(e) => handleResultadoChange(camp, e.target.value)}
-                 >
-                   {RESULT_OPTIONS.map((opt) => (
-                     <option key={opt.value} value={opt.value}>
-                       {opt.label}
-                     </option>
-                   ))}
-                 </select>
-               </div>
-             </div>
+                  <div
+                    className="hidden sm:block text-[11px] md:text-sm shrink-0 md:flex md:items-center md:gap-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <label className="font-medium whitespace-nowrap mr-2">
+                      Resultado:
+                    </label>
 
-             {/* Mobile (cards) */}
-             <div className="sm:hidden space-y-1">
-               {camp.matches.map((m, index) => {
-                 const nroJuego = camp.matches.length - index;
+                    <select
+                      className="border border-slate-300 rounded px-2 py-1 text-[11px] md:text-sm bg-white"
+                      value={valorSelect}
+                      onChange={(e) =>
+                        handleResultadoChange(camp, e.target.value)
+                      }
+                    >
+                      {RESULT_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-                 return (
-                   <MatchCardMobile
-                     key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
-                     m={m}
-                     nroJuego={nroJuego}
-                     prettySafe={prettySafe}
-                     onEdit={(mm) => navigate(`/editar-partido/${mm.id}`)}
-                     onDelete={handleDelete}
-                   />
-                 );
-               })}
-             </div>
+                <div className="mt-2 flex items-center justify-between gap-2 sm:hidden">
+                  <div
+                    className="flex items-center gap-2 min-w-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <label className="font-medium whitespace-nowrap text-[11px]">
+                      Resultado:
+                    </label>
 
-             {/* Desktop (tabla) */}
-             <div className="hidden sm:block overflow-x-auto">
-               <table className="w-full table-fixed border-collapse text-[11px] lg:text-xs lg:w-max lg:min-w-[980px] lg:table-auto">
-                 <thead className="bg-slate-100 text-slate-700">
-                   <tr>
-                     <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-12">
-                       Fecha
-                     </th>
+                    <select
+                      className="border border-slate-300 rounded px-2 py-1 text-[11px] bg-white max-w-[150px]"
+                      value={valorSelect}
+                      onChange={(e) =>
+                        handleResultadoChange(camp, e.target.value)
+                      }
+                    >
+                      {RESULT_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                     <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap">
-                       Resultado
-                     </th>
+                  <span className="text-[11px] font-medium text-slate-500">
+                    {openMobile[torneoKey] ? "▲" : "▼"}
+                  </span>
+                </div>
+              </div>
 
-                     <th className="border border-slate-200 px-2 py-2 text-center w-10 whitespace-nowrap">
-                       <img
-                         src="pencil.png"
-                         alt="Editar"
-                         className="inline-block h-5 w-5 opacity-60"
-                       />
-                     </th>
+              {/* Mobile (cards) */}
+              {openMobile[torneoKey] && (
+                <div
+                  id={`mobile-camp-${torneoKey}`}
+                  className="sm:hidden space-y-1"
+                >
+                  {camp.matches.map((m, index) => {
+                    const nroJuego = camp.matches.length - index;
 
-                     <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap w-24">
-                       Capitán
-                     </th>
+                    return (
+                      <MatchCardMobile
+                        key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
+                        m={m}
+                        nroJuego={nroJuego}
+                        prettySafe={prettySafe}
+                        onEdit={(mm) => navigate(`/editar-partido/${mm.id}`)}
+                        onDelete={handleDelete}
+                      />
+                    );
+                  })}
+                </div>
+              )}
 
-                     <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap">
-                       Goleadores Propios
-                     </th>
+              {/* Desktop (tabla) */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full table-fixed border-collapse text-[11px] lg:text-xs lg:w-max lg:min-w-[980px] lg:table-auto">
+                  <thead className="bg-slate-100 text-slate-700">
+                    <tr>
+                      <th className="border border-slate-200 px-2 py-2 text-center whitespace-nowrap w-12">
+                        Fecha
+                      </th>
 
-                     <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap">
-                       Goles del Rival
-                     </th>
+                      <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap">
+                        Resultado
+                      </th>
 
-                     <th className="border border-slate-200 px-2 py-2 text-center w-10 whitespace-nowrap">
-                       <img
-                         src="bas.png"
-                         alt="Borrar"
-                         className="inline-block h-5 w-5 opacity-60"
-                       />
-                     </th>
-                   </tr>
-                 </thead>
+                      <th className="border border-slate-200 px-2 py-2 text-center w-10 whitespace-nowrap">
+                        <img
+                          src="pencil.png"
+                          alt="Editar"
+                          className="inline-block h-5 w-5 opacity-60"
+                        />
+                      </th>
 
-                 <tbody>
-                   {camp.matches.map((m) => (
-                     <MatchRowDesktop
-                       key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
-                       m={m}
-                       prettySafe={prettySafe}
-                       onEdit={(mm) => navigate(`/editar-partido/${mm.id}`)}
-                       onDelete={handleDelete}
-                     />
-                   ))}
-                 </tbody>
-               </table>
-             </div>
-           </div>
-         </div>
-       );
-     })}
-   </div>
- );
+                      <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap w-24">
+                        Capitán
+                      </th>
 
+                      <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap">
+                        Goleadores Propios
+                      </th>
+
+                      <th className="border border-slate-200 px-2 py-2 text-left whitespace-nowrap">
+                        Goles del Rival
+                      </th>
+
+                      <th className="border border-slate-200 px-2 py-2 text-center w-10 whitespace-nowrap">
+                        <img
+                          src="bas.png"
+                          alt="Borrar"
+                          className="inline-block h-5 w-5 opacity-60"
+                        />
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {camp.matches.map((m) => (
+                      <MatchRowDesktop
+                        key={m.id || `${m.fecha}-${m.rival}-${m.resultMatch}`}
+                        m={m}
+                        prettySafe={prettySafe}
+                        onEdit={(mm) => navigate(`/editar-partido/${mm.id}`)}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 };
 
 export default CampDesgl;

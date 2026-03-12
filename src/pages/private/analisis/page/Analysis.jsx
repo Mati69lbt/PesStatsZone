@@ -61,9 +61,26 @@ const Analysis = () => {
 
   const visibleClub = selectedClub;
 
+
+
   const captainsVisible = captains.filter(
     (cap) => (cap?.total?.General?.pj ?? 0) > 0,
   );
+
+  const captainsVisibleOrdered = useMemo(() => {
+    const getLastPlayedTs = (cap) => {
+      const tourneyMaxTs = cap?.tourneyMaxTs || {};
+      const values = Object.values(tourneyMaxTs).filter(
+        (v) => typeof v === "number" && !Number.isNaN(v),
+      );
+
+      return values.length ? Math.max(...values) : 0;
+    };
+
+    return [...captainsVisible].sort(
+      (a, b) => getLastPlayedTs(b) - getLastPlayedTs(a),
+    );
+  }, [captainsVisible]);
 
   return (
     <div className="p-2 max-w-7xl mx-auto">
@@ -79,7 +96,7 @@ const Analysis = () => {
           <span className="text-sm font-medium text-slate-700">Club</span>
 
           <select
-            value={visibleClub} // o selectedClub (pero que sea el mismo state que usás en Análisis)
+            value={visibleClub}
             onChange={(e) => setSelectedClub(e.target.value)}
             disabled={clubs.length <= 1}
             className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-1 text-sm text-slate-800 shadow-sm
@@ -110,7 +127,7 @@ const Analysis = () => {
         <div className="p-2">
           <div className="overflow-x-auto">
             <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
-              {captainsVisible.map((cap) => (
+              {captainsVisibleOrdered.map((cap) => (
                 <div
                   key={`total-${cap.captain}`}
                   className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"

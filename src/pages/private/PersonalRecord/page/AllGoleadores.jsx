@@ -102,11 +102,12 @@ const AllGoleadores = () => {
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           {/* Header fijo y alineado */}
           <div className="sticky top-0 z-10 bg-slate-700 border-b border-slate-200">
-            <div className="grid grid-cols-[10%_15%_50%_15%] gap-3 px-4 py-3 text-[11px] font-extrabold uppercase tracking-wide text-white">
+            <div className="grid grid-cols-[10%_15%_30%_15%_15%] gap-3 px-4 py-3 text-[11px] font-extrabold uppercase tracking-wide text-white">
               <div className="text-center">N°</div>
               <div className="text-center">Goles</div>
               <div>Jugador</div>
               <div className="text-center">PJ</div>
+              <div>PROM</div>
             </div>
           </div>
 
@@ -120,7 +121,7 @@ const AllGoleadores = () => {
                 <div
                   key={`${r.team}-${r.name}-${idx}`}
                   className={[
-                    "grid grid-cols-[10%_15%_50%_15%] gap-3 px-4 py-3 items-center transition",
+                    "grid grid-cols-[10%_15%_30%_15%_15%] gap-3 px-4 py-3 items-center transition",
                     idx % 2 === 0 ? "bg-white" : "bg-slate-200", // ✅ zebra
                     "hover:bg-slate-100", // ✅ hover más notorio
                   ].join(" ")}
@@ -148,16 +149,16 @@ const AllGoleadores = () => {
                     <div className="text-xs text-slate-500 ">{r.team}</div>
                   </div>
 
-                  {/* EQUIPO */}
-                  <div className="min-w-0 hidden sm:block ">
-                    <div className="inline-flex max-w-full items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-700 truncate">
-                      {r.team}
-                    </div>
-                  </div>
                   {/* PJ */}
                   <div className="flex justify-center ">
                     <span className="inline-flex items-center justify-center w-14 h-9 rounded-xl border border-slate-200 bg-white text-sm font-extrabold text-slate-800">
                       {r.pj}
+                    </span>
+                  </div>
+                  {/* PROM */}
+                  <div className="flex justify-center ">
+                    <span className="inline-flex items-center justify-center w-14 h-9 rounded-xl border border-slate-200 bg-white text-sm font-extrabold text-slate-800">
+                      {r.pj > 0 ? (r.goals / r.pj).toFixed(3) : "0.00"}
                     </span>
                   </div>
                 </div>

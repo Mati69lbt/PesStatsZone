@@ -120,9 +120,9 @@ export const numColor = (n) => {
 
 export const pillBg = (n) => {
   const v = Number(n ?? 0);
-  if (v > 0) return "bg-emerald-50 border-emerald-700";
-  if (v < 0) return "bg-rose-50 border-rose-200";
-  return "bg-slate-50 border-slate-200";
+ if (v > 0) return "bg-emerald-50 border-emerald-500 border-2";
+ if (v < 0) return "bg-rose-50 border-rose-500";
+ return "bg-slate-50 border-slate-500";
 };
 
 export const getTorneoDisplay = (match, torneosConfig) => {

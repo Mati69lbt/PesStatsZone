@@ -173,7 +173,14 @@ const ResumenBlock = ({ title, r }) => (
         <Stat label="DIF" value={r.dif} tone="diff" />
         <Stat
           label="PTS/EFEC"
-          value={`${r.pts} / ${r.maxPts} ${r.pct}%`}
+          value={
+            <div className="flex flex-col leading-none">
+              <span>
+                {r.pts} / {r.maxPts}
+              </span>
+              <span>{r.pct}%</span>
+            </div>
+          }
           compact
         />
       </div>
@@ -189,7 +196,11 @@ const ResumenBlock = ({ title, r }) => (
       <Stat label="GF" value={r.gf} />
       <Stat label="GC" value={r.gc} />
       <Stat label="DIF" value={r.dif} tone="diff" />
-      <Stat label="PTS/EFEC" value={`${r.pts} / ${r.maxPts} ${r.pct}%`} compact />
+      <Stat
+        label="PTS/EFEC"
+        value={`${r.pts} / ${r.maxPts} ${r.pct}%`}
+        compact
+      />
     </div>
   </div>
 );
