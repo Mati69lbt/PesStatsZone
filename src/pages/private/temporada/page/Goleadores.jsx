@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { prettySafe } from "../../campeonatos/util/funtions";
 
 const rankStyles = (index) => {
@@ -17,6 +17,8 @@ const TopGoleadores = ({
   data = null,
   showHomeAway = false,
 }) => {
+  const [openAccordion, setOpenAccordion] = useState(false);
+
   // igual que en CampDesgl.jsx (misma lógica)
   const calcularGolesGoleador = (g) => {
     if (!g) return 0;
@@ -27,10 +29,9 @@ const TopGoleadores = ({
     if (t && g.doblete) return 5;
     if (t && g.gol) return 4;
     if (t) return 3;
- 
+
     if (g.doblete) return 2;
     if (g.gol) return 1;
-   
 
     return 0;
   };
@@ -204,21 +205,41 @@ const TopGoleadores = ({
 
     return (
       <div>
-        <h1 className="text-xl font-bold mb-2 text-center">
-          ⭐️ Goleadores del Año ⭐️
-        </h1>
-        <div className={`${className} flex items-start justify-center gap-3`}>
-          <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
-
-          {showHomeAway && (
-            <div className="flex flex-col gap-1 w-max">
-              <VerticalTable title={`Local ${yearsLabel}`} list={listaLocal} />
-              <VerticalTable
-                title={`Visitante ${yearsLabel}`}
-                list={listaVisitante}
-              />
-            </div>
-          )}
+        <button
+          type="button"
+          onClick={() => setOpenAccordion((prev) => !prev)}
+          className="w-full flex items-center justify-center py-2 focus:outline-none group"
+        >
+          <h1 className="text-2xl md:text-3xl font-extrabold text-center m-2 text-slate-800 tracking-tight">
+            <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-yellow-100 via-amber-50 to-yellow-100 px-4 py-2 shadow-sm border border-yellow-200">
+              <span>⭐</span>
+              <span>{`Goleadores del Año ${yearsLabel}`}</span>
+              <span>⭐</span>
+            </span>
+          </h1>
+        </button>
+        <div
+          className={`transition-all duration-500 ease-in-out overflow-hidden ${
+            openAccordion
+              ? "max-h-[2500px] opacity-100 mt-2 mb-2"
+              : "max-h-0 opacity-0 pointer-events-none"
+          }`}
+        >
+          <div className={`${className} flex items-start justify-center gap-3`}>
+            <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
+            {showHomeAway && (
+              <div className="flex flex-col gap-1 w-max">
+                <VerticalTable
+                  title={`Local ${yearsLabel}`}
+                  list={listaLocal}
+                />
+                <VerticalTable
+                  title={`Visitante ${yearsLabel}`}
+                  list={listaVisitante}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

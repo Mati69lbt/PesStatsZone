@@ -1,8 +1,29 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { prettySafe, temporadaKey } from "../../campeonatos/util/funtions";
+import { ChevronDown, Trophy, Medal, Target, Zap, Crown } from "lucide-react";
 
 const GoleadoresPorCampeonato = ({ matches, bucket }) => {
   const torneosConfig = bucket?.torneosConfig || {};
+  const [openTorneo, setOpenTorneo] = useState(null);
+
+  const getRowTone = (prom) => {
+    const p = Number(prom);
+    if (p >= 1.5) return "bg-emerald-100/80";
+    if (p >= 1.0) return "bg-emerald-50/80";
+    if (p >= 0.7) return "bg-lime-50/70";
+    if (p >= 0.4) return "bg-slate-50";
+    return "bg-white";
+  };
+
+  const getPodioStyle = (idx) => {
+    if (idx === 0)
+      return "bg-gradient-to-r from-yellow-100 via-amber-50 to-yellow-100 ring-1 ring-yellow-300 shadow-md";
+    if (idx === 1)
+      return "bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 ring-1 ring-slate-300 shadow-sm";
+    if (idx === 2)
+      return "bg-gradient-to-r from-orange-100 via-amber-50 to-orange-100 ring-1 ring-orange-300 shadow-sm";
+    return "";
+  };
 
   const stripYearFromDisplay = (s) =>
     String(s || "")
@@ -29,6 +50,8 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
   };
 
   const torneosOrdenados = useMemo(() => {
+    if (!Array.isArray(matches)) return [];
+
     const torneos = {};
 
     matches.forEach((match) => {
@@ -41,32 +64,27 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
         substitutes,
       } = match || {};
 
-      // Base name (sin año pegado)
       const baseName =
         torneoName || stripYearFromDisplay(torneoDisplay) || "Torneo";
 
-      // Label final (respeta europeo/anual según torneosConfig)
       const labelFull = temporadaKey({
         torneoName: baseName,
-        torneoYear: torneoYear, // sirve para anual; para europeo se ajusta por fecha
+        torneoYear,
         fecha: match?.fecha || match?.createdAt,
         torneosConfig,
       });
 
-      // season: "2023-2024" o "2023"
       const season = splitSeasonFromLabel(
         labelFull,
         torneoYear ? String(torneoYear) : null,
       );
 
-      // Key estable: base + season
       const key = `${baseName}__${season || "NA"}`;
-      const label = labelFull;
 
       if (!torneos[key]) {
         torneos[key] = {
-          label,
-          year: season || torneoYear, // puede ser "2023-2024"
+          label: labelFull,
+          year: season || torneoYear,
           jugadores: {},
           lastPlayed: 0,
         };
@@ -78,35 +96,40 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
         Number(match?.createdAt) ||
         0;
 
-      if (ts > torneos[key].lastPlayed) torneos[key].lastPlayed = ts;
+      if (ts > torneos[key].lastPlayed) {
+        torneos[key].lastPlayed = ts;
+      }
 
-      // ---------- A) PJ por participación (starters + substitutes) ----------
-      const startersArr = Array.isArray(starters) ? starters : [];
-      const subsArr = Array.isArray(substitutes) ? substitutes : [];
-
+      // 1) Partidos jugados
       const participantesUnicos = [
         ...new Set(
-          [...startersArr, ...subsArr]
+          [
+            ...(Array.isArray(starters) ? starters : []),
+            ...(Array.isArray(substitutes) ? substitutes : []),
+          ]
             .map((n) => (n ?? "").toString().trim())
             .filter(Boolean),
         ),
       ];
 
       participantesUnicos.forEach((rawName) => {
-        const slug = rawName.toLowerCase();
+        const rawNameClean = rawName.toString().trim();
+        const slug = rawNameClean.toLowerCase();
+
         if (!torneos[key].jugadores[slug]) {
           torneos[key].jugadores[slug] = {
-            nombre: prettySafe(rawName),
+            nombre: prettySafe(rawNameClean),
             pj: 0,
             goles: 0,
             x2: 0,
             x3: 0,
           };
         }
+
         torneos[key].jugadores[slug].pj += 1;
       });
 
-      // ---------- B) Goles / x2 / x3 por eventos (goleadoresActiveClub) ----------
+      // 2) Goles
       const goleadoresArr = Array.isArray(goleadoresActiveClub)
         ? goleadoresActiveClub
         : [];
@@ -119,16 +142,15 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
 
         const rawNameClean = rawName.toString().trim();
         if (!rawNameClean) return;
-
-        // ✅ Excluir gol en contra (tu "__og__")
-        if (g.isOwnGoal === true || rawNameClean === "__og__") return;
-
         const slug = rawNameClean.toLowerCase();
 
+        if (g.isOwnGoal === true || rawNameClean === "__og__") return;
+
+        // IMPORTANTE: no descartar goleadores si no estaban en starters/substitutes
         if (!torneos[key].jugadores[slug]) {
           torneos[key].jugadores[slug] = {
             nombre: prettySafe(rawNameClean),
-            pj: 0, // ojo: si no jugó (raro), queda 0; pero normalmente ya lo sumó arriba
+            pj: 0,
             goles: 0,
             x2: 0,
             x3: 0,
@@ -136,31 +158,30 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
         }
 
         const stats = torneos[key].jugadores[slug];
-        const golesEnPartido = golesDelEvento(g);
+        const golesPart = golesDelEvento(g);
 
-        stats.goles += golesEnPartido;
+        stats.goles += golesPart;
 
-        if (golesEnPartido === 2) stats.x2 += 1;
-        if (golesEnPartido === 3) stats.x3 += 1;
-        if (golesEnPartido === 4) stats.x3 += 1;
-        if (golesEnPartido === 5) {
+        // misma lógica del original
+        if (golesPart === 2) stats.x2 += 1;
+        if (golesPart === 3) stats.x3 += 1;
+        if (golesPart === 4) stats.x3 += 1;
+        if (golesPart === 5) {
           stats.x3 += 1;
           stats.x2 += 1;
         }
-        if (golesEnPartido === 6) {
-          stats.x3 += 2;         
+        if (golesPart === 6) {
+          stats.x3 += 2;
         }
       });
     });
 
-    // Ordenar torneos de más reciente a más viejo
     return Object.values(torneos).sort((a, b) => {
-      // ✅ más recientemente jugado primero
       if (b.lastPlayed !== a.lastPlayed) return b.lastPlayed - a.lastPlayed;
 
-      // fallback: año + label
       const ya = parseInt(String(a.year || "").slice(0, 4), 10) || 0;
       const yb = parseInt(String(b.year || "").slice(0, 4), 10) || 0;
+
       return yb - ya || a.label.localeCompare(b.label);
     });
   }, [matches, torneosConfig]);
@@ -179,121 +200,102 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
   }
 
   return (
-    <div className="mt-4">
-      <h2 className="text-xl font-bold mb-4 text-center">
-        🏆 Goleadores por campeonato
+    <div className="mt-5 max-w-5xl mx-auto px-2">
+      <h2 className="text-xl md:text-2xl font-extrabold mb-5 text-center flex items-center justify-center gap-2">
+        <Trophy className="text-yellow-500" /> Goleadores por campeonato
       </h2>
 
-      {torneosOrdenados.map((torneo) => {
-        const jugadoresOrdenados = Object.values(torneo.jugadores)
+      {torneosOrdenados.map((torneo, torneoIdx) => {
+        const torneoId = `${torneo.label}-${torneoIdx}`;
+        const isOpen = openTorneo === torneoId;
+        const jugadores = Object.values(torneo.jugadores)
           .filter((j) => j.goles > 0)
           .sort(
             (a, b) => b.goles - a.goles || a.nombre.localeCompare(b.nombre),
           );
 
-        const totalGoles = jugadoresOrdenados.reduce(
-          (acc, j) => acc + (j.goles || 0),
-          0,
-        );
-        const totalx2 = jugadoresOrdenados.reduce(
-          (acc, j) => acc + (j.x2 || 0),
-          0,
-        );
-        const totalx3 = jugadoresOrdenados.reduce(
-          (acc, j) => acc + (j.x3 || 0),
-          0,
-        );
-        // ✅ Promedio de promedios (cada jugador pesa igual)
-        const sumProms = jugadoresOrdenados.reduce((acc, j) => {
-          const pj = Number(j.pj || 0);
-          const goles = Number(j.goles || 0);
-          return acc + (pj > 0 ? goles / pj : 0);
-        }, 0);
-
-        const totalPromProm =
-          jugadoresOrdenados.length > 0
-            ? (sumProms / jugadoresOrdenados.length).toFixed(2)
-            : "0.00";
-
         return (
           <div
-            key={torneo.label}
-            className="mb-6 border border-slate-200 rounded-lg bg-white shadow-sm p-3"
+            key={torneoId}
+            className="mb-5 rounded-2xl border border-slate-200 bg-white shadow-md overflow-hidden"
           >
-            <h3 className="text-base font-semibold mb-3 text-center underline">
-              {torneo.label}
-            </h3>
+            {/* HEADER DEL ACORDEÓN */}
+            <button
+              onClick={() => setOpenTorneo(isOpen ? null : torneoId)}
+              className={`w-full flex items-center justify-between p-4 transition-all ${isOpen ? "bg-slate-800 text-white" : "bg-slate-700 text-white"}`}
+            >
+              <span className="font-bold uppercase tracking-wide truncate">
+                {torneo.label}
+              </span>
+              <ChevronDown
+                className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+              />
+            </button>
 
-            <div className="overflow-x-auto text-xs md:text-sm">
-              <table className="table-auto border-collapse border mx-auto w-full md:w-max">
-                <thead>
-                  <tr className="bg-slate-100">
-                    <th className="border px-2 py-2 text-center w-10">#</th>
-                    <th className="border px-2 py-1 text-left">Jugador</th>
-                    <th className="border px-2 py-1 text-center">PJ</th>
-                    <th className="border px-2 py-1 text-center">Goles</th>
-                    <th className="border px-2 py-1 text-center">Prom.</th>
-                    <th className="border px-2 py-1 text-center">⚽x2</th>
-                    <th className="border px-2 py-1 text-center">⚽x3</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {jugadoresOrdenados.length === 0 && (
+            {/* CUERPO DE LA TABLA */}
+            <div
+              className={`transition-all duration-300 ${isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
+            >
+              <div className="p-2 md:p-4 overflow-x-auto">
+                <table className="w-full border-separate border-spacing-y-2">
+                  <thead className="text-slate-500 text-[10px] uppercase font-bold">
                     <tr>
-                      <td
-                        colSpan={7}
-                        className="border px-2 py-2 text-center text-slate-500"
-                      >
-                        No hubo goles en este campeonato.
-                      </td>
+                      <th className="px-2 py-3 text-center">Pos</th>
+                      <th className="px-2 py-3 text-left">Jugador</th>
+                      <th className="px-2 py-3 text-center">PJ</th>
+                      <th className="px-2 py-3 text-center">Goles</th>
+                      <th className="px-2 py-3 text-center">Prom.</th>
+                      <th className="px-2 py-3 text-center">Especiales</th>
                     </tr>
-                  )}
-
-                  {jugadoresOrdenados.map((j, idx) => (
-                    <tr
-                      key={j.nombre}
-                      className="odd:bg-white even:bg-slate-100 hover:bg-slate-100 transition-colors"
-                    >
-                      <td className="border px-2 py-2 text-center font-bold align-middle">
-                        {idx + 1}
-                      </td>
-                      <td className="border px-2 py-1 text-left font-medium">
-                        {j.nombre}
-                      </td>
-                      <td className="border px-2 py-1 text-center">{j.pj}</td>
-                      <td className="border px-2 py-1 text-center">
-                        {j.goles}
-                      </td>
-                      <td className="border px-2 py-1 text-center">
-                        {calcularPromedio(j.goles, j.pj)}
-                      </td>
-                      <td className="border px-2 py-1 text-center">{j.x2}</td>
-                      <td className="border px-2 py-1 text-center">{j.x3}</td>
-                    </tr>
-                  ))}
-                  {jugadoresOrdenados.length > 0 && (
-                    <tr className="bg-slate-200 font-bold">
-                      <td className="border px-2 py-2 text-right" colSpan={3}>
-                        TOTALES
-                      </td>
-
-                      <td className="border px-2 py-2 text-center">
-                        {totalGoles}
-                      </td>
-
-                      <td className="border px-2 py-2 text-center">
-                        {totalPromProm}
-                      </td>
-                      <td className="border px-2 py-2 text-center">
-                        {totalx2}
-                      </td>
-                      <td className="border px-2 py-2 text-center">
-                        {totalx3}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {jugadores.map((j, idx) => {
+                      const prom = calcularPromedio(j.goles, j.pj);
+                      return (
+                        <tr
+                          key={j.nombre}
+                          className={`${getPodioStyle(idx) || getRowTone(prom)} transition-transform hover:scale-[1.01]`}
+                        >
+                          <td className="py-3 text-center font-bold rounded-l-xl">
+                            {idx === 0
+                              ? "🥇"
+                              : idx === 1
+                                ? "🥈"
+                                : idx === 2
+                                  ? "🥉"
+                                  : idx + 1}
+                          </td>
+                          <td className="py-3 px-2 font-bold text-slate-800">
+                            {j.nombre}
+                          </td>
+                          <td className="text-center">{j.pj}</td>
+                          <td className="text-center">
+                            <span className="bg-slate-800 text-white px-2 py-1 rounded-lg font-black">
+                              {j.goles}
+                            </span>
+                          </td>
+                          <td className="text-center font-mono">{prom}</td>
+                          <td className="py-3 text-center rounded-r-xl">
+                            <div className="flex justify-center gap-1">
+                              {j.x2 > 0 && (
+                                <span className="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded border border-blue-100 font-bold text-[10px]">
+                                  x{j.x2}{" "}
+                                  <Target size={10} className="inline" />
+                                </span>
+                              )}
+                              {j.x3 > 0 && (
+                                <span className="bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded border border-orange-100 font-bold text-[10px]">
+                                  x{j.x3} <Zap size={10} className="inline" />
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         );

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { prettySafe } from "../../campeonatos/util/funtions";
+import { ChevronDown } from "lucide-react";
 
 const rankStyles = (index) => {
   if (index === 0) return { bg: "bg-emerald-50", icon: "🥇", isTop3: true };
@@ -121,6 +122,7 @@ const GolEuropa = ({
   data = null,
   showHomeAway = false,
 }) => {
+  const [openTemporada, setOpenTemporada] = useState(false);
   const goalsMaps = React.useMemo(() => {
     const ms = data?.matches;
     if (!Array.isArray(ms) || ms.length === 0) return null;
@@ -186,23 +188,52 @@ const GolEuropa = ({
   if (mode === "vertical") {
     return (
       <div>
-        <h1 className="text-xl font-bold mb-1 text-center">
-          🌍 Goleadores de la Temporada
-        </h1>
-       
-
-        <div className={`${className} flex items-start justify-center gap-3`}>
-          <VerticalTable title={`General ${yearsLabel}`} list={lista} />
-
-          {showHomeAway && (
-            <div className="flex flex-col gap-1 w-max">
-              <VerticalTable title={`Local ${yearsLabel}`} list={listaLocal} />
-              <VerticalTable
-                title={`Visitante ${yearsLabel}`}
-                list={listaVisitante}
+        <button
+          type="button"
+          onClick={() => setOpenTemporada(!openTemporada)}
+          className="w-full flex items-center justify-center py-2 group focus:outline-none"
+        >
+          <h1 className="md:text-2xl font-extrabold text-center text-slate-800 tracking-tight transition-transform group-hover:scale-[1.02]">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 shadow-sm border border-slate-200 hover:border-blue-300 transition-colors">
+              <span className="text-blue-500">🌍</span>
+              <span>{`Goleadores de la Temporada ${yearsLabel}`}</span>
+              <ChevronDown
+                size={20}
+                className={`ml-1 text-slate-400 transition-transform duration-300 ${
+                  openTemporada ? "rotate-180" : "rotate-0"
+                }`}
               />
-            </div>
-          )}
+            </span>
+          </h1>
+        </button>
+
+        <div
+          className={`transition-all duration-500 ease-in-out overflow-hidden ${
+            openTemporada
+              ? "max-h-[2500px] opacity-100 mt-2 mb-2"
+              : "max-h-0 opacity-0 pointer-events-none"
+          }`}
+        >
+          <div
+            className={`${className} flex flex-wrap items-start justify-center gap-4 px-2`}
+          >
+            {/* Tabla Principal */}
+            <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
+
+            {/* Tablas Local/Visitante opcionales */}
+            {showHomeAway && (
+              <div className="flex flex-col gap-4">
+                <VerticalTable
+                  title={`Local ${yearsLabel}`}
+                  list={listaLocal}
+                />
+                <VerticalTable
+                  title={`Visitante ${yearsLabel}`}
+                  list={listaVisitante}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

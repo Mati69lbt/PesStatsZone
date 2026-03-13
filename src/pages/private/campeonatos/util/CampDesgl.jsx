@@ -267,6 +267,8 @@ const CampDesgl = ({
     }));
   };
 
+ 
+
   return (
     <div className="mt-4">
       {/* ✅ NUEVO: advertencia fechas duplicadas */}
@@ -281,6 +283,7 @@ const CampDesgl = ({
         const valorSelect = resumenResultados[torneoKey] || "";
         const year = camp.year ?? getYearFromCamp(camp);
         const tituloCamp = `${prettySafe(camp.nombre)}${year ? ` ${year}` : ""}`;
+        const isCampeon = valorSelect === "campeon";
 
         return (
           <div key={torneoKey} className="mb-6 flex justify-center">
@@ -288,74 +291,64 @@ const CampDesgl = ({
             <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-full lg:w-max">
               {/* Header del campeonato + select Resultado */}
               <div
-                className="px-3 py-2 border-b border-slate-200 bg-slate-100 rounded-t-lg cursor-pointer sm:cursor-default"
+                className={`px-4 py-3 border-2 rounded-lg cursor-pointer mb-1 transition-all duration-300 ${
+                  isCampeon
+                    ? "border-emerald-500 bg-emerald-50/50 hover:bg-emerald-100/50"
+                    : "border-slate-200 bg-slate-50 hover:bg-slate-100"
+                }`}
                 onClick={() => toggleMobileAccordion(torneoKey)}
                 aria-expanded={!!openMobile[torneoKey]}
                 aria-controls={`mobile-camp-${torneoKey}`}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-sm lg:text-base text-slate-800 truncate">
+                <div className="flex items-center justify-between gap-4">
+                  {/* COLUMNA IZQUIERDA: Info del Campeonato */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-sm lg:text-base text-slate-800 truncate">
                       {tituloCamp}
                     </h3>
-                    <p className="text-[11px] text-slate-500">
-                      {camp.matches.length} partido
-                      {camp.matches.length !== 1 ? "s" : ""} jugado
-                      {camp.matches.length !== 1 ? "s" : ""} en este campeonato.
+                    <p className="text-[11px] md:text-xs text-slate-500 mt-0.5">
+                      {camp.matches.length}{" "}
+                      {camp.matches.length === 1
+                        ? "partido jugado"
+                        : "partidos jugados"}
                     </p>
                   </div>
 
-                  <div
-                    className="hidden sm:block text-[11px] md:text-sm shrink-0 md:flex md:items-center md:gap-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <label className="font-medium whitespace-nowrap mr-2">
-                      Resultado:
-                    </label>
-
-                    <select
-                      className="border border-slate-300 rounded px-2 py-1 text-[11px] md:text-sm bg-white"
-                      value={valorSelect}
-                      onChange={(e) =>
-                        handleResultadoChange(camp, e.target.value)
-                      }
+                  {/* COLUMNA DERECHA: Select y Estado */}
+                  <div className="flex flex-col items-end gap-1.5">
+                    <div
+                      className="flex items-center gap-2"
+                      onClick={(e) => e.stopPropagation()} // Evita cerrar el acordeón al usar el select
                     >
-                      {RESULT_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      <label className="hidden sm:inline-block font-semibold text-[11px] text-slate-600 uppercase">
+                        Resultado:
+                      </label>
+                      <select
+                        className="border border-slate-300 rounded-md px-2 py-1 text-[11px] bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        value={valorSelect}
+                        onChange={(e) =>
+                          handleResultadoChange(camp, e.target.value)
+                        }
+                      >
+                        {RESULT_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Indicador de Acordeón */}
+                    <span className="text-[10px] font-bold text-slate-400">
+                      {openMobile[torneoKey] ? (
+                        <span className="flex items-center gap-1 text-blue-600">
+                          ▲
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1"> ▼</span>
+                      )}
+                    </span>
                   </div>
-                </div>
-
-                <div className="mt-2 flex items-center justify-between gap-2 sm:hidden">
-                  <div
-                    className="flex items-center gap-2 min-w-0"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <label className="font-medium whitespace-nowrap text-[11px]">
-                      Resultado:
-                    </label>
-
-                    <select
-                      className="border border-slate-300 rounded px-2 py-1 text-[11px] bg-white max-w-[150px]"
-                      value={valorSelect}
-                      onChange={(e) =>
-                        handleResultadoChange(camp, e.target.value)
-                      }
-                    >
-                      {RESULT_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <span className="text-[11px] font-medium text-slate-500">
-                    {openMobile[torneoKey] ? "▲" : "▼"}
-                  </span>
                 </div>
               </div>
 

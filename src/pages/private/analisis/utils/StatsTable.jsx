@@ -72,15 +72,15 @@ const StatsTable = ({ title, rows, colorize = true }) => {
       diff > 0
         ? "border-green-400 ring-green-300"
         : diff < 0
-        ? "border-red-400 ring-red-300"
-        : "border-yellow-400 ring-yellow-300";
+          ? "border-red-400 ring-red-300"
+          : "border-yellow-400 ring-yellow-300";
 
     const colorText =
       diff > 0
         ? "text-green-700"
         : diff < 0
-        ? "text-red-700"
-        : "text-amber-800";
+          ? "text-red-700"
+          : "text-amber-800";
 
     return (
       <td className={`px-1 py-1 border-b border-gray-100 text-center ${rowBg}`}>
@@ -143,7 +143,10 @@ const StatsTable = ({ title, rows, colorize = true }) => {
             const rowBg = getRowBg(r); // color para pj,g,e,p,gf,gc
 
             return (
-              <tr key={k} className={i % 2 === 0 ? "bg-white" : "bg-gray-100"}>
+              <tr
+                key={k}
+                className={`${i % 2 === 0 ? "bg-white" : "bg-gray-100"} ${r.pj === 0 ? "hidden" : ""}`}
+              >
                 {/* Tipo sin color de resultado (como en tu versión vieja) */}
                 <td className="px-2 py-1 border-b border-gray-100">{k}</td>
 

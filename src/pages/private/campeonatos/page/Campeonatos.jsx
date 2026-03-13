@@ -82,8 +82,6 @@ const Campeonatos = () => {
     return <Navigate to="/formacion" replace />;
   }
 
-
-
   return (
     <div className="p-1 max-w-screen-2xl mx-auto">
       <div className="flex items-center justify-center gap-4 mb-8">
@@ -143,7 +141,7 @@ const Campeonatos = () => {
           <table className="w-max text-[12px] md:text-sm border-separate border-spacing-px bg-white">
             <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
               <tr>
-                <th className="px-2 py-2 text-left border-b border-slate-200 w-[40px]">
+                <th className="px-2 py-2 text-left border-b border-slate-200 w-[35px]">
                   Campeonato
                 </th>
                 <th className="px-2 py-2 text-center border-b border-slate-200">
@@ -216,7 +214,7 @@ const Campeonatos = () => {
                   <React.Fragment key={clave}>
                     {/* GENERAL */}
                     <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
-                      <td className="px-3 py-1.5 font-semibold text-center text-slate-800">
+                      <td className="px-1 py-1.5 font-semibold text-center text-slate-800 w-[60px] leading-tight break-words">
                         {prettySafe(clave)}
                       </td>
                       <td className={`px-2 py-1 text-center ${colGen}`}>
@@ -252,13 +250,20 @@ const Campeonatos = () => {
                         />
                       </td>
 
-                      <td className={`px-2 py-1 text-center ${colGen}`}>
-                        {ptsG} / {poG} {efG}%
+                      <td className={`px-1 py-1 text-center ${colGen}`}>
+                        <div className="flex flex-col items-center justify-center min-w-[45px]">
+                          <span className="whitespace-nowrap font-medium">
+                            {ptsG}/{poG}
+                          </span>
+                          <span className="text-[10px] opacity-80">{efG}%</span>
+                        </div>
                       </td>
                     </tr>
 
-                    {/* LOCAL */}
-                    <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                    {/* LOCAL "border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors"*/}
+                    <tr
+                      className={`${r.local.pj === 0 ? "hidden" : ""} {"border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors"}`}
+                    >
                       <td className="px-3 py-1 text-right text-[10px] uppercase tracking-wide text-slate-600">
                         LOCAL
                       </td>
@@ -300,7 +305,9 @@ const Campeonatos = () => {
                     </tr>
 
                     {/* VISITANTE */}
-                    <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                    <tr
+                      className={`${r.visitante.pj === 0 ? "hidden" : ""} border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors`}
+                    >
                       <td className="px-3 py-1 text-right text-[10px] uppercase tracking-wide text-slate-600">
                         VISITANTE
                       </td>

@@ -40,7 +40,7 @@ export const badgeClass = (outcome) => {
   if (outcome === "GANADO")
     return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (outcome === "PERDIDO") return "border-rose-200 bg-rose-50 text-rose-700";
-  return "border-slate-200 bg-slate-50 text-slate-700";
+  return "border-amber-200 bg-amber-50 text-amber-700";
 };
 
 export const prettyCondition = (c) => {
@@ -120,9 +120,9 @@ export const numColor = (n) => {
 
 export const pillBg = (n) => {
   const v = Number(n ?? 0);
- if (v > 0) return "bg-emerald-50 border-emerald-500 border-2";
- if (v < 0) return "bg-rose-50 border-rose-500";
- return "bg-slate-50 border-slate-500";
+  if (v > 0) return "bg-emerald-50 border-emerald-500 border-2";
+  if (v < 0) return "bg-rose-50 border-rose-500";
+  return "bg-slate-50 border-slate-500";
 };
 
 export const getTorneoDisplay = (match, torneosConfig) => {
@@ -183,11 +183,10 @@ export const getScoreDisplay = (m) => {
 };
 
 export const cardBorderClass = (m) => {
-  const o = getOutcome(m); // "GANADO" | "EMPATADO" | "PERDIDO"
-
-  if (o === "GANADO") return "border-emerald-400";
-  if (o === "PERDIDO") return "border-red-400";
-  return "border-amber-400";
+  const o = getOutcome(m);
+  if (o === "GANADO") return "border-2 border-emerald-400";
+  if (o === "PERDIDO") return "border-2 border-red-400";
+  return "border-2 border-amber-400";
 };
 
 // ------------------------------
@@ -252,15 +251,14 @@ export const buildRanking = (matches, getter) => {
   });
 
   return Array.from(map.values()).sort(
-    (a, b) => b.goals - a.goals || a.name.localeCompare(b.name)
+    (a, b) => b.goals - a.goals || a.name.localeCompare(b.name),
   );
 };
 
-export const getPlayedPlayers = (m) => {  
+export const getPlayedPlayers = (m) => {
   const starters = Array.isArray(m?.starters) ? m.starters : [];
-  const subs = Array.isArray(m?.subs) ? m.subs : []; 
+  const subs = Array.isArray(m?.subs) ? m.subs : [];
 
-  
   const toName = (x) => {
     if (!x) return "";
     if (typeof x === "string") return x;
@@ -268,6 +266,6 @@ export const getPlayedPlayers = (m) => {
     return String(x).trim();
   };
 
-  const played = [...starters, ...subs].map(toName).filter(Boolean); 
+  const played = [...starters, ...subs].map(toName).filter(Boolean);
   return Array.from(new Set(played.map((n) => normalizeName(n))));
 };
