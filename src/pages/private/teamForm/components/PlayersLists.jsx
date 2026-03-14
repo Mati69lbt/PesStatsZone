@@ -20,12 +20,18 @@ const PlayersLists = ({
 }) => {
   if (!Array.isArray(players) || players.length === 0) return null;
   const [showRemoveControls, setShowRemoveControls] = useState(false);
+  const [isPlayersOpen, setIsPlayersOpen] = useState(false);
 
   return (
     <div className="mt-4">
       <div className="flex items-baseline justify-between">
         <div className="flex items-baseline gap-2">
-          <h2 className="text-lg font-semibold">Jugadores añadidos</h2>
+          <h2
+            className="text-lg font-semibold"
+            onClick={() => setIsPlayersOpen(!isPlayersOpen)}
+          >
+            Jugadores añadidos
+          </h2>
 
           {/* Icono para mostrar/ocultar cruces rojas */}
           <button
@@ -46,72 +52,91 @@ const PlayersLists = ({
           </button>
         </div>
 
-        <span className="text-sm text-gray-500">Total: {players.length}</span>
+        <span className="text-sm text-gray-500">
+          {players.length} Jugadores
+        </span>
+        <span
+          className={`text-slate-400 transition-transform duration-300 ${isPlayersOpen ? "rotate-180" : ""}`}
+        >
+          ▼
+        </span>
       </div>
 
-      <div className="mt-2 grid grid-cols-2 md:grid-cols-9 gap-1.5">
-        {[...players]
-          .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }))
-          .map((player) => (
-            <div
-              key={player}
-              className="flex items-center justify-between rounded-md bg-gray-50 border border-gray-200 px-2 py-1.5 hover:bg-gray-100"
-            >
-              <span
-                className="truncate text-gray-800"
-                title={pretty(player)} // tooltip en desktop
-              >
-                {pretty(player)}
-              </span>
-
-              <div className="flex items-center space-x-1">
-                <button
-                  type="button"
-                  className="md:hidden text-gray-400 hover:text-gray-600  h-6 w-6"
-                  aria-label="Ver nombre completo"
-                  onClick={() => Notiflix.Notify.info(pretty(player))}
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          isPlayersOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="p-2 border-t border-slate-100 bg-white">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            {[...players]
+              .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }))
+              .map((player) => (
+                <div
+                  key={player}
+                  className="flex items-center justify-between rounded-md bg-gray-50 border border-gray-200 px-2 py-1.5 hover:bg-gray-100"
                 >
-                  ℹ️
-                </button>
-
-                {/* ✅ La X roja sólo aparece si activás el icono */}
-                {showRemoveControls && (
-                  <button
-                    type="button"
-                    aria-label={`Eliminar ${pretty(player)}`}
-                    title="Eliminar"
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-700"
-                    onClick={() => {
-                      Notiflix.Confirm.show(
-                        "Confirmar eliminación",
-                        `¿Querés eliminar a ${pretty(player)}?`,
-                        "Sí, eliminar",
-                        "Cancelar",
-                        () => {
-                          if (selectedOption === player) {
-                            dispatch({
-                              type: LINEUP_SET_SELECTED,
-                              payload: "",
-                            });
-                          }
-                          dispatch({
-                            type: PLAYERS_REMOVE,
-                            payload: { name: player },
-                          });
-                          Notiflix.Notify.success("Jugador eliminado");
-                        },
-                        () => {
-                          // cancelado (no hace nada)
-                        },
-                      );
-                    }}
+                  <span
+                    className="truncate text-gray-800"
+                    title={pretty(player)} // tooltip en desktop
                   >
-                    <img src={trash} alt="Borrar Jugador" className="h-6 w-6" />
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+                    {pretty(player)}
+                  </span>
+
+                  <div className="flex items-center space-x-1">
+                    <button
+                      type="button"
+                      className="md:hidden text-gray-400 hover:text-gray-600  h-6 w-6"
+                      aria-label="Ver nombre completo"
+                      onClick={() => Notiflix.Notify.info(pretty(player))}
+                    >
+                      ℹ️
+                    </button>
+
+                    {/* ✅ La X roja sólo aparece si activás el icono */}
+                    {showRemoveControls && (
+                      <button
+                        type="button"
+                        aria-label={`Eliminar ${pretty(player)}`}
+                        title="Eliminar"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-full text-red-600 hover:bg-red-50 hover:text-red-700"
+                        onClick={() => {
+                          Notiflix.Confirm.show(
+                            "Confirmar eliminación",
+                            `¿Querés eliminar a ${pretty(player)}?`,
+                            "Sí, eliminar",
+                            "Cancelar",
+                            () => {
+                              if (selectedOption === player) {
+                                dispatch({
+                                  type: LINEUP_SET_SELECTED,
+                                  payload: "",
+                                });
+                              }
+                              dispatch({
+                                type: PLAYERS_REMOVE,
+                                payload: { name: player },
+                              });
+                              Notiflix.Notify.success("Jugador eliminado");
+                            },
+                            () => {
+                              // cancelado (no hace nada)
+                            },
+                          );
+                        }}
+                      >
+                        <img
+                          src={trash}
+                          alt="Borrar Jugador"
+                          className="h-6 w-6"
+                        />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
       </div>
 
       <button

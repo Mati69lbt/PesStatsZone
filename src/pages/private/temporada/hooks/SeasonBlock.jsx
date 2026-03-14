@@ -27,7 +27,7 @@ const ringBySign = (n) => {
 };
 
 const CircleValue = ({ value, title }) => {
-   const shown = typeof value === "number" ? Math.abs(value) : value;
+  const shown = typeof value === "number" ? Math.abs(value) : value;
   return (
     <span
       className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringBySign(
@@ -103,6 +103,14 @@ const SeasonBlock = ({
   mode = "anual",
 }) => {
   const [data, setData] = useState(null);
+  const [open, setOpen] = useState({});
+
+  const toggleTemporada = (temp) => {
+    setOpen((prev) => ({
+      ...prev,
+      [temp]: !prev[temp],
+    }));
+  };
 
   useEffect(() => {
     if (!bucket) return;
@@ -132,249 +140,274 @@ const SeasonBlock = ({
 
   const clubLabel = bucket?.clubName ? bucket.clubName : pretty(clubKey);
 
-  // Ajuste fino para MOBILE: achicar la 1ra columna (Bloque/General/Local/Visitante)
-  // y evitar que algunas tablas queden un poquito más anchas que otras.
-  // No afecta el bloque DESKTOP (lg:block) porque solo se usa dentro del layout mobile.
   const COL_BLOQUE_W = "w-[60px] max-w-[60px]";
   const COL_BLOQUE_TH = `px-1.5 py-2 ${COL_BLOQUE_W} text-left border-b border-slate-200`;
   const COL_BLOQUE_TD = `px-1.5 py-1 ${COL_BLOQUE_W} text-left text-[10px] uppercase tracking-wide text-slate-600 whitespace-nowrap`;
 
   return (
-    <div className="m-2 space-y-3">
+    <div className="m-1 space-y-1">
       {temporadasDesc.map((temp) => {
         const rTemp = resumenPorTemporada[temp];
         if (!rTemp) return null;
+        const isOpen = open[temp];
 
         const caps = Array.isArray(captainsOrdenados) ? captainsOrdenados : [];
         const tripleSeason = rTemp.general || emptyTriple();
 
         return (
           <React.Fragment key={`${clubKey}-${temp}`}>
-            {/* MOBILE */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-evenly sm:gap-6">
-              <div className="lg:hidden max-h-full overflow-auto overflow-x-auto border border-slate-200 rounded-lg bg-white shadow-sm">
-                <table className="w-full text-[11px] border-collapse">
-                  <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
-                    <tr>
-                      <th
-                        className="px-2 py-2 w-[76px] max-w-[76px] text-center border-b border-slate-200"
-                        colSpan={10}
-                      >
-                        {temp} · {clubLabel}
-                      </th>
-                    </tr>
-                    <tr>
-                      <th className={COL_BLOQUE_TH}>Bloque</th>
-                      {metricas.map((m) => (
-                        <th
-                          key={`head-${m}`}
-                          className="px-2 py-2 text-center border-b border-slate-200"
-                        >
-                          {m}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
+            <div
+              key={`${clubKey}-${temp}`}
+              className="border border-slate-200 rounded-lg bg-white shadow-sm overflow-hidden"
+            >
+              <button
+                onClick={() => toggleTemporada(temp)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-sky-50 text-slate-700 hover:bg-sky-100 transition-colors"
+              >
+                <span className="font-bold text-sm uppercase tracking-wider">
+                  {temp} · {clubLabel}
+                </span>
+                <span
+                  className={`transform transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                >
+                  ▼
+                </span>
+              </button>
 
-                  <tbody>
-                    {/* Temporada - General */}
-                    <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
-                      <td
-                        className={`px-1.5 py-1.5 ${COL_BLOQUE_W} font-semibold text-left text-slate-800 whitespace-nowrap`}
-                      >
-                        General
-                      </td>
-                      {renderStatsCells(tripleSeason.General)}
-                    </tr>
-
-                    {/* Temporada - Local */}
-                    <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                      <td className={COL_BLOQUE_TD}>Local</td>
-                      {renderStatsCells(tripleSeason.Local)}
-                    </tr>
-
-                    {/* Temporada - Visitante */}
-                    <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                      <td className={COL_BLOQUE_TD}>Visitante</td>
-                      {renderStatsCells(tripleSeason.Visitante)}
-                    </tr>
-
-                    {/* Temporada - Neutral (solo si hay PJ) */}
-                    {(tripleSeason?.Neutral?.pj ?? 0) > 0 ? (
-                      <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                        <td className={COL_BLOQUE_TD}>Neutral</td>
-                        {renderStatsCells(tripleSeason.Neutral)}
-                      </tr>
-                    ) : null}
-
-                    {/* Bloques por capitán */}
-                    {caps.map((cap) => {
-                      const tripleCap = rTemp.capitanes?.[cap] || emptyTriple();
-                      return (
-                        <React.Fragment key={`${temp}-${cap}`}>
-                          <tr className="border-t border-slate-200 bg-white hover:bg-slate-50/80 transition-colors">
-                            <td
-                              className={`px-1.5 py-1.5 ${COL_BLOQUE_W} font-semibold text-left text-slate-800 whitespace-nowrap truncate`}
-                              title={pretty(cap)}
+              <div
+                className={`transition-all duration-300 ease-in-out ${
+                  isOpen
+                    ? "max-h-[3000px] opacity-100 border-t border-slate-200"
+                    : "max-h-0 opacity-0 pointer-events-none overflow-hidden"
+                }`}
+              >
+                <div className="flex flex-col gap-3 p-1 w-full">
+                  {/* TABLA MOBILE (Sacamos el botón de adentro del thead) */}
+                  <div className="lg:hidden w-full overflow-x-auto border border-slate-200 rounded-lg bg-white shadow-sm">
+                    <table className="w-full text-[11px] border-collapse">
+                      <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
+                        <tr>
+                          <th
+                            className="px-2 py-2 w-[76px] max-w-[76px] text-center border-b border-slate-200"
+                            colSpan={10}
+                          ></th>
+                        </tr>
+                        <tr>
+                          <th className={COL_BLOQUE_TH}>Bloque</th>
+                          {metricas.map((m) => (
+                            <th
+                              key={`head-${m}`}
+                              className="px-2 py-2 text-center border-b border-slate-200"
                             >
-                              {pretty(cap)}
-                            </td>
-                            {renderStatsCells(tripleCap.General)}
-                          </tr>
+                              {m}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
 
+                      <tbody>
+                        {/* Temporada - General */}
+                        <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
+                          <td
+                            className={`px-1.5 py-1.5 ${COL_BLOQUE_W} font-semibold text-left text-slate-800 whitespace-nowrap`}
+                          >
+                            General
+                          </td>
+                          {renderStatsCells(tripleSeason.General)}
+                        </tr>
+
+                        {/* Temporada - Local */}
+                        <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                          <td className={COL_BLOQUE_TD}>Local</td>
+                          {renderStatsCells(tripleSeason.Local)}
+                        </tr>
+
+                        {/* Temporada - Visitante */}
+                        <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                          <td className={COL_BLOQUE_TD}>Visitante</td>
+                          {renderStatsCells(tripleSeason.Visitante)}
+                        </tr>
+
+                        {/* Temporada - Neutral (solo si hay PJ) */}
+                        {(tripleSeason?.Neutral?.pj ?? 0) > 0 ? (
                           <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                            <td className="px-2 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                              Local
-                            </td>
-                            {renderStatsCells(tripleCap.Local)}
+                            <td className={COL_BLOQUE_TD}>Neutral</td>
+                            {renderStatsCells(tripleSeason.Neutral)}
                           </tr>
+                        ) : null}
 
-                          <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                            <td className="px-2 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                              Visitante
-                            </td>
-                            {renderStatsCells(tripleCap.Visitante)}
-                          </tr>
+                        {/* Bloques por capitán */}
+                        {caps.map((cap) => {
+                          const tripleCap =
+                            rTemp.capitanes?.[cap] || emptyTriple();
+                          return (
+                            <React.Fragment key={`${temp}-${cap}`}>
+                              <tr className="border-t border-slate-200 bg-white hover:bg-slate-50/80 transition-colors">
+                                <td
+                                  className={`px-1.5 py-1.5 ${COL_BLOQUE_W} font-semibold text-left text-slate-800 whitespace-nowrap truncate`}
+                                  title={pretty(cap)}
+                                >
+                                  {pretty(cap)}
+                                </td>
+                                {renderStatsCells(tripleCap.General)}
+                              </tr>
 
-                          {(tripleCap?.Neutral?.pj ?? 0) > 0 ? (
-                            <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
-                              <td className="px-2 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
-                                Neutral
+                              <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                                <td className="px-2 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                                  Local
+                                </td>
+                                {renderStatsCells(tripleCap.Local)}
+                              </tr>
+
+                              <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                                <td className="px-2 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                                  Visitante
+                                </td>
+                                {renderStatsCells(tripleCap.Visitante)}
+                              </tr>
+
+                              {(tripleCap?.Neutral?.pj ?? 0) > 0 ? (
+                                <tr className="border-t border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition-colors">
+                                  <td className="px-2 py-1 text-left text-[10px] uppercase tracking-wide text-slate-600">
+                                    Neutral
+                                  </td>
+                                  {renderStatsCells(tripleCap.Neutral)}
+                                </tr>
+                              ) : null}
+                            </React.Fragment>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* DESKTOP */}
+                <div className="hidden lg:block max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
+                  <table className="mx-auto w-full min-w-[860px] text-[11px] md:text-sm border-collapse">
+                    <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] md:text-xs uppercase tracking-wide">
+                      <tr>
+                        <th className="px-2 py-2 w-28 whitespace-nowrap text-left border-b border-slate-200">
+                          Temporada
+                        </th>
+                        <th
+                          className="px-2 py-2 text-center border-b border-slate-200"
+                          colSpan={metricas.length * 2}
+                        >
+                          {clubLabel}
+                        </th>
+                      </tr>
+                      <tr>
+                        <th className="px-2 py-1 text-center border-b border-slate-200"></th>
+                        {metricas.map((m) => (
+                          <th
+                            key={`G-${m}`}
+                            className="px-2 py-1 text-center border-b border-slate-200"
+                          >
+                            {m}
+                          </th>
+                        ))}
+                        {metricas.map((m) => (
+                          <th
+                            key={`N-${m}`}
+                            className="px-2 py-1 text-center border-b border-slate-200"
+                          >
+                            {m} N
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <tr className="bg-white border-t border-slate-100 hover:bg-slate-50/70 transition-colors">
+                        <td className="border-r border-slate-200 font-semibold text-center">
+                          {temp}
+                        </td>
+                        <FilaDatos
+                          triple={rTemp.general}
+                          orden={["General", "Neutral"]}
+                        />
+                      </tr>
+
+                      <tr className="bg-slate-50">
+                        <td className="border-r border-slate-200 px-2 py-1 text-center text-[10px] uppercase text-slate-600">
+                          Condición
+                        </td>
+                        {metricas.map((m) => (
+                          <th
+                            key={`L-${m}`}
+                            className="border border-black px-2 py-1 text-center text-[12px]"
+                          >
+                            {m} L
+                          </th>
+                        ))}
+                        {metricas.map((m) => (
+                          <th
+                            key={`V-${m}`}
+                            className="border border-black px-2 py-1 text-center text-[12px]"
+                          >
+                            {m} V
+                          </th>
+                        ))}
+                      </tr>
+
+                      <tr className="bg-white border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
+                        <td className="border-r border-slate-200 px-2 py-1 text-center text-[10px] uppercase text-slate-600">
+                          Totales
+                        </td>
+                        <FilaDatos
+                          triple={rTemp.general}
+                          orden={["Local", "Visitante"]}
+                        />
+                      </tr>
+
+                      {caps.map((cap) => {
+                        const tripleCap =
+                          rTemp.capitanes?.[cap] || emptyTriple();
+                        return (
+                          <React.Fragment key={`${temp}-${cap}`}>
+                            <tr className="bg-slate-100 border-t border-slate-200">
+                              <td className="border-r border-slate-200 font-semibold px-2 py-1 text-left">
+                                {pretty(cap)}
                               </td>
-                              {renderStatsCells(tripleCap.Neutral)}
+                              <BloqueHeader
+                                etiquetas={["General", "Neutral"]}
+                                sufijos={["", " N"]}
+                              />
                             </tr>
-                          ) : null}
-                        </React.Fragment>
-                      );
-                    })}
-                  </tbody>
-                </table>
+
+                            <tr className="bg-white hover:bg-slate-50/70 transition-colors">
+                              <td className="border-r border-slate-200 px-2 py-1"></td>
+                              <FilaDatos
+                                triple={tripleCap}
+                                orden={["General", "Neutral"]}
+                              />
+                            </tr>
+
+                            <tr className="bg-slate-50">
+                              <td className="border-r border-slate-200 px-2 py-1 text-[10px] uppercase text-slate-600">
+                                Condición
+                              </td>
+                              <BloqueHeader
+                                etiquetas={["Local", "Visitante"]}
+                                sufijos={[" L", " V"]}
+                              />
+                            </tr>
+
+                            <tr className="bg-white border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
+                              <td className="border-r border-slate-200 px-2 py-1"></td>
+                              <FilaDatos
+                                triple={tripleCap}
+                                orden={["Local", "Visitante"]}
+                              />
+                            </tr>
+                          </React.Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-
-            {/* DESKTOP */}
-            <div className="hidden lg:block max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
-              <table className="mx-auto w-full min-w-[860px] text-[11px] md:text-sm border-collapse">
-                <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] md:text-xs uppercase tracking-wide">
-                  <tr>
-                    <th className="px-2 py-2 w-28 whitespace-nowrap text-left border-b border-slate-200">
-                      Temporada
-                    </th>
-                    <th
-                      className="px-2 py-2 text-center border-b border-slate-200"
-                      colSpan={metricas.length * 2}
-                    >
-                      {clubLabel}
-                    </th>
-                  </tr>
-                  <tr>
-                    <th className="px-2 py-1 text-center border-b border-slate-200"></th>
-                    {metricas.map((m) => (
-                      <th
-                        key={`G-${m}`}
-                        className="px-2 py-1 text-center border-b border-slate-200"
-                      >
-                        {m}
-                      </th>
-                    ))}
-                    {metricas.map((m) => (
-                      <th
-                        key={`N-${m}`}
-                        className="px-2 py-1 text-center border-b border-slate-200"
-                      >
-                        {m} N
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr className="bg-white border-t border-slate-100 hover:bg-slate-50/70 transition-colors">
-                    <td className="border-r border-slate-200 font-semibold text-center">
-                      {temp}
-                    </td>
-                    <FilaDatos
-                      triple={rTemp.general}
-                      orden={["General", "Neutral"]}
-                    />
-                  </tr>
-
-                  <tr className="bg-slate-50">
-                    <td className="border-r border-slate-200 px-2 py-1 text-center text-[10px] uppercase text-slate-600">
-                      Condición
-                    </td>
-                    {metricas.map((m) => (
-                      <th
-                        key={`L-${m}`}
-                        className="border border-black px-2 py-1 text-center text-[12px]"
-                      >
-                        {m} L
-                      </th>
-                    ))}
-                    {metricas.map((m) => (
-                      <th
-                        key={`V-${m}`}
-                        className="border border-black px-2 py-1 text-center text-[12px]"
-                      >
-                        {m} V
-                      </th>
-                    ))}
-                  </tr>
-
-                  <tr className="bg-white border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
-                    <td className="border-r border-slate-200 px-2 py-1 text-center text-[10px] uppercase text-slate-600">
-                      Totales
-                    </td>
-                    <FilaDatos
-                      triple={rTemp.general}
-                      orden={["Local", "Visitante"]}
-                    />
-                  </tr>
-
-                  {caps.map((cap) => {
-                    const tripleCap = rTemp.capitanes?.[cap] || emptyTriple();
-                    return (
-                      <React.Fragment key={`${temp}-${cap}`}>
-                        <tr className="bg-slate-100 border-t border-slate-200">
-                          <td className="border-r border-slate-200 font-semibold px-2 py-1 text-left">
-                            {pretty(cap)}
-                          </td>
-                          <BloqueHeader
-                            etiquetas={["General", "Neutral"]}
-                            sufijos={["", " N"]}
-                          />
-                        </tr>
-
-                        <tr className="bg-white hover:bg-slate-50/70 transition-colors">
-                          <td className="border-r border-slate-200 px-2 py-1"></td>
-                          <FilaDatos
-                            triple={tripleCap}
-                            orden={["General", "Neutral"]}
-                          />
-                        </tr>
-
-                        <tr className="bg-slate-50">
-                          <td className="border-r border-slate-200 px-2 py-1 text-[10px] uppercase text-slate-600">
-                            Condición
-                          </td>
-                          <BloqueHeader
-                            etiquetas={["Local", "Visitante"]}
-                            sufijos={[" L", " V"]}
-                          />
-                        </tr>
-
-                        <tr className="bg-white border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
-                          <td className="border-r border-slate-200 px-2 py-1"></td>
-                          <FilaDatos
-                            triple={tripleCap}
-                            orden={["Local", "Visitante"]}
-                          />
-                        </tr>
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
             </div>
           </React.Fragment>
         );
