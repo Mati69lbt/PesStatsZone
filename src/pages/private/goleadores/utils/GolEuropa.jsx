@@ -61,12 +61,14 @@ const VerticalTable = ({ title, list }) => {
   const totalGoles = (list || []).reduce((acc, x) => acc + (x.goals || 0), 0);
 
   return (
-    <div className="w-max rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="px-3 py-2 border-b border-slate-200 text-[10px] font-semibold tracking-wide text-center uppercase text-slate-800 bg-emerald-50">
+    <div
+      className={`w-full rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden`}
+    >
+      <div className="px-2 py-2 border-b border-slate-200 text-[10px] font-semibold text-center uppercase bg-emerald-50">
         {title}
       </div>
 
-      <table className="w-full text-[11px] border-collapse">
+      <table className="w-max text-[11px] border-collapse">
         <tbody>
           {!list || list.length === 0 ? (
             <tr>
@@ -214,25 +216,33 @@ const GolEuropa = ({
               : "max-h-0 opacity-0 pointer-events-none"
           }`}
         >
-          <div
-            className={`${className} flex flex-wrap items-start justify-center gap-4 px-2`}
-          >
-            {/* Tabla Principal */}
-            <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
-
-            {/* Tablas Local/Visitante opcionales */}
-            {showHomeAway && (
-              <div className="flex flex-col gap-4">
+          <div className={`${className} px-2`}>
+            {/* El grid principal que separa General de (Local/Visitante) */}
+            <div className="grid grid-cols-2 gap-2 items-start">
+              {/* Columna Izquierda: Tabla General */}
+              <div className="min-w-0 w-full">
                 <VerticalTable
-                  title={`Local ${yearsLabel}`}
-                  list={listaLocal}
-                />
-                <VerticalTable
-                  title={`Visitante ${yearsLabel}`}
-                  list={listaVisitante}
+                  title={`Goleadores ${yearsLabel}`}
+                  list={lista}
                 />
               </div>
-            )}
+
+              {/* Columna Derecha: Local y Visitante apilados */}
+              {showHomeAway && (
+                <div className="min-w-0 grid grid-rows-2 gap-2">
+                  <VerticalTable
+                    title={`Local ${yearsLabel}`}
+                    list={listaLocal}
+                    className="w-full"
+                  />
+                  <VerticalTable
+                    title={`Visitante ${yearsLabel}`}
+                    list={listaVisitante}
+                    className="w-full"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -241,7 +251,7 @@ const GolEuropa = ({
 
   // Si alguna vez lo usás horizontal, lo dejamos simple (misma data)
   return (
-    <div className={`mt-4 ${className}`}>
+    <div className={`mt-2 ${className}`}>
       <div className="w-full text-center text-[15px] font-semibold tracking-wide uppercase text-slate-800">
         Temporada {yearsLabel}
       </div>

@@ -45,7 +45,7 @@ const Bolitas = ({ lista = [] }) => {
         {lista.map((p, idx) => {
           const key = p.id ?? `${p.fecha}-${p.rival}-${idx}`;
           const isOpen = openKey === key;
-          const rival = String(p.rival || "").trim() || "—";
+          const rival = String(pretty(p.rival) || "").trim() || "—";
           const condition = p.esLocal === true ? "Local" : "Visitante";
           const gf = p.golesFavor;
           const gc = p.golesContra;

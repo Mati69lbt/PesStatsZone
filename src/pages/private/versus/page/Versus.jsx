@@ -37,80 +37,80 @@ const Versus = () => {
 
   useUserData(uid, matchDispatch, lineupDispatch);
 
-   const lineupsObj = lineupState?.lineups || {};
-   const activeClubFromState = lineupState?.activeClub || "";
-   const clubs = Object.keys(lineupsObj);
-   const lineupsReady = clubs.length > 0;
+  const lineupsObj = lineupState?.lineups || {};
+  const activeClubFromState = lineupState?.activeClub || "";
+  const clubs = Object.keys(lineupsObj);
+  const lineupsReady = clubs.length > 0;
 
-   // --- estados ---
-   const [selectedClub, setSelectedClub] = useState(
-     activeClubFromState || clubs[0] || "",
-   );
+  // --- estados ---
+  const [selectedClub, setSelectedClub] = useState(
+    activeClubFromState || clubs[0] || "",
+  );
 
-   const [ordenAmbito, setOrdenAmbito] = useState("general");
-   const [ordenCampo, setOrdenCampo] = useState("rival");
-   const [ordenDireccion, setOrdenDireccion] = useState("asc");
+  const [ordenAmbito, setOrdenAmbito] = useState("general");
+  const [ordenCampo, setOrdenCampo] = useState("rival");
+  const [ordenDireccion, setOrdenDireccion] = useState("asc");
 
-   // --- “espera” para hidratación async (evita redirección en renders vacíos) ---
-   const [graceDone, setGraceDone] = useState(false);
-   const [lineupsLoadedOnce, setLineupsLoadedOnce] = useState(false);
+  // --- “espera” para hidratación async (evita redirección en renders vacíos) ---
+  const [graceDone, setGraceDone] = useState(false);
+  const [lineupsLoadedOnce, setLineupsLoadedOnce] = useState(false);
 
-   useEffect(() => {
-     const t = setTimeout(() => setGraceDone(true), 1200);
-     return () => clearTimeout(t);
-   }, []);
+  useEffect(() => {
+    const t = setTimeout(() => setGraceDone(true), 1200);
+    return () => clearTimeout(t);
+  }, []);
 
-   useEffect(() => {
-     if (lineupsReady) setLineupsLoadedOnce(true);
-   }, [lineupsReady]);
+  useEffect(() => {
+    if (lineupsReady) setLineupsLoadedOnce(true);
+  }, [lineupsReady]);
 
-   // --- sincronizar selectedClub cuando llega activeClub o clubs async ---
-   useEffect(() => {
-     if (selectedClub) return;
-     if (activeClubFromState) return setSelectedClub(activeClubFromState);
-     if (clubs[0]) setSelectedClub(clubs[0]);
-   }, [activeClubFromState, clubs.join("|"), selectedClub]);
+  // --- sincronizar selectedClub cuando llega activeClub o clubs async ---
+  useEffect(() => {
+    if (selectedClub) return;
+    if (activeClubFromState) return setSelectedClub(activeClubFromState);
+    if (clubs[0]) setSelectedClub(clubs[0]);
+  }, [activeClubFromState, clubs.join("|"), selectedClub]);
 
-   // --- club/bucket ---
-   const clubKey = normalizeName(selectedClub || "");
-   const bucket = clubKey ? lineupsObj?.[clubKey] : null;
-   const bucketReady = !!bucket && Object.keys(bucket).length > 0;
+  // --- club/bucket ---
+  const clubKey = normalizeName(selectedClub || "");
+  const bucket = clubKey ? lineupsObj?.[clubKey] : null;
+  const bucketReady = !!bucket && Object.keys(bucket).length > 0;
 
-   // ✅ IMPORTANTE: hooks SIEMPRE se ejecutan (con defaults seguros)
-   const matchesBase = Array.isArray(bucket?.matches) ? bucket.matches : [];
+  // ✅ IMPORTANTE: hooks SIEMPRE se ejecutan (con defaults seguros)
+  const matchesBase = Array.isArray(bucket?.matches) ? bucket.matches : [];
 
-   const { torneoSel, setTorneoSel, torneoOptions, matchesFiltrados } =
-     useFiltroTorneo(matchesBase);
+  const { torneoSel, setTorneoSel, torneoOptions, matchesFiltrados } =
+    useFiltroTorneo(matchesBase);
 
-   const matches = matchesFiltrados;
+  const matches = matchesFiltrados;
 
-   const captains = useCaptainsMemo(matches);
-   const resumenes = useResumenesMemo(matches);
-   const estadisticas = useEstadisticasMemo(
-     resumenes,
-     ordenAmbito,
-     ordenCampo,
-     ordenDireccion,
-   );
+  const captains = useCaptainsMemo(matches);
+  const resumenes = useResumenesMemo(matches);
+  const estadisticas = useEstadisticasMemo(
+    resumenes,
+    ordenAmbito,
+    ordenCampo,
+    ordenDireccion,
+  );
 
-   const columnas = useMemo(
-     () => ["general", "local", "visitante", ...captains],
-     [captains],
-   );
+  const columnas = useMemo(
+    () => ["general", "local", "visitante", ...captains],
+    [captains],
+  );
 
-   // --- decisiones de UI / navegación (recién después de hooks) ---
-   const shouldShowLoading = !lineupsLoadedOnce || !graceDone;
-   const shouldGoToFormacion = !shouldShowLoading && (!clubKey || !bucketReady);
+  // --- decisiones de UI / navegación (recién después de hooks) ---
+  const shouldShowLoading = !lineupsLoadedOnce || !graceDone;
+  const shouldGoToFormacion = !shouldShowLoading && (!clubKey || !bucketReady);
 
-   if (shouldShowLoading) {
-     return (
-       <div className="p-4 text-center text-slate-600">Cargando datos...</div>
-     );
-   }
+  if (shouldShowLoading) {
+    return (
+      <div className="p-4 text-center text-slate-600">Cargando datos...</div>
+    );
+  }
 
-   if (shouldGoToFormacion) {
-     return <Navigate to="/formacion" replace />;
-   }
+  if (shouldGoToFormacion) {
+    return <Navigate to="/formacion" replace />;
+  }
 
   return (
     <div className="p-2 max-w-7xl mx-auto">
@@ -259,12 +259,16 @@ const Versus = () => {
               </tr>
             ) : (
               estadisticas.map(([rival, stats], index) => {
-                const rivalText =
+                const rawRival =
                   typeof rival === "string"
                     ? rival.trim().replace(/\s+/g, " ")
                     : String(rival ?? "Sin Rival");
 
-                const rivalKey = normalizeName(rivalText) || `rival-${index}`;
+                // Usamos una sola constante para el texto final formateado
+                const rivalText = pretty(rawRival);
+
+                // La clave (key) usa el texto formateado o un fallback si está vacío
+                const rivalKey = rivalText || `rival-${index}`;
 
                 const rivalCell = (
                   <div style={{ lineHeight: "1.2", padding: "4px 0" }}>

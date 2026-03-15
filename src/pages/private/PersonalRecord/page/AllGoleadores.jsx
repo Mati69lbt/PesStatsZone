@@ -146,7 +146,7 @@ const AllGoleadores = () => {
                       {pretty(r.name)}
                     </div>
                     {/* opcional: subtítulo más chico */}
-                    <div className="text-xs text-slate-500 ">{r.team}</div>
+                    <div className="text-xs text-slate-500 ">{pretty(r.team)}</div>
                   </div>
 
                   {/* PJ */}

@@ -248,87 +248,85 @@ const TopGoleadores = ({
   // fin vertical
 
   // HORIZONTAL (default)
-  return (
-    <div className={`mt-4 ${className} md:hidden sm:hidden lg:block`}>
-      <div className="w-full">
-        {/* Título */}
-        <div className="mb-2">
-          <div className="w-full text-center text-[15px] font-semibold tracking-wide uppercase text-slate-800">
-            Goleadores {yearsLabel}
-          </div>
-        </div>
+ return (
+   <div className={`${className} mt-4 hidden lg:block`}>
+     {/* Título */}
+     <div className="mb-2">
+       <div className="w-full text-center text-[15px] font-semibold tracking-wide uppercase text-slate-800">
+         Goleadores {yearsLabel}
+       </div>
+     </div>
 
-        {/* Tabla */}
-        <div className="overflow-x-auto rounded-lg border border-slate-400 bg-white">
-          <table className="w-full min-w-max text-[11px] border-collapse">
-            <tbody>
-              {/* Fila 1: ranking */}
-              <tr className="bg-sky-50 border-b border-slate-400">
-                {lista.map((j, i) => {
-                  const { icon } = rankStyles(i);
-                  const isLast = i === lista.length - 1;
+     {/* Tabla */}
+     <div className="rounded-lg border border-slate-400 bg-white overflow-hidden">
+       <table className="w-full table-fixed text-[11px] border-collapse">
+         <tbody>
+           {/* Fila 1: ranking */}
+           <tr className="bg-sky-50 border-b border-slate-400">
+             {lista.map((j, i) => {
+               const { icon } = rankStyles(i);
+               const isLast = i === lista.length - 1;
 
-                  return (
-                    <td
-                      key={`r-${j.name}`}
-                      className={
-                        "px-3 py-2 text-center whitespace-nowrap font-semibold text-slate-700" +
-                        (!isLast ? " border-r border-white/70" : "")
-                      }
-                    >
-                      {icon}
-                    </td>
-                  );
-                })}
-              </tr>
+               return (
+                 <td
+                   key={`r-${j.name}`}
+                   className={
+                     "px-3 py-2 text-center whitespace-nowrap font-semibold text-slate-700" +
+                     (!isLast ? " border-r border-white/70" : "")
+                   }
+                 >
+                   {icon}
+                 </td>
+               );
+             })}
+           </tr>
 
-              {/* Fila 2: goles */}
-              <tr className="border-b border-slate-100">
-                {lista.map((j, i) => {
-                  const isLast = i === lista.length - 1;
+           {/* Fila 2: goles */}
+           <tr className="border-b border-slate-100">
+             {lista.map((j, i) => {
+               const isLast = i === lista.length - 1;
 
-                  return (
-                    <td
-                      key={`g-${j.name}`}
-                      className={
-                        "px-2 py-2 text-center whitespace-nowrap tabular-nums font-bold text-slate-900 text-lg" +
-                        (!isLast ? " border-r border-slate-100" : "")
-                      }
-                    >
-                      {j.goals}
-                    </td>
-                  );
-                })}
-              </tr>
+               return (
+                 <td
+                   key={`g-${j.name}`}
+                   className={
+                     "px-2 py-2 text-center whitespace-nowrap tabular-nums font-bold text-slate-900 text-lg" +
+                     (!isLast ? " border-r border-slate-100" : "")
+                   }
+                 >
+                   {j.goals}
+                 </td>
+               );
+             })}
+           </tr>
 
-              {/* Fila 3: apellido */}
-              <tr>
-                {lista.map((j, i) => {
-                  const { bg, isTop3 } = rankStyles(i);
-                  const isLast = i === lista.length - 1;
+           {/* Fila 3: apellido */}
+           <tr>
+             {lista.map((j, i) => {
+               const { bg, isTop3 } = rankStyles(i);
+               const isLast = i === lista.length - 1;
 
-                  return (
-                    <td
-                      key={`n-${j.name}`}
-                      className={
-                        `px-2 py-2 text-center whitespace-nowrap text-sm ${bg} ` +
-                        (isTop3
-                          ? "font-semibold text-slate-800"
-                          : "text-slate-700") +
-                        (!isLast ? " border-r border-slate-100" : "")
-                      }
-                    >
-                      {prettySafe(j.name)}
-                    </td>
-                  );
-                })}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
+               return (
+                 <td
+                   key={`n-${j.name}`}
+                   className={
+                     `px-2 py-2 text-center whitespace-nowrap text-sm ${bg} ` +
+                     (isTop3
+                       ? "font-semibold text-slate-800"
+                       : "text-slate-700") +
+                     (!isLast ? " border-r border-slate-100" : "")
+                   }
+                 >
+                   {prettySafe(j.name)}
+                 </td>
+               );
+             })}
+           </tr>
+         </tbody>
+       </table>
+     </div>
+   </div>
+ );
 };
 
 export default TopGoleadores;
