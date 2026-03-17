@@ -1,12 +1,25 @@
 import { useMemo } from "react";
+import { normalizeName } from "../../../../utils/normalizeName";
 
 export const useRivals = (matches) => {
   return useMemo(() => {
-    const set = new Set();
+    const map = new Map();
+
     for (const m of matches || []) {
-      const r = String(m?.rival ?? "").trim();
-      if (r) set.add(r);
+      const original = String(m?.rival ?? "").trim();
+
+      if (original) {
+        // La clave del Map es la versión normalizada (para no repetir)
+        const id = normalizeName(original);
+
+        // Solo guardamos el primer nombre original que encontremos para esa ID
+        if (!map.has(id)) {
+          map.set(id, original);
+        }
+      }
     }
-    return Array.from(set).sort((a, b) => a.localeCompare(b, "es"));
+
+    // Retornamos los nombres originales, que ya están unificados
+    return Array.from(map.values()).sort((a, b) => a.localeCompare(b, "es"));
   }, [matches]);
 };

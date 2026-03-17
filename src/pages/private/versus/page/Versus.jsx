@@ -268,7 +268,7 @@ const Versus = () => {
                 const rivalText = pretty(rawRival);
 
                 // La clave (key) usa el texto formateado o un fallback si está vacío
-                const rivalKey = rivalText || `rival-${index}`;
+                const rivalKey = normalizeName(rival) || `rival-${index}`;
 
                 const rivalCell = (
                   <div style={{ lineHeight: "1.2", padding: "4px 0" }}>

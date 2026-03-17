@@ -61,8 +61,6 @@ const Analysis = () => {
 
   const visibleClub = selectedClub;
 
-
-
   const captainsVisible = captains.filter(
     (cap) => (cap?.total?.General?.pj ?? 0) > 0,
   );

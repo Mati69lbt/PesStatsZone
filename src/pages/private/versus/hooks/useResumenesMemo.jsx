@@ -1,5 +1,6 @@
 // cspell: ignore Resumenes ambito
 import React, { useMemo } from "react";
+import { normalizeName } from "../../../../utils/normalizeName";
 
 const toInt = (x) => (x == null ? 0 : parseInt(x, 10) || 0);
 const emptyBox = () => ({ pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0 });
@@ -8,13 +9,15 @@ const useResumenesMemo = (matches = []) => {
   return useMemo(() => {
     const res = {};
     for (const m of matches) {
-      const rival =
-        m?.rivalName || m?.rival || m?.opponent || "Rival Desconocido";
+      const rival = normalizeName(
+        m?.rivalName || m?.rival || m?.opponent || "Rival Desconocido",
+      );
+
       const gf = toInt(
-        m?.golesPropios ?? m?.golFavor ?? m?.golesFavor ?? m?.gf
+        m?.golesPropios ?? m?.golFavor ?? m?.golesFavor ?? m?.gf,
       );
       const gc = toInt(
-        m?.golesRival ?? m?.golContra ?? m?.golesContra ?? m?.gc
+        m?.golesRival ?? m?.golContra ?? m?.golesContra ?? m?.gc,
       );
       const ambito =
         (m?.condition === "local" && "local") ||
@@ -39,8 +42,8 @@ const useResumenesMemo = (matches = []) => {
         box.gf += gf;
         box.gc += gc;
       };
-      
-      actualizar(res[rival].general);    
+
+      actualizar(res[rival].general);
       if (ambito !== "general") {
         actualizar(res[rival][ambito]);
       }

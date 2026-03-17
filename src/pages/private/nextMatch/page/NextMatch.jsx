@@ -51,9 +51,6 @@ const NextMatch = () => {
   const bucket = lineupState?.lineups?.[clubKey] || null;
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
   const torneosConfig = bucket?.torneosConfig || {};
- 
-
-
 
   const [selectedRival, setSelectedRival] = useState("");
 
@@ -96,7 +93,7 @@ const NextMatch = () => {
             >
               {clubs.map((c) => (
                 <option key={c} value={c}>
-                  {prettySafe(c)}
+                  {pretty(c)}
                 </option>
               ))}
             </select>
@@ -113,7 +110,7 @@ const NextMatch = () => {
             >
               <option value="">Todos</option>
               {rivals.map((r) => (
-                <option key={r} value={r}>
+                <option key={normalizeName(r)} value={r}>
                   {prettySafe(r)}
                 </option>
               ))}
@@ -126,7 +123,7 @@ const NextMatch = () => {
             <div
               className={`rounded-2xl border px-4 py-3 text-xl font-extrabold tracking-tight text-slate-900 ${pillBg(resumen.gp)}`}
             >
-              {prettySafe(selectedRival)}
+              {pretty(selectedRival)}
             </div>
           </div>
         ) : null}
