@@ -16,6 +16,7 @@ const TopGoleadores = ({
   years = [],
   data = null,
   showHomeAway = false,
+  all = null,
 }) => {
   const [openAccordion, setOpenAccordion] = useState(false);
 
@@ -47,49 +48,51 @@ const TopGoleadores = ({
     return mm ? mm[1] : null;
   };
 
-  const goalsMaps = React.useMemo(() => {
-    const ms = data?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return null;
+const goalsMaps = React.useMemo(() => {
+  // Ahora usamos 'all', que es lo que envías desde Scorers.jsx
+  const ms = all?.matches;
+  if (!Array.isArray(ms) || ms.length === 0) return null;
 
-    const allowed = new Set((years || []).map(String));
+  const allowed = new Set((years || []).map(String));
+  const allMap = {}; // Evita confundir con la prop 'all'
+  const local = {};
+  const visitante = {};
 
-    const all = {};
-    const local = {};
-    const visitante = {};
+  const normCond = (c) =>
+    String(c || "")
+      .toLowerCase()
+      .trim();
 
-    const normCond = (c) =>
-      String(c || "")
-        .toLowerCase()
-        .trim(); // "local" | "visitante"
-
-    for (const match of ms) {
-      const y = getMatchYear(match);
-      if (allowed.size > 0) {
-        if (!y || !allowed.has(String(y))) continue;
-      }
-
-      const cond = normCond(match?.condition);
-      const scorers = Array.isArray(match?.goleadoresActiveClub)
-        ? match.goleadoresActiveClub
-        : [];
-
-      for (const g of scorers) {
-        if (g?.isOwnGoal) continue; // por si te llegan autogoles acá
-
-        const name = g?.name;
-        const goles = calcularGolesGoleador(g);
-        if (!name || goles <= 0) continue;
-
-        all[name] = (all[name] || 0) + goles;
-
-        if (cond === "local") local[name] = (local[name] || 0) + goles;
-        if (cond === "visitante")
-          visitante[name] = (visitante[name] || 0) + goles;
-      }
+  for (const match of ms) {
+    const y = getMatchYear(match);
+    if (allowed.size > 0) {
+      if (!y || !allowed.has(String(y))) continue;
     }
 
-    return { all, local, visitante };
-  }, [data, years]);
+    const cond = normCond(match?.condition);
+    const scorers = Array.isArray(match?.goleadoresActiveClub)
+      ? match.goleadoresActiveClub
+      : [];
+
+    for (const g of scorers) {
+      if (g?.isOwnGoal) continue;
+
+      const name = g?.name;
+      const goles = calcularGolesGoleador(g);
+      if (!name || goles <= 0) continue;
+
+      allMap[name] = (allMap[name] || 0) + goles; // Usamos el mapa interno
+
+      if (cond === "local") local[name] = (local[name] || 0) + goles;
+      if (cond === "visitante")
+        visitante[name] = (visitante[name] || 0) + goles;
+    }
+  }
+
+  return { all: allMap, local, visitante };
+
+  // IMPORTANTE: Cambia [data, years] por [all, years]
+}, [all, years]);
 
   // tu lógica vieja (la dejamos como fallback)
   const goalsForYears = (st) => {
@@ -248,85 +251,85 @@ const TopGoleadores = ({
   // fin vertical
 
   // HORIZONTAL (default)
- return (
-   <div className={`${className} mt-4 hidden lg:block`}>
-     {/* Título */}
-     <div className="mb-2">
-       <div className="w-full text-center text-[15px] font-semibold tracking-wide uppercase text-slate-800">
-         Goleadores {yearsLabel}
-       </div>
-     </div>
+  return (
+    <div className={`${className} mt-4 hidden lg:block`}>
+      {/* Título */}
+      <div className="mb-2">
+        <div className="w-full text-center text-[15px] font-semibold tracking-wide uppercase text-slate-800">
+          Goleadores {yearsLabel}
+        </div>
+      </div>
 
-     {/* Tabla */}
-     <div className="rounded-lg border border-slate-400 bg-white overflow-hidden">
-       <table className="w-full table-fixed text-[11px] border-collapse">
-         <tbody>
-           {/* Fila 1: ranking */}
-           <tr className="bg-sky-50 border-b border-slate-400">
-             {lista.map((j, i) => {
-               const { icon } = rankStyles(i);
-               const isLast = i === lista.length - 1;
+      {/* Tabla */}
+      <div className="rounded-lg border border-slate-400 bg-white overflow-hidden">
+        <table className="w-full table-fixed text-[11px] border-collapse">
+          <tbody>
+            {/* Fila 1: ranking */}
+            <tr className="bg-sky-50 border-b border-slate-400">
+              {lista.map((j, i) => {
+                const { icon } = rankStyles(i);
+                const isLast = i === lista.length - 1;
 
-               return (
-                 <td
-                   key={`r-${j.name}`}
-                   className={
-                     "px-3 py-2 text-center whitespace-nowrap font-semibold text-slate-700" +
-                     (!isLast ? " border-r border-white/70" : "")
-                   }
-                 >
-                   {icon}
-                 </td>
-               );
-             })}
-           </tr>
+                return (
+                  <td
+                    key={`r-${j.name}`}
+                    className={
+                      "px-3 py-2 text-center whitespace-nowrap font-semibold text-slate-700" +
+                      (!isLast ? " border-r border-white/70" : "")
+                    }
+                  >
+                    {icon}
+                  </td>
+                );
+              })}
+            </tr>
 
-           {/* Fila 2: goles */}
-           <tr className="border-b border-slate-100">
-             {lista.map((j, i) => {
-               const isLast = i === lista.length - 1;
+            {/* Fila 2: goles */}
+            <tr className="border-b border-slate-100">
+              {lista.map((j, i) => {
+                const isLast = i === lista.length - 1;
 
-               return (
-                 <td
-                   key={`g-${j.name}`}
-                   className={
-                     "px-2 py-2 text-center whitespace-nowrap tabular-nums font-bold text-slate-900 text-lg" +
-                     (!isLast ? " border-r border-slate-100" : "")
-                   }
-                 >
-                   {j.goals}
-                 </td>
-               );
-             })}
-           </tr>
+                return (
+                  <td
+                    key={`g-${j.name}`}
+                    className={
+                      "px-2 py-2 text-center whitespace-nowrap tabular-nums font-bold text-slate-900 text-lg" +
+                      (!isLast ? " border-r border-slate-100" : "")
+                    }
+                  >
+                    {j.goals}
+                  </td>
+                );
+              })}
+            </tr>
 
-           {/* Fila 3: apellido */}
-           <tr>
-             {lista.map((j, i) => {
-               const { bg, isTop3 } = rankStyles(i);
-               const isLast = i === lista.length - 1;
+            {/* Fila 3: apellido */}
+            <tr>
+              {lista.map((j, i) => {
+                const { bg, isTop3 } = rankStyles(i);
+                const isLast = i === lista.length - 1;
 
-               return (
-                 <td
-                   key={`n-${j.name}`}
-                   className={
-                     `px-2 py-2 text-center whitespace-nowrap text-sm ${bg} ` +
-                     (isTop3
-                       ? "font-semibold text-slate-800"
-                       : "text-slate-700") +
-                     (!isLast ? " border-r border-slate-100" : "")
-                   }
-                 >
-                   {prettySafe(j.name)}
-                 </td>
-               );
-             })}
-           </tr>
-         </tbody>
-       </table>
-     </div>
-   </div>
- );
+                return (
+                  <td
+                    key={`n-${j.name}`}
+                    className={
+                      `px-2 py-2 text-center whitespace-nowrap text-sm ${bg} ` +
+                      (isTop3
+                        ? "font-semibold text-slate-800"
+                        : "text-slate-700") +
+                      (!isLast ? " border-r border-slate-100" : "")
+                    }
+                  >
+                    {prettySafe(j.name)}
+                  </td>
+                );
+              })}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 export default TopGoleadores;

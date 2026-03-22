@@ -123,17 +123,20 @@ const GolEuropa = ({
   years = [], // acá son "temporadas" tipo "2023-2024"
   data = null,
   showHomeAway = false,
+  all = null,
 }) => {
   const [openTemporada, setOpenTemporada] = useState(false);
+  // GolEuropa.jsx
   const goalsMaps = React.useMemo(() => {
-    const ms = data?.matches;
+    const ms = all?.matches; // Aquí 'all' es la PROP
     if (!Array.isArray(ms) || ms.length === 0) return null;
 
     const allowed = new Set((years || []).map(String));
 
-    const all = {};
-    const local = {};
-    const visitante = {};
+    // CAMBIO: Usamos nombres distintos para los mapas internos
+    const allMap = {};
+    const localMap = {};
+    const visitanteMap = {};
 
     const normCond = (c) =>
       String(c || "")
@@ -158,16 +161,17 @@ const GolEuropa = ({
         const goles = calcularGolesGoleador(g);
         if (!name || goles <= 0) continue;
 
-        all[name] = (all[name] || 0) + goles;
+        allMap[name] = (allMap[name] || 0) + goles;
 
-        if (cond === "local") local[name] = (local[name] || 0) + goles;
+        if (cond === "local") localMap[name] = (localMap[name] || 0) + goles;
         if (cond === "visitante")
-          visitante[name] = (visitante[name] || 0) + goles;
+          visitanteMap[name] = (visitanteMap[name] || 0) + goles;
       }
     }
 
-    return { all, local, visitante };
-  }, [data, years]);
+    return { all: allMap, local: localMap, visitante: visitanteMap };
+    // Asegúrate de que la dependencia sea [all, years]
+  }, [all, years]);
 
   const lista = goalsMaps ? buildListFromMap(goalsMaps.all, topN) : [];
   const halfN = Math.floor(topN / 2);
@@ -302,6 +306,6 @@ const GolEuropa = ({
       </div>
     </div>
   );
-};
+};;
 
 export default GolEuropa;

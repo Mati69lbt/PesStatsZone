@@ -50,6 +50,7 @@ const Scorers = () => {
 
   const [data, setData] = useState(null);
 
+
   const clubs = Object.keys(lineupState?.lineups || []);
   const [selectedClub, setSelectedClub] = useState(
     lineupState?.activeClub || clubs[0] || "",
@@ -79,17 +80,24 @@ const Scorers = () => {
 
   const [view, setView] = useState("scorers"); // 'goleadores' | 'campeonatos' | 'villanos'
 
+  const allMatchesFromAllClubs = React.useMemo(() => {
+    const lineups = lineupState?.lineups || {};
+    return Object.values(lineups).flatMap((club) =>
+      Array.isArray(club.matches) ? club.matches : [],
+    );
+  }, [lineupState]);
+
   const years = Array.from(
     new Set(
-      matches
+      allMatchesFromAllClubs // <-- Cambiar aquí
         .map((m) => m?.torneoYear ?? m?.tournamentYear ?? m?.year ?? m?.anio)
         .filter((y) => y !== undefined && y !== null)
         .map(String),
     ),
-  ).sort();
+  ).sort((a, b) => b - a);
 
   const seasons = Array.from(
-    new Set(matches.map(getSeasonKeyFromMatch).filter(Boolean)),
+    new Set(allMatchesFromAllClubs.map(getSeasonKeyFromMatch).filter(Boolean)),
   ).sort((a, b) => parseInt(b.slice(0, 4), 10) - parseInt(a.slice(0, 4), 10));
 
   const viewOptions = [
@@ -162,6 +170,7 @@ const Scorers = () => {
               years={[s]} // temporada "2023-2024"
               data={data}
               showHomeAway
+              all={{ matches: allMatchesFromAllClubs }}
             />
           ))}
         </div>
@@ -183,6 +192,7 @@ const Scorers = () => {
                 years={[y]} // ✅ 1 año por bloque
                 data={data}
                 showHomeAway
+                all={{ matches: allMatchesFromAllClubs }}
               />
             ))}
         </div>
