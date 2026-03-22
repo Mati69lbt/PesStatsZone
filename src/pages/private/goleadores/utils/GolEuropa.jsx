@@ -58,6 +58,8 @@ const buildListFromMap = (map, limit) =>
     .slice(0, limit);
 
 const VerticalTable = ({ title, list }) => {
+
+
   const totalGoles = (list || []).reduce((acc, x) => acc + (x.goals || 0), 0);
 
   return (
@@ -126,7 +128,8 @@ const GolEuropa = ({
   all = null,
 }) => {
   const [openTemporada, setOpenTemporada] = useState(false);
-  // GolEuropa.jsx
+  console.log("all", all);
+
   const goalsMaps = React.useMemo(() => {
     const ms = all?.matches; // Aquí 'all' es la PROP
     if (!Array.isArray(ms) || ms.length === 0) return null;
@@ -306,6 +309,6 @@ const GolEuropa = ({
       </div>
     </div>
   );
-};;
+};
 
 export default GolEuropa;

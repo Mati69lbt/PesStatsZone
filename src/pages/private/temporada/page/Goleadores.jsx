@@ -48,51 +48,51 @@ const TopGoleadores = ({
     return mm ? mm[1] : null;
   };
 
-const goalsMaps = React.useMemo(() => {
-  // Ahora usamos 'all', que es lo que envías desde Scorers.jsx
-  const ms = all?.matches;
-  if (!Array.isArray(ms) || ms.length === 0) return null;
+  const goalsMaps = React.useMemo(() => {
+    // Ahora usamos 'all', que es lo que envías desde Scorers.jsx
+    const ms = all?.matches;
+    if (!Array.isArray(ms) || ms.length === 0) return null;
 
-  const allowed = new Set((years || []).map(String));
-  const allMap = {}; // Evita confundir con la prop 'all'
-  const local = {};
-  const visitante = {};
+    const allowed = new Set((years || []).map(String));
+    const allMap = {}; // Evita confundir con la prop 'all'
+    const local = {};
+    const visitante = {};
 
-  const normCond = (c) =>
-    String(c || "")
-      .toLowerCase()
-      .trim();
+    const normCond = (c) =>
+      String(c || "")
+        .toLowerCase()
+        .trim();
 
-  for (const match of ms) {
-    const y = getMatchYear(match);
-    if (allowed.size > 0) {
-      if (!y || !allowed.has(String(y))) continue;
+    for (const match of ms) {
+      const y = getMatchYear(match);
+      if (allowed.size > 0) {
+        if (!y || !allowed.has(String(y))) continue;
+      }
+
+      const clubName = match?.club || "";  
+      const cond = normCond(match?.condition);
+      const scorers = Array.isArray(match?.goleadoresActiveClub)
+        ? match.goleadoresActiveClub
+        : [];
+
+      for (const g of scorers) {
+        if (g?.isOwnGoal) continue;
+        const name = g?.name;
+        const goles = calcularGolesGoleador(g);
+        if (!name || goles <= 0) continue;
+
+        allMap[name] = (allMap[name] || 0) + goles; // Usamos el mapa interno
+
+        if (cond === "local") local[name] = (local[name] || 0) + goles;
+        if (cond === "visitante")
+          visitante[name] = (visitante[name] || 0) + goles;
+      }
     }
 
-    const cond = normCond(match?.condition);
-    const scorers = Array.isArray(match?.goleadoresActiveClub)
-      ? match.goleadoresActiveClub
-      : [];
+    return { all: allMap, local, visitante };
 
-    for (const g of scorers) {
-      if (g?.isOwnGoal) continue;
-
-      const name = g?.name;
-      const goles = calcularGolesGoleador(g);
-      if (!name || goles <= 0) continue;
-
-      allMap[name] = (allMap[name] || 0) + goles; // Usamos el mapa interno
-
-      if (cond === "local") local[name] = (local[name] || 0) + goles;
-      if (cond === "visitante")
-        visitante[name] = (visitante[name] || 0) + goles;
-    }
-  }
-
-  return { all: allMap, local, visitante };
-
-  // IMPORTANTE: Cambia [data, years] por [all, years]
-}, [all, years]);
+    // IMPORTANTE: Cambia [data, years] por [all, years]
+  }, [all, years]);
 
   // tu lógica vieja (la dejamos como fallback)
   const goalsForYears = (st) => {
