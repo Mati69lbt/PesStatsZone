@@ -128,7 +128,7 @@ const GolEuropa = ({
   all = null,
 }) => {
   const [openTemporada, setOpenTemporada] = useState(false);
-  console.log("all", all);
+
 
   const goalsMaps = React.useMemo(() => {
     const ms = all?.matches; // Aquí 'all' es la PROP
