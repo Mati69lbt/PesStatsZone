@@ -46,69 +46,78 @@ const getMatchSeason = (m) => {
   return y !== undefined && y !== null ? String(y) : null;
 };
 
-const buildListFromMap = (map, limit) =>
-  Object.entries(map || {})
-    .map(([name, goals]) => ({ name, goals }))
-    .filter((x) => x.goals > 0)
-    .sort((a, b) => {
-      const diff = b.goals - a.goals;
-      if (diff !== 0) return diff;
-      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-    })
-    .slice(0, limit);
+// [CAMBIAR buildListFromMap por esto]
+
 
 const VerticalTable = ({ title, list }) => {
-
-
   const totalGoles = (list || []).reduce((acc, x) => acc + (x.goals || 0), 0);
 
   return (
-    <div
-      className={`w-full rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden`}
-    >
+    <div className="w-full rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
       <div className="px-2 py-2 border-b border-slate-200 text-[10px] font-semibold text-center uppercase bg-emerald-50">
         {title}
       </div>
 
-      <table className="w-max text-[11px] border-collapse">
+      {/* Agregamos table-fixed y w-full */}
+      <table className="w-full text-[11px] border-collapse table-fixed">
+        <thead>
+          <tr className="bg-slate-50 border-b border-slate-200 text-[9px] uppercase text-slate-500">
+            <th className="w-[12%] px-1 py-1 text-center font-bold">Pos</th>
+            <th className="w-[30%] px-2 py-1 text-left font-bold">Jugador</th>
+            <th className="w-[12%] px-1 py-1 text-center font-bold text-slate-700">
+              G
+            </th>
+            <th className="w-[12%] px-1 py-1 text-center font-bold">PJ</th>
+            <th className="w-[16%] px-1 py-1 text-right pr-2 font-bold">
+              Prom
+            </th>
+          </tr>
+        </thead>
         <tbody>
           {!list || list.length === 0 ? (
             <tr>
-              <td className="px-3 py-3 text-center text-slate-500" colSpan={3}>
+              <td className="px-3 py-3 text-center text-slate-500" colSpan={5}>
                 Sin goles
               </td>
             </tr>
           ) : (
             list.map((j, i) => (
-              <tr key={j.name} className="border-b border-slate-100">
-                <td className="px-2 py-2 text-center align-middle w-12">
-                  <span className="inline-flex items-center justify-center w-9 rounded-full bg-slate-50 ring-1 ring-slate-200 text-base leading-none">
-                    {rankStyles(i).icon}
-                  </span>
+              <tr
+                key={j.name}
+                className="border-b border-slate-100 hover:bg-emerald-50/30 transition-colors"
+              >
+                <td className="px-1 py-2 text-center align-middle">
+                  {rankStyles(i).icon}
                 </td>
-                <td className="px-2 py-2 text-left">
-                  <div className="text-[12px] font-medium text-slate-800">
-                    {prettySafe(j.name)}
-                  </div>
+                {/* TRUNCADO APLICADO AQUÍ */}
+                <td className="px-2 py-2 text-left font-medium text-slate-700 truncate overflow-hidden whitespace-nowrap">
+                  {prettySafe(j.name)}
                 </td>
-                <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 w-12">
+                <td className="px-1 py-2 text-center font-bold text-slate-900 bg-emerald-50/20">
                   {j.goals}
+                </td>
+                <td className="px-1 py-2 text-center text-slate-500 tabular-nums">
+                  {j.pj}
+                </td>
+                <td className="px-1 py-2 text-right pr-2 font-mono text-emerald-600 font-semibold">
+                  {j.prom.toFixed(2)}
                 </td>
               </tr>
             ))
           )}
-
+          {/* Fila de Totales corregida para 5 columnas */}
           {(list || []).length > 0 && (
             <tr className="bg-slate-50 border-t border-slate-200">
               <td
-                className="px-2 py-2 text-center font-semibold text-slate-700"
+                className="px-2 py-2 text-right font-semibold text-slate-700"
                 colSpan={2}
               >
                 Total
               </td>
-              <td className="px-2 py-2 text-right tabular-nums font-extrabold text-slate-900">
+              <td className="px-1 py-2 text-center tabular-nums font-extrabold text-slate-900 bg-emerald-50/50">
                 {totalGoles}
               </td>
+              <td colSpan={2}></td>
             </tr>
           )}
         </tbody>
@@ -129,18 +138,17 @@ const GolEuropa = ({
 }) => {
   const [openTemporada, setOpenTemporada] = useState(false);
 
-
   const goalsMaps = React.useMemo(() => {
-    const ms = all?.matches; // Aquí 'all' es la PROP
+    const ms = all?.matches;
     if (!Array.isArray(ms) || ms.length === 0) return null;
 
     const allowed = new Set((years || []).map(String));
-
-    // CAMBIO: Usamos nombres distintos para los mapas internos
     const allMap = {};
+    const pjMap = {};
     const localMap = {};
     const visitanteMap = {};
 
+    // ✅ 1. Definimos normCond aquí adentro o fuera del memo
     const normCond = (c) =>
       String(c || "")
         .toLowerCase()
@@ -148,33 +156,61 @@ const GolEuropa = ({
 
     for (const match of ms) {
       const season = getMatchSeason(match);
-      if (allowed.size > 0) {
-        if (!season || !allowed.has(String(season))) continue;
-      }
+      if (allowed.size > 0 && (!season || !allowed.has(String(season))))
+        continue;
 
       const cond = normCond(match?.condition);
       const scorers = Array.isArray(match?.goleadoresActiveClub)
         ? match.goleadoresActiveClub
         : [];
 
-      for (const g of scorers) {
-        if (g?.isOwnGoal) continue;
+      const jugadoresEnPartido = match?.players || scorers;
+      const seenInMatch = new Set();
+      for (const p of jugadoresEnPartido) {
+        const pName = p?.name;
+        if (pName && !seenInMatch.has(pName)) {
+          pjMap[pName] = (pjMap[pName] || 0) + 1;
+          seenInMatch.add(pName);
+        }
+      }
 
+      for (const g of scorers) {
+        if (g?.isOwnGoal) continue; // Omitir autogoles
+
+        // ✅ 2. Definimos name y goles (estaban faltando)
         const name = g?.name;
         const goles = calcularGolesGoleador(g);
+
         if (!name || goles <= 0) continue;
 
         allMap[name] = (allMap[name] || 0) + goles;
-
         if (cond === "local") localMap[name] = (localMap[name] || 0) + goles;
         if (cond === "visitante")
           visitanteMap[name] = (visitanteMap[name] || 0) + goles;
       }
     }
 
-    return { all: allMap, local: localMap, visitante: visitanteMap };
-    // Asegúrate de que la dependencia sea [all, years]
+    return { all: allMap, pj: pjMap, local: localMap, visitante: visitanteMap };
   }, [all, years]);
+
+  const buildListFromMap = (map, limit) =>
+    Object.entries(map || {})
+      .map(([name, goals]) => {
+        const pj = goalsMaps?.pj?.[name] || 0; // Buscamos en el nuevo mapa de PJ
+        return {
+          name,
+          goals,
+          pj,
+          prom: pj > 0 ? goals / pj : 0,
+        };
+      })
+      .filter((x) => x.goals > 0)
+      .sort((a, b) => {
+        const diff = b.goals - a.goals;
+        if (diff !== 0) return diff;
+        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+      })
+      .slice(0, limit);
 
   const lista = goalsMaps ? buildListFromMap(goalsMaps.all, topN) : [];
   const halfN = Math.floor(topN / 2);

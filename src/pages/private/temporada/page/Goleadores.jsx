@@ -49,12 +49,12 @@ const TopGoleadores = ({
   };
 
   const goalsMaps = React.useMemo(() => {
-    // Ahora usamos 'all', que es lo que envías desde Scorers.jsx
     const ms = all?.matches;
     if (!Array.isArray(ms) || ms.length === 0) return null;
 
     const allowed = new Set((years || []).map(String));
-    const allMap = {}; // Evita confundir con la prop 'all'
+    const allMap = {};
+    const pjMap = {}; // <--- NUEVO: Mapa para contar partidos
     const local = {};
     const visitante = {};
 
@@ -65,15 +65,23 @@ const TopGoleadores = ({
 
     for (const match of ms) {
       const y = getMatchYear(match);
-      if (allowed.size > 0) {
-        if (!y || !allowed.has(String(y))) continue;
-      }
+      if (allowed.size > 0 && (!y || !allowed.has(String(y)))) continue;
 
-      const clubName = match?.club || "";  
       const cond = normCond(match?.condition);
       const scorers = Array.isArray(match?.goleadoresActiveClub)
         ? match.goleadoresActiveClub
         : [];
+
+      const jugadoresEnPartido = match?.players || scorers;
+
+      const seenInMatch = new Set();
+      for (const p of jugadoresEnPartido) {
+        const pName = p?.name;
+        if (pName && !seenInMatch.has(pName)) {
+          pjMap[pName] = (pjMap[pName] || 0) + 1;
+          seenInMatch.add(pName);
+        }
+      }
 
       for (const g of scorers) {
         if (g?.isOwnGoal) continue;
@@ -81,44 +89,27 @@ const TopGoleadores = ({
         const goles = calcularGolesGoleador(g);
         if (!name || goles <= 0) continue;
 
-        allMap[name] = (allMap[name] || 0) + goles; // Usamos el mapa interno
-
+        allMap[name] = (allMap[name] || 0) + goles;
         if (cond === "local") local[name] = (local[name] || 0) + goles;
         if (cond === "visitante")
           visitante[name] = (visitante[name] || 0) + goles;
       }
     }
 
-    return { all: allMap, local, visitante };
-
-    // IMPORTANTE: Cambia [data, years] por [all, years]
+    return { all: allMap, pj: pjMap, local, visitante };
   }, [all, years]);
-
-  // tu lógica vieja (la dejamos como fallback)
-  const goalsForYears = (st) => {
-    const allowed = new Set((years || []).map(String));
-    const total = st?.goals ?? 0;
-    if (allowed.size === 0) return total;
-
-    const bt = st?.byTournament ?? {};
-    let sum = 0;
-
-    for (const [key, val] of Object.entries(bt)) {
-      const m = key.match(/_(\d{4})$/);
-      if (m && allowed.has(m[1])) sum += val?.goals ?? 0;
-    }
-    return sum;
-  };
-
-  // armo la lista con unión de nombres (por si hay un goleador que no esté en playersStats)
-  const names = new Set([
-    ...Object.keys(playersStats || {}),
-    ...(goalsMaps?.all ? Object.keys(goalsMaps.all) : []),
-  ]);
 
   const buildListFromMap = (map, limit) =>
     Object.entries(map || {})
-      .map(([name, goals]) => ({ name, goals }))
+      .map(([name, goals]) => {
+        const pj = goalsMaps?.pj?.[name] || 0; // Buscamos los PJ en el mapa nuevo
+        return {
+          name,
+          goals,
+          pj,
+          prom: pj > 0 ? goals / pj : 0, // Calculamos promedio
+        };
+      })
       .filter((x) => x.goals > 0)
       .sort((a, b) => {
         const diff = b.goals - a.goals;
@@ -145,54 +136,77 @@ const TopGoleadores = ({
   const VerticalTable = ({ title, list }) => {
     const totalGoles = (list || []).reduce((acc, x) => acc + (x.goals || 0), 0);
     return (
-      <div className="w-max rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
+      /* Cambiamos w-max por w-full para que respete el contenedor padre (el 50%) */
+      <div className="w-full rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
+        {/* Título Principal */}
         <div className="px-3 py-2 border-b border-slate-200 text-[10px] font-semibold tracking-wide text-center uppercase text-slate-800 bg-sky-50">
           {title}
         </div>
 
-        <table className="w-full text-[11px] border-collapse">
+        {/* Agregamos table-fixed para que el truncate funcione */}
+        <table className="w-full text-[11px] border-collapse table-fixed">
+          <thead>
+            <tr className="bg-slate-100 border-b border-slate-200 text-[9px] uppercase text-slate-500">
+              <th className="w-[12%] px-1 py-1 text-center font-bold">Pos</th>
+              <th className="w-[30%] px-2 py-1 text-left font-bold">Jugador</th>
+              <th className="w-[12%] px-1 py-1 text-center font-bold text-slate-700">
+                G
+              </th>
+              <th className="w-[12%] px-1 py-1 text-center font-bold">PJ</th>
+              <th className="w-[16%] px-1 py-1 text-right pr-2 font-bold">
+                Prom
+              </th>
+            </tr>
+          </thead>
+
           <tbody>
             {!list || list.length === 0 ? (
               <tr>
                 <td
                   className="px-3 py-3 text-center text-slate-500"
-                  colSpan={3}
+                  colSpan={5}
                 >
                   Sin goles
                 </td>
               </tr>
             ) : (
-              list.map((j, i) => {
-                return (
-                  <tr key={j.name} className="border-b border-slate-100">
-                    <td className="px-2 py-2 text-center align-middle w-12">
-                      <span className="inline-flex items-center justify-center w-9 rounded-full bg-slate-50 ring-1 ring-slate-200 text-base leading-none">
-                        {rankStyles(i).icon}
-                      </span>
-                    </td>
-                    <td className="px-2 py-2 text-left">
-                      <div className="text-[12px] font-medium text-slate-800">
-                        {prettySafe(j.name)}
-                      </div>
-                    </td>
-                    <td className="px-2 py-2 text-right tabular-nums font-bold text-slate-900 w-12">
-                      {j.goals}
-                    </td>
-                  </tr>
-                );
-              })
+              list.map((j, i) => (
+                <tr
+                  key={j.name}
+                  className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors"
+                >
+                  <td className="px-1 py-2 text-center">
+                    {rankStyles(i).icon}
+                  </td>
+                  {/* TRUNCATE: Ahora funcionará por el table-fixed y el ancho del 48% */}
+                  <td className="px-2 py-2 text-left font-medium text-slate-700 truncate overflow-hidden whitespace-nowrap">
+                    {prettySafe(j.name)}
+                  </td>
+                  <td className="px-1 py-2 text-center font-bold text-slate-900 bg-slate-50/50">
+                    {j.goals}
+                  </td>
+                  <td className="px-1 py-2 text-center text-slate-500 tabular-nums">
+                    {j.pj}
+                  </td>
+                  <td className="px-1 py-2 text-right  font-mono text-blue-600 font-semibold">
+                    {j.prom.toFixed(2)}
+                  </td>
+                </tr>
+              ))
             )}
+            {/* Fila de Totales */}
             {(list || []).length > 0 && (
               <tr className="bg-slate-50 border-t border-slate-200">
                 <td
-                  className="px-2 py-2 text-center font-semibold text-slate-700"
+                  className="px-2 py-2 text-right font-semibold text-slate-700"
                   colSpan={2}
                 >
-                  Total
+                  Total:
                 </td>
-                <td className="px-2 py-2 text-right tabular-nums font-extrabold text-slate-900">
+                <td className="px-1 py-2 text-center tabular-nums font-extrabold text-slate-900 bg-slate-100">
                   {totalGoles}
                 </td>
+                <td colSpan={2} className="bg-slate-50"></td>
               </tr>
             )}
           </tbody>
@@ -228,10 +242,17 @@ const TopGoleadores = ({
               : "max-h-0 opacity-0 pointer-events-none"
           }`}
         >
-          <div className={`${className} flex items-start justify-center gap-3`}>
-            <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
+          <div
+            className={`${className} flex items-start justify-center gap-2 w-full px-2`}
+          >
+            {/* Lado Izquierdo: 50% */}
+            <div className="flex-1 min-w-0">
+              <VerticalTable title={`Goleadores ${yearsLabel}`} list={lista} />
+            </div>
+
+            {/* Lado Derecho: 50% */}
             {showHomeAway && (
-              <div className="flex flex-col gap-1 w-max">
+              <div className="flex-1 min-w-0 flex flex-col gap-2">
                 <VerticalTable
                   title={`Local ${yearsLabel}`}
                   list={listaLocal}
@@ -251,18 +272,20 @@ const TopGoleadores = ({
   // fin vertical
 
   // HORIZONTAL (default)
-  return (
-    <div className={`${className} mt-4 hidden lg:block`}>
-      {/* Título */}
-      <div className="mb-2">
-        <div className="w-full text-center text-[15px] font-semibold tracking-wide uppercase text-slate-800">
-          Goleadores {yearsLabel}
-        </div>
+return (
+  <div className={`${className} mt-4 hidden lg:block`}>
+    {/* Título */}
+    <div className="mb-2">
+      <div className="w-full text-center text-[15px] font-semibold tracking-wide uppercase text-slate-800">
+        Goleadores {yearsLabel}
       </div>
+    </div>
 
-      {/* Tabla */}
-      <div className="rounded-lg border border-slate-400 bg-white overflow-hidden">
-        <table className="w-full table-fixed text-[11px] border-collapse">
+    {/* Contenedor: Eliminamos el ancho completo y centramos si es necesario */}
+    <div className="flex justify-center">
+      <div className="inline-block rounded-lg border border-slate-400 bg-white overflow-hidden shadow-sm">
+        {/* Tabla: Eliminamos w-full y table-fixed */}
+        <table className="text-[11px] border-collapse">
           <tbody>
             {/* Fila 1: ranking */}
             <tr className="bg-sky-50 border-b border-slate-400">
@@ -274,7 +297,7 @@ const TopGoleadores = ({
                   <td
                     key={`r-${j.name}`}
                     className={
-                      "px-3 py-2 text-center whitespace-nowrap font-semibold text-slate-700" +
+                      "px-4 py-2 text-center whitespace-nowrap font-semibold text-slate-700" +
                       (!isLast ? " border-r border-white/70" : "")
                     }
                   >
@@ -293,7 +316,7 @@ const TopGoleadores = ({
                   <td
                     key={`g-${j.name}`}
                     className={
-                      "px-2 py-2 text-center whitespace-nowrap tabular-nums font-bold text-slate-900 text-lg" +
+                      "px-4 py-2 text-center whitespace-nowrap tabular-nums font-bold text-slate-900 text-lg" +
                       (!isLast ? " border-r border-slate-100" : "")
                     }
                   >
@@ -313,7 +336,7 @@ const TopGoleadores = ({
                   <td
                     key={`n-${j.name}`}
                     className={
-                      `px-2 py-2 text-center whitespace-nowrap text-sm ${bg} ` +
+                      `px-4 py-2 text-center whitespace-nowrap text-sm ${bg} ` +
                       (isTop3
                         ? "font-semibold text-slate-800"
                         : "text-slate-700") +
@@ -329,7 +352,8 @@ const TopGoleadores = ({
         </table>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default TopGoleadores;
