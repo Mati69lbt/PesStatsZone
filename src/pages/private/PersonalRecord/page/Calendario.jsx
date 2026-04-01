@@ -22,9 +22,7 @@ const Calendario = () => {
 
     Object.entries(lineups).forEach(([clubKey, bucket]) => {
       const label = bucket?.label ?? clubKey;
-      const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
-
-      console.log("matches", matches);
+      const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];     
 
       matches.forEach((m) => {
         if (!m.fecha) return;
@@ -196,7 +194,6 @@ const Calendario = () => {
                                       match.goleadoresActiveClub.length > 0 ? (
                                         match.goleadoresActiveClub.map(
                                           (gol, gIdx) => {
-                                            // Usamos la lógica de cálculo de goles (1 para gol, 2 doblete, 3 triplete, etc)
                                             const cantidadGoles = (gol) => {
                                               const t = !!(
                                                 gol.triplete || gol.hattrick
@@ -236,19 +233,32 @@ const Calendario = () => {
                                   </div>
 
                                   <div className="flex flex-col items-end shrink-0 ml-2">
-                                    <div className="flex items-center gap-1">
-                                      <div className="bg-slate-900 text-white text-[12px] font-black px-2 py-0.5 rounded tabular-nums">
+                                    <div className="flex items-center gap-1.5">
+                                      {/* Estado (GAN/PER/EMP) con borde sutil */}
+                                      <div
+                                        className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded border ${
+                                          match.final === "ganado"
+                                            ? "border-green-200 text-green-600 bg-green-50"
+                                            : match.final === "perdido"
+                                              ? "border-red-200 text-red-600 bg-red-50"
+                                              : "border-slate-200 text-slate-500 bg-slate-50"
+                                        }`}
+                                      >
+                                        {match.final}
+                                      </div>
+
+                                      {/* Marcador Minimalista: Fondo gris ultra-claro y números destacados */}
+                                      <div className="bg-slate-100/80 text-slate-900 text-[13px] font-black px-2.5 py-0.5 rounded-full tabular-nums border border-slate-200">
                                         {match.condition === "local" ||
                                         match.condition === "neutro"
                                           ? `${match.golFavor} - ${match.golContra}`
                                           : `${match.golContra} - ${match.golFavor}`}
                                       </div>
-                                      <div className="text-[8px] font-black uppercase px-1 border border-slate-900 rounded bg-white">
-                                        {match.final}
-                                      </div>
                                     </div>
-                                    <span className="text-[9px] font-bold text-slate-400 italic mt-0.5">
-                                      {match.rival}
+
+                                    {/* Rival */}
+                                    <span className="text-[9px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">
+                                       {match.rival}
                                     </span>
                                   </div>
                                 </div>
