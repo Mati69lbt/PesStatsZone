@@ -102,16 +102,17 @@ const AllGoleadores = () => {
   };
 
   return (
-    <div className="p-3 max-w-screen-xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-3">
+    <div className="p-2 max-w-screen-xl mx-auto">
+      <div className="flex flex-row items-center justify-between gap-3 mb-1">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-            ⚽ Goleadores
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 flex items-center gap-1">
+            <span className="shrink-0">⚽</span>
+            <span>Goleadores</span>
           </h1>
         </div>
 
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-semibold text-slate-700">
+        <div className="flex items-center gap-2 shrink-0">
+          <label className="text-xs sm:text-sm font-semibold text-slate-700 whitespace-nowrap">
             Mín. goles
           </label>
           <input
@@ -119,7 +120,7 @@ const AllGoleadores = () => {
             min={0}
             value={minGoals}
             onChange={(e) => setMinGoals(e.target.value)}
-            className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm"
+            className="w-14 sm:w-20 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
       </div>

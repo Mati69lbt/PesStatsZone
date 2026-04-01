@@ -26,7 +26,12 @@ const buildResumen = (matches, scope = "all") => {
   const filtered = matches.filter((m) => {
     if (scope === "local") return m?.condition === "local";
     if (scope === "visitante") return m?.condition === "visitante";
-    return m?.condition === "local" || m?.condition === "visitante"; // general (sin neutro)
+    if (scope === "neutro") return m?.condition === "neutro";
+    return (
+      m?.condition === "local" ||
+      m?.condition === "visitante" ||
+      m?.condition === "neutro"
+    );
   });
 
   for (const m of filtered) {
@@ -65,13 +70,11 @@ const PersonalRecord = () => {
       const label = bucket?.label ?? clubKey;
       const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
 
-      return matches
-        .filter((m) => m?.condition === "local" || m?.condition === "visitante") // ✅ ignora neutro
-        .map((m) => ({
-          ...m,
-          __clubKey: clubKey,
-          __clubLabel: label,
-        }));
+      return matches.map((m) => ({
+        ...m,
+        __clubKey: clubKey,
+        __clubLabel: label,
+      }));
     });
   }, [lineupState]);
 
@@ -85,6 +88,10 @@ const PersonalRecord = () => {
   );
   const resumenVisitante = useMemo(
     () => buildResumen(allMatches, "visitante"),
+    [allMatches],
+  );
+  const resumenNeutral = useMemo(
+    () => buildResumen(allMatches, "neutro"),
     [allMatches],
   );
 
@@ -114,6 +121,7 @@ const PersonalRecord = () => {
           <ResumenBlock title="General" r={resumenGeneral} />
           <ResumenBlock title="Local" r={resumenLocal} />
           <ResumenBlock title="Visitante" r={resumenVisitante} />
+          <ResumenBlock title="Neutral" r={resumenNeutral} />
         </div>
       </div>
     </div>

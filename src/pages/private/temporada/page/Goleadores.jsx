@@ -54,9 +54,11 @@ const TopGoleadores = ({
 
     const allowed = new Set((years || []).map(String));
     const allMap = {};
-    const pjMap = {}; // <--- NUEVO: Mapa para contar partidos
-    const local = {};
-    const visitante = {};
+    const pjMap = {};
+    const pjLocalMap = {};
+    const pjVisitanteMap = {};
+    const localMap = {};
+    const visitanteMap = {};
 
     const normCond = (c) =>
       String(c || "")
@@ -67,63 +69,97 @@ const TopGoleadores = ({
       const y = getMatchYear(match);
       if (allowed.size > 0 && (!y || !allowed.has(String(y)))) continue;
 
-      const cond = normCond(match?.condition);
+      const cond = normCond(match?.condition); // "local", "visitante" o "neutral"
+
+      // 1. LÓGICA DE PARTIDOS JUGADOS (PJ) - Acceso directo a match
+      const starters = Array.isArray(match?.starters) ? match.starters : [];
+      const substitutes = Array.isArray(match?.substitutes)
+        ? match.substitutes
+        : [];
+
+      // Unimos y usamos Set para evitar duplicados en el mismo partido
+      const participaron = new Set([...starters, ...substitutes]);
+
+      participaron.forEach((pName) => {
+        if (!pName) return;
+
+        // PJ General
+        pjMap[pName] = (pjMap[pName] || 0) + 1;
+
+        // PJ por Condición (ignorando neutrales para las tablas específicas)
+        if (cond === "local") {
+          pjLocalMap[pName] = (pjLocalMap[pName] || 0) + 1;
+        } else if (cond === "visitante") {
+          pjVisitanteMap[pName] = (pjVisitanteMap[pName] || 0) + 1;
+        }
+      });
+
+      // 2. LÓGICA DE GOLEADORES
       const scorers = Array.isArray(match?.goleadoresActiveClub)
         ? match.goleadoresActiveClub
         : [];
 
-      const jugadoresEnPartido = match?.players || scorers;
-
-      const seenInMatch = new Set();
-      for (const p of jugadoresEnPartido) {
-        const pName = p?.name;
-        if (pName && !seenInMatch.has(pName)) {
-          pjMap[pName] = (pjMap[pName] || 0) + 1;
-          seenInMatch.add(pName);
-        }
-      }
-
       for (const g of scorers) {
         if (g?.isOwnGoal) continue;
+
         const name = g?.name;
         const goles = calcularGolesGoleador(g);
+
         if (!name || goles <= 0) continue;
 
+        // Sumar al total general
         allMap[name] = (allMap[name] || 0) + goles;
-        if (cond === "local") local[name] = (local[name] || 0) + goles;
-        if (cond === "visitante")
-          visitante[name] = (visitante[name] || 0) + goles;
+
+        // Sumar según condición del partido
+        if (cond === "local") {
+          localMap[name] = (localMap[name] || 0) + goles;
+        } else if (cond === "visitante") {
+          visitanteMap[name] = (visitanteMap[name] || 0) + goles;
+        }
       }
     }
 
-    return { all: allMap, pj: pjMap, local, visitante };
+    return {
+      all: allMap,
+      pj: pjMap,
+      local: localMap,
+      visitante: visitanteMap,
+      pjLocal: pjLocalMap,
+      pjVisitante: pjVisitanteMap,
+    };
   }, [all, years]);
 
-  const buildListFromMap = (map, limit) =>
+  const buildListFromMap = (map, limit, pjMapSource) =>
     Object.entries(map || {})
       .map(([name, goals]) => {
-        const pj = goalsMaps?.pj?.[name] || 0; // Buscamos los PJ en el mapa nuevo
+        const pj = pjMapSource?.[name] || 0;
         return {
           name,
           goals,
           pj,
-          prom: pj > 0 ? goals / pj : 0, // Calculamos promedio
+          prom: pj > 0 ? goals / pj : 0,
         };
       })
-      .filter((x) => x.goals > 0)
+      .filter((x) => x.goals > 0) // 🔥 Importante: Solo los que metieron goles
       .sort((a, b) => {
-        const diff = b.goals - a.goals;
+        const diff = b.goals - a.goals; // Ordenar por goles DESC
         if (diff !== 0) return diff;
         return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
       })
-      .slice(0, limit);
+      .slice(0, limit); // 🔥 Aplicar el límite (topN)
 
-  const lista = goalsMaps ? buildListFromMap(goalsMaps.all, topN) : []; // (si querés, dejá tu fallback viejo acá)
+  const lista = goalsMaps
+    ? buildListFromMap(goalsMaps.all, topN, goalsMaps.pj)
+    : [];
 
   const halfN = Math.floor(topN / 2);
-  const listaLocal = goalsMaps ? buildListFromMap(goalsMaps.local, halfN) : [];
+
+  const listaLocal = goalsMaps
+    ? buildListFromMap(goalsMaps.local, halfN, goalsMaps.pjLocal) // <--- Usa pjLocal
+    : [];
+
   const listaVisitante = goalsMaps
-    ? buildListFromMap(goalsMaps.visitante, halfN)
+    ? buildListFromMap(goalsMaps.visitante, halfN, goalsMaps.pjVisitante) // <--- Usa pjVisitante
     : [];
 
   if (lista.length === 0) return null;
@@ -134,7 +170,15 @@ const TopGoleadores = ({
 
   // vertical
   const VerticalTable = ({ title, list }) => {
+    const [sortKey, setSortKey] = React.useState("goals");
+    const sortedList = React.useMemo(() => {
+      return [...(list || [])].sort((a, b) => {
+        if (sortKey === "name") return a.name.localeCompare(b.name);
+        return b[sortKey] - a[sortKey]; // Descendente para números (G, PJ, Prom)
+      });
+    }, [list, sortKey]);
     const totalGoles = (list || []).reduce((acc, x) => acc + (x.goals || 0), 0);
+
     return (
       /* Cambiamos w-max por w-full para que respete el contenedor padre (el 50%) */
       <div className="w-full rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -146,21 +190,41 @@ const TopGoleadores = ({
         {/* Agregamos table-fixed para que el truncate funcione */}
         <table className="w-full text-[11px] border-collapse table-fixed">
           <thead>
-            <tr className="bg-slate-100 border-b border-slate-200 text-[9px] uppercase text-slate-500">
-              <th className="w-[12%] px-1 py-1 text-center font-bold">Pos</th>
-              <th className="w-[30%] px-2 py-1 text-left font-bold">Jugador</th>
-              <th className="w-[12%] px-1 py-1 text-center font-bold text-slate-700">
+            <tr className="bg-slate-100 border-b border-slate-200 text-[9px] uppercase text-slate-500 font-bold">
+              <th className="w-[12%] px-1 py-1 text-center">Pos</th>
+
+              <th
+                className={`w-[30%] px-2 py-1 text-left cursor-pointer hover:text-slate-800 ${sortKey === "name" ? "text-blue-600" : ""}`}
+                onClick={() => setSortKey("name")}
+              >
+                Jugador
+              </th>
+
+              <th
+                className={`w-[12%] px-1 py-1 text-center cursor-pointer hover:text-slate-800 ${sortKey === "goals" ? "text-blue-600" : ""}`}
+                onClick={() => setSortKey("goals")}
+              >
                 G
               </th>
-              <th className="w-[12%] px-1 py-1 text-center font-bold">PJ</th>
-              <th className="w-[16%] px-1 py-1 text-right pr-2 font-bold">
+
+              <th
+                className={`w-[12%] px-1 py-1 text-center cursor-pointer hover:text-slate-800 ${sortKey === "pj" ? "text-blue-600" : ""}`}
+                onClick={() => setSortKey("pj")}
+              >
+                PJ
+              </th>
+
+              <th
+                className={`w-[16%] px-1 py-1 text-right pr-2 cursor-pointer hover:text-slate-800 ${sortKey === "prom" ? "text-blue-600" : ""}`}
+                onClick={() => setSortKey("prom")}
+              >
                 Prom
               </th>
             </tr>
           </thead>
 
           <tbody>
-            {!list || list.length === 0 ? (
+            {!sortedList || sortedList.length === 0 ? (
               <tr>
                 <td
                   className="px-3 py-3 text-center text-slate-500"
@@ -170,7 +234,7 @@ const TopGoleadores = ({
                 </td>
               </tr>
             ) : (
-              list.map((j, i) => (
+              sortedList.map((j, i) => (
                 <tr
                   key={j.name}
                   className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors"
@@ -272,88 +336,88 @@ const TopGoleadores = ({
   // fin vertical
 
   // HORIZONTAL (default)
-return (
-  <div className={`${className} mt-4 hidden lg:block`}>
-    {/* Título */}
-    <div className="mb-2">
-      <div className="w-full text-center text-[15px] font-semibold tracking-wide uppercase text-slate-800">
-        Goleadores {yearsLabel}
+  return (
+    <div className={`${className} mt-4 hidden lg:block`}>
+      {/* Título */}
+      <div className="mb-2">
+        <div className="w-full text-center text-[15px] font-semibold tracking-wide uppercase text-slate-800">
+          Goleadores {yearsLabel}
+        </div>
+      </div>
+
+      {/* Contenedor: Eliminamos el ancho completo y centramos si es necesario */}
+      <div className="flex justify-center">
+        <div className="inline-block rounded-lg border border-slate-400 bg-white overflow-hidden shadow-sm">
+          {/* Tabla: Eliminamos w-full y table-fixed */}
+          <table className="text-[11px] border-collapse">
+            <tbody>
+              {/* Fila 1: ranking */}
+              <tr className="bg-sky-50 border-b border-slate-400">
+                {lista.map((j, i) => {
+                  const { icon } = rankStyles(i);
+                  const isLast = i === lista.length - 1;
+
+                  return (
+                    <td
+                      key={`r-${j.name}`}
+                      className={
+                        "px-4 py-2 text-center whitespace-nowrap font-semibold text-slate-700" +
+                        (!isLast ? " border-r border-white/70" : "")
+                      }
+                    >
+                      {icon}
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {/* Fila 2: goles */}
+              <tr className="border-b border-slate-100">
+                {lista.map((j, i) => {
+                  const isLast = i === lista.length - 1;
+
+                  return (
+                    <td
+                      key={`g-${j.name}`}
+                      className={
+                        "px-4 py-2 text-center whitespace-nowrap tabular-nums font-bold text-slate-900 text-lg" +
+                        (!isLast ? " border-r border-slate-100" : "")
+                      }
+                    >
+                      {j.goals}
+                    </td>
+                  );
+                })}
+              </tr>
+
+              {/* Fila 3: apellido */}
+              <tr>
+                {lista.map((j, i) => {
+                  const { bg, isTop3 } = rankStyles(i);
+                  const isLast = i === lista.length - 1;
+
+                  return (
+                    <td
+                      key={`n-${j.name}`}
+                      className={
+                        `px-4 py-2 text-center whitespace-nowrap text-sm ${bg} ` +
+                        (isTop3
+                          ? "font-semibold text-slate-800"
+                          : "text-slate-700") +
+                        (!isLast ? " border-r border-slate-100" : "")
+                      }
+                    >
+                      {prettySafe(j.name)}
+                    </td>
+                  );
+                })}
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-
-    {/* Contenedor: Eliminamos el ancho completo y centramos si es necesario */}
-    <div className="flex justify-center">
-      <div className="inline-block rounded-lg border border-slate-400 bg-white overflow-hidden shadow-sm">
-        {/* Tabla: Eliminamos w-full y table-fixed */}
-        <table className="text-[11px] border-collapse">
-          <tbody>
-            {/* Fila 1: ranking */}
-            <tr className="bg-sky-50 border-b border-slate-400">
-              {lista.map((j, i) => {
-                const { icon } = rankStyles(i);
-                const isLast = i === lista.length - 1;
-
-                return (
-                  <td
-                    key={`r-${j.name}`}
-                    className={
-                      "px-4 py-2 text-center whitespace-nowrap font-semibold text-slate-700" +
-                      (!isLast ? " border-r border-white/70" : "")
-                    }
-                  >
-                    {icon}
-                  </td>
-                );
-              })}
-            </tr>
-
-            {/* Fila 2: goles */}
-            <tr className="border-b border-slate-100">
-              {lista.map((j, i) => {
-                const isLast = i === lista.length - 1;
-
-                return (
-                  <td
-                    key={`g-${j.name}`}
-                    className={
-                      "px-4 py-2 text-center whitespace-nowrap tabular-nums font-bold text-slate-900 text-lg" +
-                      (!isLast ? " border-r border-slate-100" : "")
-                    }
-                  >
-                    {j.goals}
-                  </td>
-                );
-              })}
-            </tr>
-
-            {/* Fila 3: apellido */}
-            <tr>
-              {lista.map((j, i) => {
-                const { bg, isTop3 } = rankStyles(i);
-                const isLast = i === lista.length - 1;
-
-                return (
-                  <td
-                    key={`n-${j.name}`}
-                    className={
-                      `px-4 py-2 text-center whitespace-nowrap text-sm ${bg} ` +
-                      (isTop3
-                        ? "font-semibold text-slate-800"
-                        : "text-slate-700") +
-                      (!isLast ? " border-r border-slate-100" : "")
-                    }
-                  >
-                    {prettySafe(j.name)}
-                  </td>
-                );
-              })}
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-);
+  );
 };
 
 export default TopGoleadores;
