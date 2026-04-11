@@ -282,6 +282,56 @@ const NextMatch = () => {
                 Visitante
               </div>
             </div>
+            {/* Card: neutro */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-1">
+              <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                <div>PJ</div>
+                <div>G</div>
+                <div>E</div>
+                <div>P</div>
+                <div>G/P</div>
+                <div>GF</div>
+                <div>GC</div>
+                <div>DIF</div>
+              </div>
+
+              <div className="grid grid-cols-8 gap-2 text-center text-sm font-bold text-slate-900">
+                <div className="rounded-xl border px-2 py-1">
+                  {resumen.neutro.total}
+                </div>
+                <div className="rounded-xl border px-2 py-1">
+                  {resumen.neutro.g}
+                </div>
+                <div className="rounded-xl border px-2 py-1">
+                  {resumen.neutro.e}
+                </div>
+                <div className="rounded-xl border px-2 py-1">
+                  {resumen.neutro.p}
+                </div>
+
+                <div
+                  className={`rounded-xl border px-2 py-1 ${pillBg(resumen.neutro.gp)} ${numColor(resumen.neutro.gp)}`}
+                >
+                  {displayNoMinus(resumen.neutro.gp)}
+                </div>
+
+                <div className="rounded-xl border px-2 py-1">
+                  {resumen.neutro.gf}
+                </div>
+                <div className="rounded-xl border px-2 py-1">
+                  {resumen.neutro.gc}
+                </div>
+
+                <div
+                  className={`rounded-xl border px-2 py-1 ${pillBg(resumen.neutro.dif)} ${numColor(resumen.neutro.dif)}`}
+                >
+                  {displayNoMinus(resumen.neutro.dif)}
+                </div>
+              </div>
+              <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                Neutral
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -318,34 +368,34 @@ const NextMatch = () => {
             return (
               <div
                 key={m?.id ?? `${m?.fecha}-${m?.rival}-${m?.createdAt ?? ""}`}
-                className={`rounded-2xl border bg-white p-4 shadow-sm ${cardBorderClass(m)}`}
+                className={`rounded-2xl border relative  bg-white p-4 shadow-sm ${cardBorderClass(m)}`}
               >
                 {/* header card */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                <div className="flex items-start justify-between gap-3 ">
+                  <div className="min-w-0 ">
                     {/* Línea 1: Liga + Fecha + Condición */}
                     <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
                       <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
                         {getTorneoDisplay(m, torneosConfig)}
                       </span>
-
                       <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1">
                         {formatDate(m?.fecha)}
                       </span>
-
                       <span
                         className={`rounded-full border bg-white px-2.5 py-1 ${cardBorderClass(m)}`}
                       >
                         {prettyCondition(m?.condition)}
                       </span>
-                      <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
-                        <span className="font-semibold text-slate-500">
-                          Captain:
-                        </span>{" "}
-                        <span className="font-semibold text-slate-800">
-                          {prettySafe(m?.captain)}
+                      <div className="w-full mt-1">
+                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+                          <span className="font-semibold text-slate-500 mr-1">
+                            Captain:
+                          </span>
+                          <span className="font-semibold text-slate-800">
+                            {prettySafe(m?.captain)}
+                          </span>
                         </span>
-                      </span>
+                      </div>
                     </div>
 
                     {!selectedRival ? (
@@ -370,7 +420,7 @@ const NextMatch = () => {
                 </div>
 
                 {/* info */}
-                <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                <div className="mt-3 grid grid-cols-2 gap-2 text-sm mb-7">
                   <div className="rounded-xl bg-slate-50 p-3">
                     <div className="text-xs font-semibold text-slate-500">
                       Goleadores {prettySafe(m?.club)}
@@ -390,7 +440,7 @@ const NextMatch = () => {
                   </div>
                 </div>
                 {/* extras lindos */}
-                <div className="flex flex-wrap gap-2 pt-1 text-center">
+                <div className="absolute bottom-[10px] left-2 right-2 text-center ">
                   {m?.resultMatch ? (
                     <span
                       className={`w-full rounded-xl border bg-white px-3 py-2 text-xs text-slate-600 ${cardBorderClass(m)}`}

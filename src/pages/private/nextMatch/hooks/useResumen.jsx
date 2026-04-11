@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { getOutcome } from "../utils/utils";
 
-
 const blank = () => ({
   total: 0,
   g: 0,
@@ -35,6 +34,7 @@ const cond = (m) =>
 
 const isLocal = (m) => cond(m) === "local";
 const isVisitante = (m) => cond(m) === "visitante";
+const isNeutro = (m) => cond(m) === "neutro" || cond(m) === "neutral";
 
 export const useResumen = (filteredMatches) => {
   return useMemo(() => {
@@ -43,13 +43,15 @@ export const useResumen = (filteredMatches) => {
     const overall = blank();
     const local = blank();
     const visitante = blank();
+    const neutro = blank();
 
     for (const m of list) {
       addMatch(overall, m);
       if (isLocal(m)) addMatch(local, m);
       else if (isVisitante(m)) addMatch(visitante, m);
+      else if (isNeutro(m)) addMatch(neutro, m);
     }
 
-    return { ...overall, local, visitante };
+    return { ...overall, local, visitante, neutro };
   }, [filteredMatches]);
 };

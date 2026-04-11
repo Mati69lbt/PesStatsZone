@@ -17,18 +17,20 @@ export const pretty = (value) => {
       const base = normalizeName(p);
       if (!base) return "";
 
-      // LÓGICA DE MAYÚSCULAS:
-      // 1. Quitamos puntos temporales para contar la longitud real (ej: "f.c." -> "fc")
-      const cleanLength = base.replace(/\./g, "").length;
+      const cleanWord = base.replace(/\./g, ""); // "f.c." -> "fc"
+      const cleanLength = cleanWord.length;
 
-      // 2. Si tiene 2 o 3 letras (ej: rb, psg, fc, tsg, vfl), todo a mayúsculas
-      if (cleanLength >= 2 && cleanLength <= 3) {
+      // Identificamos si tiene vocales (a, e, i, o, u)
+      const tieneVocales = /[aeiou]/i.test(cleanWord);
+
+      // 2. Regla: 2 o 3 letras Y que NO tenga vocales (solo consonantes como PSG, FC, RB)
+      if (cleanLength >= 2 && cleanLength <= 3 && !tieneVocales) {
         return base.toUpperCase();
       }
 
-      // 3. Caso especial: si es una sola letra con punto (ej: "f. c.") o palabra larga
-      // Capitalizamos la primera letra y el resto queda como viene
-      return base.charAt(0).toUpperCase() + base.slice(1);
+      // 3. Si es una palabra corta con vocales (de, la, el) o palabra larga,
+      // solo capitalizamos la primera letra.
+      return base.charAt(0).toUpperCase() + base.slice(1).toLowerCase();
     })
     .filter(Boolean);
 

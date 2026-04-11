@@ -115,14 +115,14 @@ export const numColor = (n) => {
   const v = Number(n ?? 0);
   if (v > 0) return "text-emerald-700";
   if (v < 0) return "text-rose-700";
-  return "text-slate-700";
+  return "text-yellow-700";
 };
 
 export const pillBg = (n) => {
   const v = Number(n ?? 0);
   if (v > 0) return "bg-emerald-50 border-emerald-500 border-2";
   if (v < 0) return "bg-rose-50 border-rose-500";
-  return "bg-slate-50 border-slate-500";
+  return "bg-yellow-50 border-yellow-500";
 };
 
 export const getTorneoDisplay = (match, torneosConfig) => {
