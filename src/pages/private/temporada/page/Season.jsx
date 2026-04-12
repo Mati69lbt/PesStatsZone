@@ -60,37 +60,42 @@ const Season = () => {
 
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
-      <div className="mb-3">
-        <h1 className="text-2xl font-bold text-center">📆 Temporadas</h1>
+      <div className="mb-2 px-2 py-3 border-b border-slate-100">
+        <div className="flex items-center justify-evenly">
+          {/* BLOQUE IZQUIERDO: Botones apilados */}
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setView("anual")}
+              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] transition-all border ${
+                view === "anual"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-md"
+                  : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              Anual
+            </button>
+            <button
+              type="button"
+              onClick={() => setView("europeo")}
+              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] transition-all border ${
+                view === "europeo"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-md"
+                  : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              Europeo
+            </button>
+          </div>
 
-        <div className="mt-3 flex justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => setView("anual")}
-            className={[
-              "px-4 py-2 rounded-full text-sm font-semibold border transition shadow-sm",
-              "focus:outline-none focus:ring-2 focus:ring-black/10 active:scale-[0.98]",
-              view === "anual"
-                ? "bg-black text-white border-black"
-                : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50",
-            ].join(" ")}
-          >
-            Anual
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setView("europeo")}
-            className={[
-              "px-4 py-2 rounded-full text-sm font-semibold border transition shadow-sm",
-              "focus:outline-none focus:ring-2 focus:ring-black/10 active:scale-[0.98]",
-              view === "europeo"
-                ? "bg-black text-white border-black"
-                : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50",
-            ].join(" ")}
-          >
-            Europeo
-          </button>
+          {/* BLOQUE DERECHO: Título vertical */}
+          <div className="flex flex-col items-center">
+            <span className="text-3xl mb-1 drop-shadow-sm">📆</span>
+            <h1 className="text-2xl font-black tracking-tighter text-slate-900 leading-none">
+              Temporadas
+            </h1>
+            <div className="h-1 w-full bg-slate-900 mt-1 rounded-full opacity-10"></div>
+          </div>
         </div>
       </div>
       <hr className="border-gray-200" />
@@ -111,5 +116,3 @@ const Season = () => {
 };
 
 export default Season;
-
-

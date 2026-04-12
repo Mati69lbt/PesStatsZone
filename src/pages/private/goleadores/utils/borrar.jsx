@@ -30,8 +30,8 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
   };
 
   return (
-    <div className="mt-6 px-2 md:px-0">
-      <h2 className="text-2xl font-black mb-6 text-center text-slate-800 tracking-tight">
+    <div className="mt-2 px-2 md:px-0">
+      <h2 className="text-2xl font-black mb-2 text-center text-slate-800 tracking-tight">
         🏆 GOLEADORES POR CAMPEONATO
       </h2>
 
@@ -46,12 +46,12 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
         return (
           <div
             key={torneo.label}
-            className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-md transition-all duration-300"
+            className="mb-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-md transition-all duration-300"
           >
             {/* HEAD - ACCORDEON */}
             <div
               onClick={() => setOpenTorneo(isOpen ? null : torneo.label)}
-              className={`cursor-pointer flex items-center justify-between p-4 transition-colors ${
+              className={`cursor-pointer flex items-center justify-between p-2 transition-colors ${
                 isOpen
                   ? "bg-slate-800 text-white"
                   : "bg-white text-slate-700 hover:bg-slate-50"

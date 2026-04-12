@@ -66,7 +66,7 @@ const IndexPR = () => {
       </div>
 
       {/* contenido abajo */}
-      <div className="mt-4">
+      <div>
         {view === "palmares" && <Palmares />}
         {view === "record" && <PersonRecord />}
         {view === "goleadores" && <AllGoleadores />}

@@ -114,7 +114,7 @@ const Versus = () => {
 
   return (
     <div className="p-2 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-center mt-4">
+      <h1 className="mt-2 mb-2 text-center text-2xl font-extrabold tracking-tight text-slate-900">
         📊 Estadísticas del Equipo
       </h1>
 

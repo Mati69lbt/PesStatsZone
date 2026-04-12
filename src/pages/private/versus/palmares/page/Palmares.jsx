@@ -153,7 +153,7 @@ const Palmares = () => {
   }, [items]);
 
   return (
-    <div className="p-4 max-w-3xl mx-auto">
+    <div className="p-2 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-2 text-center">👑 Palmarés</h1>
 
       {loading && (
@@ -163,7 +163,7 @@ const Palmares = () => {
       )}
 
       {!loading && !items.length && (
-        <div className="text-center text-sm text-slate-500 mt-6">
+        <div className="text-center text-sm text-slate-500 mt-2">
           Todavía no guardaste resultados de campeonatos.
           <br />
           Usá la pantalla <span className="font-semibold">

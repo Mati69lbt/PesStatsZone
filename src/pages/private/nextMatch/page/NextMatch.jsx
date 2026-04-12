@@ -73,13 +73,13 @@ const NextMatch = () => {
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
       <div className="flex items-center justify-center gap-3 mb-4">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="mt-2 mb-2 text-center text-2xl font-extrabold tracking-tight text-slate-900">
           ⚔️ NextMatch
         </h1>
       </div>
 
       {/* Controles */}
-      <div className="mb-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
         {/* Fila 1: Selects (izq/der) */}
         <div className="grid grid-cols-2 gap-3 mb-2">
           <div className="text-left">
