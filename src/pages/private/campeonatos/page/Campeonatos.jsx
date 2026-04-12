@@ -84,7 +84,7 @@ const Campeonatos = () => {
 
   return (
     <div className="p-1 max-w-screen-2xl mx-auto">
-      <div className="flex items-center justify-center gap-4 mb-8">
+      <div className="flex items-center justify-center gap-4 mb-2">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
           🏆 Campeonatos
         </h1>
@@ -98,7 +98,7 @@ const Campeonatos = () => {
       </div>
 
       {/* ✅ Controles (más prolijos) */}
-      <div className="mb-4 flex flex-wrap items-end justify-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-2 flex flex-wrap items-end justify-center gap-4 rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
         <div className="text-center">
           <label className="mb-1 block text-sm font-medium text-slate-700">
             Club

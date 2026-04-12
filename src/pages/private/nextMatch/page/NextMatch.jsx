@@ -282,56 +282,59 @@ const NextMatch = () => {
                 Visitante
               </div>
             </div>
-            {/* Card: neutro */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-1">
-              <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                <div>PJ</div>
-                <div>G</div>
-                <div>E</div>
-                <div>P</div>
-                <div>G/P</div>
-                <div>GF</div>
-                <div>GC</div>
-                <div>DIF</div>
+
+            {resumen.neutro.total > 0 && (
+              <div className="rounded-2xl border border-slate-200 bg-white p-1">
+                <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                  <div>PJ</div>
+                  <div>G</div>
+                  <div>E</div>
+                  <div>P</div>
+                  <div>G/P</div>
+                  <div>GF</div>
+                  <div>GC</div>
+                  <div>DIF</div>
+                </div>
+
+                <div className="grid grid-cols-8 gap-2 text-center text-sm font-bold text-slate-900">
+                  <div className="rounded-xl border px-2 py-1">
+                    {resumen.neutro.total}
+                  </div>
+                  <div className="rounded-xl border px-2 py-1">
+                    {resumen.neutro.g}
+                  </div>
+                  <div className="rounded-xl border px-2 py-1">
+                    {resumen.neutro.e}
+                  </div>
+                  <div className="rounded-xl border px-2 py-1">
+                    {resumen.neutro.p}
+                  </div>
+
+                  <div
+                    className={`rounded-xl border px-2 py-1 ${pillBg(resumen.neutro.gp)} ${numColor(resumen.neutro.gp)}`}
+                  >
+                    {displayNoMinus(resumen.neutro.gp)}
+                  </div>
+
+                  <div className="rounded-xl border px-2 py-1">
+                    {resumen.neutro.gf}
+                  </div>
+                  <div className="rounded-xl border px-2 py-1">
+                    {resumen.neutro.gc}
+                  </div>
+
+                  <div
+                    className={`rounded-xl border px-2 py-1 ${pillBg(resumen.neutro.dif)} ${numColor(resumen.neutro.dif)}`}
+                  >
+                    {displayNoMinus(resumen.neutro.dif)}
+                  </div>
+                </div>
+
+                <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                  Neutral
+                </div>
               </div>
-
-              <div className="grid grid-cols-8 gap-2 text-center text-sm font-bold text-slate-900">
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.total}
-                </div>
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.g}
-                </div>
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.e}
-                </div>
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.p}
-                </div>
-
-                <div
-                  className={`rounded-xl border px-2 py-1 ${pillBg(resumen.neutro.gp)} ${numColor(resumen.neutro.gp)}`}
-                >
-                  {displayNoMinus(resumen.neutro.gp)}
-                </div>
-
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.gf}
-                </div>
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.gc}
-                </div>
-
-                <div
-                  className={`rounded-xl border px-2 py-1 ${pillBg(resumen.neutro.dif)} ${numColor(resumen.neutro.dif)}`}
-                >
-                  {displayNoMinus(resumen.neutro.dif)}
-                </div>
-              </div>
-              <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                Neutral
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
