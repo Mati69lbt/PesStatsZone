@@ -111,6 +111,12 @@ export const joinScorers = (arr) => {
   return clean.length ? clean.join(" · ") : "—";
 };
 
+export const barColor = (n) => {
+  const v = Number(n ?? 0);
+  if (v > 0) return "text-emerald-500";
+  if (v < 0) return "text-rose-500";
+  return "text-yellow-500";
+};
 export const numColor = (n) => {
   const v = Number(n ?? 0);
   if (v > 0) return "text-emerald-700";

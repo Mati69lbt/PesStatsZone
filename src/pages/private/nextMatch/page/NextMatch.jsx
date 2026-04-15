@@ -9,6 +9,7 @@ import { useOrderedMatches } from "../hooks/useOrderedMatches";
 import { useResumen } from "../hooks/useResumen";
 import {
   badgeClass,
+  barColor,
   cardBorderClass,
   formatDate,
   getOutcome,
@@ -25,6 +26,7 @@ import TablaGoleadores from "../utils/TablaGoleadores";
 import { displayNoMinus } from "../../versus/util/funtions";
 import usePlayed from "../hooks/usePlayed";
 import useclubRowsWithPJ from "../hooks/useclubRowsWithPJ";
+import { Loading } from "notiflix/build/notiflix-loading-aio";
 
 const NextMatch = () => {
   const { hasLineupsLoaded, clubs, activeClub, lineupState } = useClubData();
@@ -70,6 +72,16 @@ const NextMatch = () => {
   const pjByPlayer = usePlayed(filteredMatches);
   const clubRowsWithPJ = useclubRowsWithPJ(clubRows, pjByPlayer);
 
+  useEffect(() => {
+    if (resumen.total === 0) {
+      Loading.circle("Cargando...");
+    } else {
+      Loading.remove();
+    }
+
+    return () => Loading.remove();
+  }, [resumen.total]);
+
   return (
     <div className="p-1 sm:p-4 max-w-screen-2xl mx-auto overflow-hidden">
       <div className="flex items-center justify-center gap-3 mb-4">
@@ -77,7 +89,6 @@ const NextMatch = () => {
           ⚔️ NextMatch
         </h1>
       </div>
-
       {/* Controles */}
       <div className="mb-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
         {/* Fila 1: Selects (izq/der) */}
@@ -118,8 +129,12 @@ const NextMatch = () => {
           </div>
         </div>
 
+        {/* ${resumen.total === 0 ? "hidden" : ""} */}
+
         {selectedRival ? (
-          <div className="m-1 rounded-2xl bg-white p-2 text-center">
+          <div
+            className={`m-1 rounded-2xl bg-white p-2 text-center ${resumen.total === 0 ? "hidden" : ""} `}
+          >
             <div
               className={`rounded-2xl border px-4 py-3 text-xl font-extrabold tracking-tight text-slate-900 ${pillBg(resumen.gp)}`}
             >
@@ -129,7 +144,9 @@ const NextMatch = () => {
         ) : null}
 
         {/* Fila 2: Resumen */}
-        <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-1">
+        <div
+          className={`w-full rounded-2xl border border-slate-200 bg-slate-50 p-1 ${resumen.total === 0 ? "hidden" : ""}`}
+        >
           {/* Card: GENERAL */}
           <div className="rounded-2xl border border-slate-200 bg-white p-1">
             {/* Header */}
@@ -340,10 +357,12 @@ const NextMatch = () => {
       </div>
 
       {selectedRival && (
-        <div className="mb-1 grid grid-cols-2 gap-2">
+        <div
+          className={`mb-1 grid grid-cols-2 gap-2 ${resumen.total === 0 ? "hidden" : ""} `}
+        >
           <div className="min-w-0">
             <TablaGoleadores
-              title={prettySafe(activeClub)}
+              title={prettySafe(clubKey)}
               rows={clubRowsWithPJ}
             />
           </div>
@@ -356,14 +375,13 @@ const NextMatch = () => {
           </div>
         </div>
       )}
-
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {orderedMatches.map((m) => {
           const outcome = getOutcome(m);
           return (
             <div
               key={m?.id ?? `${m?.fecha}-${m?.rival}-${m?.createdAt ?? ""}`}
-              className={`rounded-2xl border bg-white p-3 shadow-sm flex flex-col gap-3 ${cardBorderClass(m)}`}
+              className={`rounded-2xl border bg-white p-2 shadow-sm flex flex-col gap-2 ${cardBorderClass(m)}`}
             >
               {/* Renglón 1: 2 Columnas Balanceadas */}
               <div className="grid grid-cols-[1fr_auto] items-center gap-3">
@@ -386,15 +404,6 @@ const NextMatch = () => {
                   </div>
 
                   {/* Resultado Badge */}
-                  <span
-                    className={`
-        text-[12px] font-black uppercase tracking-tight px-2 py-1 rounded-md border
-        shadow-sm transition-all
-        ${badgeClass(outcome)}
-      `}
-                  >
-                    {outcome}
-                  </span>
                 </div>
               </div>
 
@@ -411,10 +420,19 @@ const NextMatch = () => {
                     {prettySafe(m?.captain)}
                   </span>
                 </div>
+                <span
+                  className={`
+        text-[12px] font-black uppercase tracking-tight px-2 py-1 rounded-md border
+        shadow-sm transition-all
+        ${badgeClass(outcome)}
+      `}
+                >
+                  {outcome}
+                </span>
               </div>
 
               {/* BLOQUE UNIFICADO: MARCADOR (IZQ) Y GOLEADORES (DER) */}
-              <div className="mt-1 grid grid-cols-2 gap-2 items-stretch">
+              <div className="grid grid-cols-2 gap-2 items-stretch">
                 {/* COLUMNA IZQUIERDA: MARCADOR TIPO TV */}
                 {m?.resultMatch &&
                   (() => {
@@ -424,8 +442,6 @@ const NextMatch = () => {
 
                     const topTeam = isLocalOrNeutral ? m?.club : m?.rival;
                     const bottomTeam = isLocalOrNeutral ? m?.rival : m?.club;
-                    const topScore = isLocalOrNeutral ? left : right;
-                    const bottomScore = isLocalOrNeutral ? right : left;
 
                     return (
                       <div
@@ -434,25 +450,27 @@ const NextMatch = () => {
                         <div className="flex flex-col gap-1">
                           {/* Fila Superior */}
                           <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-                            <span className="text-[14px] font-black uppercase tracking-tighter text-slate-700">
+                            <span className="text-[12px] font-black uppercase tracking-tighter text-slate-700  ml-2 ">
                               {prettySafe(topTeam)}
                             </span>
                             <span
-                              className={`text-xl font-black tabular-nums ${numColor(getOutcome(m) === "GANADO" ? 1 : getOutcome(m) === "PERDIDO" ? -1 : 0)}`}
+                              className={`text-xl mr-2 font-black tabular-nums ${numColor(getOutcome(m) === "GANADO" ? 1 : getOutcome(m) === "PERDIDO" ? -1 : 0)}`}
                             >
                               {left}
                             </span>
                           </div>
 
-                          <div className="h-[10px] w-full bg-slate-300" />
+                          <div
+                            className={`h-[10px] w-full rounded-xl bg-current ${barColor(getOutcome(m) === "GANADO" ? 1 : getOutcome(m) === "PERDIDO" ? -1 : 0)}`}
+                          />
 
                           {/* Fila Inferior */}
                           <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-                            <span className="text-[14px] font-black uppercase tracking-tighter text-slate-600">
+                            <span className="text-[12px] font-black uppercase tracking-tighter text-slate-700 ml-2">
                               {prettySafe(bottomTeam)}
                             </span>
                             <span
-                              className={`text-xl font-black tabular-nums ${numColor(getOutcome(m) === "GANADO" ? 1 : getOutcome(m) === "PERDIDO" ? -1 : 0)}`}
+                              className={`text-xl mr-2 font-black tabular-nums ${numColor(getOutcome(m) === "GANADO" ? 1 : getOutcome(m) === "PERDIDO" ? -1 : 0)}`}
                             >
                               {right}
                             </span>
@@ -474,7 +492,7 @@ const NextMatch = () => {
                     <div className="text-[11px] font-bold text-slate-800 leading-tight">
                       {m?.condition === "local" || m?.condition === "neutro"
                         ? pretty(joinScorers(m?.goleadoresActiveClub)) || "—"
-                        : joinScorers(m?.goleadoresRivales) || "—"}
+                        : pretty(joinScorers(m?.goleadoresRivales)) || "—"}
                     </div>
                   </div>
 
@@ -487,7 +505,7 @@ const NextMatch = () => {
                     </div>
                     <div className="text-[11px] font-bold text-slate-800 leading-tight">
                       {m?.condition === "local" || m?.condition === "neutro"
-                        ? joinScorers(m?.goleadoresRivales) || "—"
+                        ? pretty(joinScorers(m?.goleadoresRivales)) || "—"
                         : pretty(joinScorers(m?.goleadoresActiveClub)) || "—"}
                     </div>
                   </div>
