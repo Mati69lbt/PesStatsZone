@@ -71,7 +71,7 @@ const NextMatch = () => {
   const clubRowsWithPJ = useclubRowsWithPJ(clubRows, pjByPlayer);
 
   return (
-    <div className="p-1 sm:p-4 max-w-screen-2xl mx-auto overflow-hidden">
+    <div className="p-2 max-w-screen-2xl mx-auto">
       <div className="flex items-center justify-center gap-3 mb-4">
         <h1 className="mt-2 mb-2 text-center text-2xl font-extrabold tracking-tight text-slate-900">
           ⚔️ NextMatch
@@ -357,146 +357,106 @@ const NextMatch = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {orderedMatches.map((m) => {
-          const outcome = getOutcome(m);
-          return (
-            <div
-              key={m?.id ?? `${m?.fecha}-${m?.rival}-${m?.createdAt ?? ""}`}
-              className={`rounded-2xl border bg-white p-3 shadow-sm flex flex-col gap-3 ${cardBorderClass(m)}`}
-            >
-              {/* Renglón 1: 2 Columnas Balanceadas */}
-              <div className="grid grid-cols-[1fr_auto] items-center gap-3">
-                {/* 1. TORNEO: Ocupa el espacio sobrante (izquierda) */}
-                <div className="min-w-0">
-                  <div className="inline-flex items-center gap-1.5 rounded-md bg-slate-100/80 px-2 py-1 max-w-full">
-                    <span className="text-[10px] opacity-70">🏆</span>
-                    <span className="text-[12px] font-black uppercase tracking-tight text-slate-500">
-                      {getTorneoDisplay(m, torneosConfig)}
-                    </span>
-                  </div>
-                </div>
+      {/* Listado */}
+      {orderedMatches.length === 0 ? (
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-slate-500 shadow-sm">
+          No hay partidos para mostrar.
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {orderedMatches.map((m) => {
+            const outcome = getOutcome(m);
+            const { left, right } = getScoreDisplay(m);
 
-                {/* 2. INFO DER: Fecha y Resultado agrupados (derecha) */}
-                <div className="flex items-center gap-2">
-                  {/* Fecha */}
-                  <div className="flex items-center gap-1 text-[12px] font-bold text-slate-400 bg-white px-2 py-1 rounded-full border border-slate-100 shadow-sm">
-                    <span>📅</span>
-                    <span className="tabular-nums">{formatDate(m?.fecha)}</span>
-                  </div>
-
-                  {/* Resultado Badge */}
-                  <span
-                    className={`
-        text-[12px] font-black uppercase tracking-tight px-2 py-1 rounded-md border
-        shadow-sm transition-all
-        ${badgeClass(outcome)}
-      `}
-                  >
-                    {outcome}
-                  </span>
-                </div>
-              </div>
-
-              {/* Renglón 2: Condición y Capitán */}
-              <div className="flex items-center justify-evenly">
-                <span
-                  className={`rounded-lg border bg-white px-2 py-0.5 text-[10px] font-black uppercase ${cardBorderClass(m)}`}
-                >
-                  {prettyCondition(m?.condition)}
-                </span>
-                <div className="text-[11px] font-bold text-slate-400 rounded-md bg-slate-100/80 px-2 py-0.5 ">
-                  CAP:{" "}
-                  <span className="text-slate-800">
-                    {prettySafe(m?.captain)}
-                  </span>
-                </div>
-              </div>
-
-              {/* BLOQUE UNIFICADO: MARCADOR (IZQ) Y GOLEADORES (DER) */}
-              <div className="mt-1 grid grid-cols-2 gap-2 items-stretch">
-                {/* COLUMNA IZQUIERDA: MARCADOR TIPO TV */}
-                {m?.resultMatch &&
-                  (() => {
-                    const { left, right } = getScoreDisplay(m);
-                    const isLocalOrNeutral =
-                      m?.condition === "local" || m?.condition === "neutro";
-
-                    const topTeam = isLocalOrNeutral ? m?.club : m?.rival;
-                    const bottomTeam = isLocalOrNeutral ? m?.rival : m?.club;
-                    const topScore = isLocalOrNeutral ? left : right;
-                    const bottomScore = isLocalOrNeutral ? right : left;
-
-                    return (
-                      <div
-                        className={`flex flex-col justify-center rounded-xl border-2 bg-white p-2 shadow-sm ${cardBorderClass(m)}`}
+            return (
+              <div
+                key={m?.id ?? `${m?.fecha}-${m?.rival}-${m?.createdAt ?? ""}`}
+                className={`rounded-2xl border relative  bg-white p-4 shadow-sm ${cardBorderClass(m)}`}
+              >
+                {/* header card */}
+                <div className="flex items-start justify-between gap-3 ">
+                  <div className="min-w-0 ">
+                    {/* Línea 1: Liga + Fecha + Condición */}
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                      <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+                        {getTorneoDisplay(m, torneosConfig)}
+                      </span>
+                      <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1">
+                        {formatDate(m?.fecha)}
+                      </span>
+                      <span
+                        className={`rounded-full border bg-white px-2.5 py-1 ${cardBorderClass(m)}`}
                       >
-                        <div className="flex flex-col gap-1">
-                          {/* Fila Superior */}
-                          <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-                            <span className="text-[14px] font-black uppercase tracking-tighter text-slate-700">
-                              {prettySafe(topTeam)}
-                            </span>
-                            <span
-                              className={`text-xl font-black tabular-nums ${numColor(getOutcome(m) === "GANADO" ? 1 : getOutcome(m) === "PERDIDO" ? -1 : 0)}`}
-                            >
-                              {left}
-                            </span>
-                          </div>
+                        {prettyCondition(m?.condition)}
+                      </span>
+                      <div className="w-full mt-1">
+                        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1">
+                          <span className="font-semibold text-slate-500 mr-1">
+                            Captain:
+                          </span>
+                          <span className="font-semibold text-slate-800">
+                            {prettySafe(m?.captain)}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
 
-                          <div className="h-[10px] w-full bg-slate-300" />
-
-                          {/* Fila Inferior */}
-                          <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-                            <span className="text-[14px] font-black uppercase tracking-tighter text-slate-600">
-                              {prettySafe(bottomTeam)}
-                            </span>
-                            <span
-                              className={`text-xl font-black tabular-nums ${numColor(getOutcome(m) === "GANADO" ? 1 : getOutcome(m) === "PERDIDO" ? -1 : 0)}`}
-                            >
-                              {right}
-                            </span>
-                          </div>
+                    {!selectedRival ? (
+                      <div className="mt-2 flex items-center justify-center">
+                        <div className="truncate text-base font-extrabold tracking-wide text-slate-900 sm:text-lg">
+                          {prettySafe(m?.rival)}
                         </div>
                       </div>
-                    );
-                  })()}
-
-                {/* COLUMNA DERECHA: GOLEADORES */}
-                <div className="flex flex-col gap-1.5">
-                  {/* Goleadores Club Activo */}
-                  <div className="rounded-lg bg-slate-50/50 p-2 border border-slate-100 flex-1">
-                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-0.5">
-                      {m?.condition === "local" || m?.condition === "neutro"
-                        ? prettySafe(m?.club)
-                        : prettySafe(m?.rival)}
-                    </div>
-                    <div className="text-[11px] font-bold text-slate-800 leading-tight">
-                      {m?.condition === "local" || m?.condition === "neutro"
-                        ? pretty(joinScorers(m?.goleadoresActiveClub)) || "—"
-                        : joinScorers(m?.goleadoresRivales) || "—"}
-                    </div>
+                    ) : null}
                   </div>
-
-                  {/* Goleadores Rival */}
-                  <div className="rounded-lg bg-slate-50/50 p-2 border border-slate-100 flex-1">
-                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-0.5">
-                      {m?.condition === "local" || m?.condition === "neutro"
-                        ? prettySafe(m?.rival)
-                        : prettySafe(m?.club)}
-                    </div>
-                    <div className="text-[11px] font-bold text-slate-800 leading-tight">
-                      {m?.condition === "local" || m?.condition === "neutro"
-                        ? joinScorers(m?.goleadoresRivales) || "—"
-                        : pretty(joinScorers(m?.goleadoresActiveClub)) || "—"}
+                  <div
+                    className={
+                      "shrink-0 rounded-xl border px-3 py-2 text-center " +
+                      badgeClass(outcome)
+                    }
+                  >
+                    <div className="text-xs font-semibold">{outcome}</div>
+                    <div className="text-lg font-extrabold tracking-tight">
+                      {left} - {right}
                     </div>
                   </div>
                 </div>
+
+                {/* info */}
+                <div className="mt-3 grid grid-cols-2 gap-2 text-sm mb-7">
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <div className="text-xs font-semibold text-slate-500">
+                      Goleadores {prettySafe(m?.club)}
+                    </div>
+                    <div className="text-slate-800">
+                      {pretty(joinScorers(m?.goleadoresActiveClub))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <div className="text-xs font-semibold text-slate-500">
+                      Goleadores rival
+                    </div>
+                    <div className="text-slate-800">
+                      {joinScorers(m?.goleadoresRivales)}
+                    </div>
+                  </div>
+                </div>
+                {/* extras lindos */}
+                <div className="absolute bottom-[10px] left-2 right-2 text-center ">
+                  {m?.resultMatch ? (
+                    <span
+                      className={`w-full rounded-xl border bg-white px-3 py-2 text-xs text-slate-600 ${cardBorderClass(m)}`}
+                    >
+                      {pretty(m.resultMatch)}
+                    </span>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
