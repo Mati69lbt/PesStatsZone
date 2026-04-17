@@ -14,6 +14,7 @@ import TopGoleadores from "../../temporada/page/Goleadores";
 import RachaN from "../utils/RachaN";
 import Goleadores_Desglozados from "../utils/goleadores_Desglozados/page/Goleadores_Desglozados";
 import GolEuropa from "../utils/GolEuropa";
+import PartidosJugados from "../utils/goleadores_Desglozados/page/PartidosJugados";
 
 const getSeasonKeyFromMatch = (m) => {
   const raw = m?.fecha || m?.createdAt;
@@ -49,7 +50,6 @@ const Scorers = () => {
   useUserData(uid, matchDispatch, lineupDispatch);
 
   const [data, setData] = useState(null);
-
 
   const clubs = Object.keys(lineupState?.lineups || []);
   const [selectedClub, setSelectedClub] = useState(
@@ -110,6 +110,7 @@ const Scorers = () => {
     { value: "carniceros", label: "Carniceros" },
     { value: "expulsados", label: "Expulsados" },
     { value: "goleadores", label: "Goleadores" },
+    { value: "jugados", label: "Partidos Jugados" },
   ];
 
   return (
@@ -181,6 +182,7 @@ const Scorers = () => {
 
       {/* Contenido según vista */}
       {view === "scorers" && <Goleadores_Desglozados matches={matches} />}
+      {view === "jugados" && <PartidosJugados matches={matches} />}
       {view === "goleadores" && <GoleadoresGral matches={matches} />}
       {view === "campeonatos" && (
         <GoleadoresPorCampeonato matches={matches} bucket={bucket} />
