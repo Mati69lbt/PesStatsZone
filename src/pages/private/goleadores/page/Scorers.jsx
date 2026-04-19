@@ -116,68 +116,70 @@ const Scorers = () => {
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
       {/* Selector de club */}
-      <div className="flex items-end gap-4 mb-2 mt-4 px-2 border-b border-slate-100 pb-2">
-        {/* GRUPO DE SELECTORES (Lado izquierdo y centro) */}
-        <div className="flex items-end gap-3 flex-1">
-          {/* Club */}
-          <div className="flex flex-col w-full max-w-[180px]">
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1 pl-1">
+      <div className="flex items-center justify-evenly mb-2 mt-2 px-2 border-b border-slate-100 pb-2">
+        {/* GRUPO DE SELECTORES (Lado izquierdo - Uno arriba del otro) */}
+        <div className="flex flex-col gap-4">
+          {/* Selector de Club */}
+          <div className="relative w-[160px]">
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[9px] font-black uppercase tracking-[0.15em] text-sky-600 z-10">
               Club
-            </span>
-            <div className="relative">
-              <select
-                value={selectedClub}
-                onChange={(e) => setSelectedClub(e.target.value)}
-                className="appearance-none w-full rounded-xl border border-slate-200 bg-white pl-3 pr-8 py-2 text-sm font-bold text-slate-700 shadow-sm 
-                     transition-all cursor-pointer hover:border-slate-300
-                     focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900"
-              >
-                {clubs.map((c) => (
-                  <option key={c} value={c}>
-                    {prettySafe(c)}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-                <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                </svg>
-              </div>
+            </label>
+            <select
+              value={selectedClub}
+              onChange={(e) => setSelectedClub(e.target.value)}
+              className="appearance-none w-full rounded-xl border border-slate-200 bg-white pl-3 pr-8 py-2 text-sm font-bold text-slate-700 shadow-sm 
+                   transition-all cursor-pointer hover:border-sky-200
+                   focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-500"
+            >
+              {clubs.map((c) => (
+                <option key={c} value={c}>
+                  {prettySafe(c)}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+              <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+              </svg>
             </div>
           </div>
 
-          {/* Vista */}
-          <div className="flex flex-col w-full max-w-[150px]">
-            <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1 pl-1">
+          {/* Selector de Vista */}
+          <div className="relative w-[140px]">
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[9px] font-black uppercase tracking-[0.15em] text-sky-600 z-10">
               Vista
-            </span>
-            <div className="relative">
-              <select
-                value={view}
-                onChange={(e) => setView(e.target.value)}
-                className="appearance-none w-full rounded-xl border border-slate-200 bg-white pl-3 pr-8 py-2 text-sm font-bold text-slate-700 shadow-sm 
-                     transition-all cursor-pointer hover:border-slate-300
-                     focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900"
-              >
-                {viewOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-                <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                </svg>
-              </div>
+            </label>
+            <select
+              value={view}
+              onChange={(e) => setView(e.target.value)}
+              className="appearance-none w-full rounded-xl border border-slate-200 bg-white pl-3 pr-8 py-2 text-sm font-bold text-slate-700 shadow-sm 
+                   transition-all cursor-pointer hover:border-sky-200
+                   focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-500"
+            >
+              {viewOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+              <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+              </svg>
             </div>
           </div>
         </div>
 
         {/* TÍTULO (Lado derecho) */}
-        <h1 className="text-3xl font-black tracking-tighter text-slate-900 whitespace-nowrap leading-none pb-0.5">
-          ⚽ Scorers
-        </h1>
+        <div className="flex flex-col items-end self-center">
+          <div className="flex items-center gap-1.5">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 leading-none">
+              Scorers
+            </h1>
+            <span className="text-xl">⚽</span>
+          </div>
+          <div className="h-1.5 w-12 bg-sky-500 rounded-full mt-2"></div>
+        </div>
       </div>
 
       {/* Contenido según vista */}

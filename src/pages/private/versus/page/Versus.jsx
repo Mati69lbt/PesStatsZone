@@ -128,104 +128,135 @@ const Versus = () => {
   "
       >
         {/* Club */}
-        <div className="text-center">
-          <label className="text-sm font-medium block text-slate-700">
-            Club
-          </label>
-          <select
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
-                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={selectedClub}
-            onChange={(e) => setSelectedClub(e.target.value)}
-          >
-            {clubs.map((c) => (
-              <option key={c} value={c}>
-                {prettySafe(c)}
-              </option>
-            ))}
-          </select>
+        <div className="text-left">
+          <div className="relative mt-1">
+            {" "}
+            {/* 2. 'relative' es el ancla para el label flotante */}
+            {/* 3. El Label Flotante */}
+            <label
+              className="absolute 
+                 -top-2        /* Sube la etiqueta justo a la mitad del borde superior */
+                 left-3        /* La desplaza un poco a la derecha */
+                 z-10          /* Asegura que esté por encima del borde del select */
+                 bg-white      /* Truco clave: mismo color que el fondo del componente */
+                 px-1          /* Espacio a los lados para que el borde no toque las letras */
+                 text-[10px]   /* Tamaño pequeño y compacto */
+                 font-bold 
+                 uppercase 
+                 tracking-wide 
+                 text-sky-600" /* Color destacado para diferenciarlo del valor del select */
+            >
+              Club
+            </label>
+            {/* 4. El Select */}
+            <select
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm 
+                 text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-200"
+              value={selectedClub}
+              onChange={(e) => setSelectedClub(e.target.value)}
+            >
+              {clubs.map((c) => (
+                <option key={c} value={c}>
+                  {prettySafe(c)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Ámbito */}
-        <div className="text-center">
-          <label className="text-sm font-medium block text-slate-700">
-            Ámbito
-          </label>
-          <select
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
-                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={ordenAmbito}
-            onChange={(e) => setOrdenAmbito(e.target.value)}
-          >
-            <option value="general">General</option>
-            <option value="local">Local</option>
-            <option value="visitante">Visitante</option>
-            {captains.map((c) => (
-              <option key={c} value={c}>
-                {prettySafe(c)}
-              </option>
-            ))}
-          </select>
+        <div className="text-left">
+          <div className="relative mt-1">
+            {/* Etiqueta Flotante */}
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+              Ámbito
+            </label>
+
+            <select
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-200 cursor-pointer"
+              value={ordenAmbito}
+              onChange={(e) => setOrdenAmbito(e.target.value)}
+            >
+              <option value="general">General</option>
+              <option value="local">Local</option>
+              <option value="visitante">Visitante</option>
+              {captains.map((c) => (
+                <option key={c} value={c}>
+                  {prettySafe(c)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Campo */}
-        <div className="text-center">
-          <label className="text-sm font-medium block text-slate-700">
-            Campo
-          </label>
-          <select
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
-                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={ordenCampo}
-            onChange={(e) => setOrdenCampo(e.target.value)}
-          >
-            <option value="rival">Nombre</option>
-            <option value="pj">PJ</option>
-            <option value="g">G</option>
-            <option value="e">E</option>
-            <option value="p">P</option>
-            <option value="gp">G/P</option>
-            <option value="gf">GF</option>
-            <option value="gc">GC</option>
-            <option value="df">DF</option>
-          </select>
+        <div className="text-left">
+          <div className="relative mt-1">
+            {/* Etiqueta Flotante */}
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+              Campo
+            </label>
+
+            <select
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-200 cursor-pointer"
+              value={ordenCampo}
+              onChange={(e) => setOrdenCampo(e.target.value)}
+            >
+              <option value="rival">Nombre</option>
+              <option value="pj">PJ</option>
+              <option value="g">G</option>
+              <option value="e">E</option>
+              <option value="p">P</option>
+              <option value="gp">G/P</option>
+              <option value="gf">GF</option>
+              <option value="gc">GC</option>
+              <option value="df">DF</option>
+            </select>
+          </div>
         </div>
 
         {/* Orden */}
-        <div className="text-center">
-          <label className="text-sm font-medium block text-slate-700">
-            Orden
-          </label>
-          <select
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
-                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={ordenDireccion}
-            onChange={(e) => setOrdenDireccion(e.target.value)}
-          >
-            <option value="asc">Ascendente</option>
-            <option value="desc">Descendente</option>
-          </select>
+        <div className="text-left">
+          <div className="relative mt-1">
+            {/* Etiqueta Flotante */}
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+              Orden
+            </label>
+
+            <select
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-200 cursor-pointer"
+              value={ordenDireccion}
+              onChange={(e) => setOrdenDireccion(e.target.value)}
+            >
+              <option value="asc">Ascendente</option>
+              <option value="desc">Descendente</option>
+            </select>
+          </div>
         </div>
 
         {/* Campeonato (full width en mobile) */}
-        <div className="col-span-2 text-center md:col-span-1">
-          <label className="text-sm font-medium block text-slate-700">
-            Campeonato
-          </label>
-          <select
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
-                 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500
-                 disabled:bg-slate-100 disabled:text-slate-500"
-            value={torneoSel}
-            onChange={(e) => setTorneoSel(e.target.value)}
-            disabled={torneoOptions.length <= 1}
-          >
-            {torneoOptions.map((o) => (
-              <option key={o.value} value={o.value}>
-                {prettySafe(o.label)}
-              </option>
-            ))}
-          </select>
+        <div className="col-span-2 text-left md:col-span-1">
+          <div className="relative mt-1">
+            {/* Etiqueta Flotante */}
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10 transition-colors">
+              Campeonato
+            </label>
+
+            <select
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm text-slate-700 font-semibold 
+                 focus:outline-none focus:ring-2 focus:ring-sky-200 cursor-pointer
+                 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+              value={torneoSel}
+              onChange={(e) => setTorneoSel(e.target.value)}
+              disabled={torneoOptions.length <= 1}
+            >
+              {torneoOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {prettySafe(o.label)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

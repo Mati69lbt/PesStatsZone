@@ -60,14 +60,14 @@ const Season = () => {
 
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
-      <div className="mb-2 px-2 py-3 border-b border-slate-100">
+      <div className="mb-1 px-2 py-3 border-b border-slate-100">
         <div className="flex items-center justify-evenly">
           {/* BLOQUE IZQUIERDO: Botones apilados */}
           <div className="flex flex-col gap-2">
             <button
               type="button"
               onClick={() => setView("anual")}
-              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] transition-all border ${
+              className={`px-4 py-1.5 rounded-lg text-[12px] font-black uppercase tracking-[0.1em] transition-all border ${
                 view === "anual"
                   ? "bg-slate-900 text-white border-slate-900 shadow-md"
                   : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
@@ -78,7 +78,7 @@ const Season = () => {
             <button
               type="button"
               onClick={() => setView("europeo")}
-              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] transition-all border ${
+              className={`px-4 py-1.5 rounded-lg text-[12px] font-black uppercase tracking-[0.1em] transition-all border ${
                 view === "europeo"
                   ? "bg-slate-900 text-white border-slate-900 shadow-md"
                   : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
@@ -90,15 +90,13 @@ const Season = () => {
 
           {/* BLOQUE DERECHO: Título vertical */}
           <div className="flex flex-col items-center">
-            <span className="text-3xl mb-1 drop-shadow-sm">📆</span>
+            <span className="text-3xl drop-shadow-sm">📆</span>
             <h1 className="text-2xl font-black tracking-tighter text-slate-900 leading-none">
-              Temporadas
+              Temporadas{" "}
             </h1>
-            <div className="h-1 w-full bg-slate-900 mt-1 rounded-full opacity-10"></div>
           </div>
         </div>
       </div>
-      <hr className="border-gray-200" />
 
       {view === "anual" &&
         blocks.map((b) => (

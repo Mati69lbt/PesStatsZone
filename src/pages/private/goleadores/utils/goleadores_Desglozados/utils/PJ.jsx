@@ -83,42 +83,54 @@ const PJ_Tabla = ({
 
   return (
     <div className="mt-1">
-      <div className="mb-2 flex flex-wrap items-end justify-center gap-3">
-        <label className="w-max max-w-[220px]">
-          <span className="text-sm font-medium text-slate-700">Campo</span>
-          <select
-            value={ordenCampo}
-            onChange={(e) => setOrdenCampo(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
-              focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {CAMPOS.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="mb-2 flex w-full items-end justify-between gap-3 px-2">
+        {/* Agregamos flex-1 para que se estiren equitativamente */}
+        <div className="text-left flex-1">
+          <div className="relative mt-2">
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-black uppercase tracking-wide text-sky-600 z-10">
+              Campo
+            </label>
+            <select
+              value={ordenCampo}
+              onChange={(e) => setOrdenCampo(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm 
+                   transition-all cursor-pointer hover:border-sky-200
+                   focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-500"
+            >
+              {CAMPOS.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
-        <label className="w-full max-w-[220px]">
-          <span className="text-sm font-medium text-slate-700">Orden</span>
-          <select
-            value={ordenDireccion}
-            onChange={(e) => setOrdenDireccion(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm
-              focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {DIRECCIONES.map((d) => (
-              <option key={d.value} value={d.value}>
-                {d.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        {/* Agregamos flex-1 también aquí */}
+        <div className="text-left flex-1">
+          <div className="relative mt-2">
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-black uppercase tracking-wide text-sky-600 z-10">
+              Sentido
+            </label>
+            <select
+              value={ordenDireccion}
+              onChange={(e) => setOrdenDireccion(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm 
+                   transition-all cursor-pointer hover:border-sky-200
+                   focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-500"
+            >
+              {DIRECCIONES.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
       <div className="sm:hidden max-h-[80vh] overflow-auto border rounded">
         <table className="w-full text-left text-[14px] tabular-nums border-hidden ">
-          <thead className="sticky top-0 z-20 bg-slate-100/100 border-b border-slate-100">
+          <thead className="sticky top-0 z-20 bg-slate-100/100 border-b-4 border-slate-400">
             <tr>
               <th className="px-3 py-2 text-center text-slate-400 font-medium w-10">
                 #
@@ -339,9 +351,7 @@ const PJ_Tabla = ({
                 >
                   Totales
                 </td>
-                <td className="px-2 py-2 text-center">
-                
-                </td>
+                <td className="px-2 py-2 text-center"></td>
                 <td className="px-2 py-2 text-center text-blue-400">
                   {totals.totalGoles}
                 </td>

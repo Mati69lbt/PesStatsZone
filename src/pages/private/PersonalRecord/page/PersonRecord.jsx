@@ -103,7 +103,7 @@ const PersonalRecord = () => {
         📌 Personal Record
       </h1>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
+      <div>
         {/* Header */}
         <div className="hidden md:grid md:grid-cols-9 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
           <div>Partidos Jugados</div>
@@ -162,11 +162,15 @@ const Stat = ({ label, value, tone, wide, compact = false }) => {
 };
 
 const ResumenBlock = ({ title, r }) => (
-  <div className="rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
-    <div className="text-sm font-extrabold text-slate-900 m-2">{title}</div>
+  /* Agregamos relative y aumentamos un poco el mt para que el título no se pegue arriba */
+  <div className="relative mt-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+    {/* Título Flotante */}
+    <div className="absolute -top-2.5 left-6 bg-white px-2 text-[11px] font-black uppercase tracking-widest text-slate-900 z-10">
+      {title}
+    </div>
 
     {/* MOBILE: 2 filas */}
-    <div className="md:hidden space-y-2">
+    <div className="md:hidden space-y-3 mt-1">
       <div className="grid grid-cols-5 gap-2">
         <Stat label="PJ" value={r.total} />
         <Stat label="G" value={r.g} />
@@ -182,11 +186,11 @@ const ResumenBlock = ({ title, r }) => (
         <Stat
           label="PTS/EFEC"
           value={
-            <div className="flex flex-col leading-none">
-              <span>
-                {r.pts} / {r.maxPts}
+            <div className="flex flex-col leading-none items-center">
+              <span className="text-[10px] font-bold">
+                {r.pts}/{r.maxPts}
               </span>
-              <span>{r.pct}%</span>
+              <span className="text-sky-600">{r.pct}%</span>
             </div>
           }
           compact
@@ -195,7 +199,7 @@ const ResumenBlock = ({ title, r }) => (
     </div>
 
     {/* DESKTOP: 1 fila */}
-    <div className="hidden md:grid md:grid-cols-9 gap-2">
+    <div className="hidden md:grid md:grid-cols-9 gap-2 items-center">
       <Stat label="PJ" value={r.total} />
       <Stat label="G" value={r.g} />
       <Stat label="E" value={r.e} />
@@ -206,7 +210,14 @@ const ResumenBlock = ({ title, r }) => (
       <Stat label="DIF" value={r.dif} tone="diff" />
       <Stat
         label="PTS/EFEC"
-        value={`${r.pts} / ${r.maxPts} ${r.pct}%`}
+        value={
+          <div className="flex flex-col leading-none">
+            <span className="text-[10px]">
+              {r.pts}/{r.maxPts}
+            </span>
+            <span className="text-sky-600 font-bold">{r.pct}%</span>
+          </div>
+        }
         compact
       />
     </div>

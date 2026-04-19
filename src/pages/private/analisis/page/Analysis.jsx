@@ -90,24 +90,22 @@ const Analysis = () => {
           </span>
         </h1>
 
-        <label className="w-full max-w-[220px]">
-          <span className="text-sm font-medium text-slate-700">Club</span>
-
-          <select
-            value={visibleClub}
-            onChange={(e) => setSelectedClub(e.target.value)}
-            disabled={clubs.length <= 1}
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-1 text-sm text-slate-800 shadow-sm
-        focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500
-        disabled:bg-slate-100 disabled:text-slate-500"
-          >
-            {clubs.map((c) => (
-              <option key={c} value={c}>
-                {pretty(c)}
-              </option>
-            ))}
-          </select>
-        </label>
+         <div className="relative">
+                <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+                  Club
+                </label>
+                <select
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200 font-semibold text-slate-700"
+                  value={selectedClub}
+                  onChange={(e) => setSelectedClub(e.target.value)}
+                >
+                  {clubs.map((c) => (
+                    <option key={c} value={c}>
+                      {pretty(c)}
+                    </option>
+                  ))}
+                </select>
+              </div>
       </div>
 
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">

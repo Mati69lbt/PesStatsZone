@@ -200,7 +200,7 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
   }
 
   return (
-    <div className="mt-5 max-w-5xl mx-auto px-2">
+    <div className="mt-2 max-w-5xl mx-auto px-2">
       <h2 className="text-xl md:text-2xl font-extrabold mb-5 text-center flex items-center justify-center gap-2">
         <Trophy className="text-yellow-500" /> Goleadores por campeonato
       </h2>
@@ -217,7 +217,7 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
         return (
           <div
             key={torneoId}
-            className="mb-5 rounded-2xl border border-slate-200 bg-white shadow-md overflow-hidden"
+            className="mb-2 rounded-2xl border border-slate-200 bg-white shadow-md overflow-hidden"
           >
             {/* HEADER DEL ACORDEÓN */}
             <button
@@ -236,7 +236,7 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
             <div
               className={`transition-all duration-300 ${isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
             >
-              <div className="p-2 md:p-4 overflow-x-auto">
+              <div className="p-2 md:p-2 overflow-x-auto">
                 <table className="w-full border-separate border-spacing-y-2">
                   <thead className="text-slate-500 text-[10px] uppercase font-bold">
                     <tr>

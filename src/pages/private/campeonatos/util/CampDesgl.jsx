@@ -270,7 +270,7 @@ const CampDesgl = ({
  
 
   return (
-    <div className="mt-4">
+    <div className="mt-1">
       {/* ✅ NUEVO: advertencia fechas duplicadas */}
       <DuplicatesWarning
         duplicadosPorFecha={duplicadosPorFecha}
@@ -286,7 +286,7 @@ const CampDesgl = ({
         const isCampeon = valorSelect === "campeon";
 
         return (
-          <div key={torneoKey} className="mb-6 flex justify-center">
+          <div key={torneoKey} className="mb-2 flex justify-center">
             {/* Card única: header + tabla comparten ancho */}
             <div className="border border-slate-200 rounded-lg bg-white shadow-sm w-full lg:w-max">
               {/* Header del campeonato + select Resultado */}

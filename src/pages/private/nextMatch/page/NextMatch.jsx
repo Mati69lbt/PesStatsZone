@@ -84,21 +84,20 @@ const NextMatch = () => {
 
   return (
     <div className="p-1 sm:p-4 max-w-screen-2xl mx-auto overflow-hidden">
-      <div className="flex items-center justify-center gap-3 mb-4">
-        <h1 className="mt-2 mb-2 text-center text-2xl font-extrabold tracking-tight text-slate-900">
-          ⚔️ NextMatch
-        </h1>
-      </div>
+      <h1 className="mt-2 text-center text-2xl font-extrabold tracking-tight text-slate-900">
+        ⚔️ NextMatch
+      </h1>
+
       {/* Controles */}
-      <div className="mb-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+      <div className="mb-2 bg-white p-2 shadow-sm">
         {/* Fila 1: Selects (izq/der) */}
         <div className="grid grid-cols-2 gap-3 mb-2">
-          <div className="text-left">
-            <label className="mb-1 block text-sm font-medium text-slate-700">
+          <div className="relative">
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
               Club
             </label>
             <select
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200 font-semibold text-slate-700"
               value={selectedClub}
               onChange={(e) => setSelectedClub(e.target.value)}
             >
@@ -110,22 +109,43 @@ const NextMatch = () => {
             </select>
           </div>
 
-          <div className="text-left sm:text-right">
-            <label className="mb-1 block text-sm font-medium text-slate-700 sm:text-right">
-              Rival
-            </label>
-            <select
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
-              value={selectedRival}
-              onChange={(e) => setSelectedRival(e.target.value)}
-            >
-              <option value="">Todos</option>
-              {rivals.map((r) => (
-                <option key={normalizeName(r)} value={r}>
-                  {prettySafe(r)}
-                </option>
-              ))}
-            </select>
+          <div className="text-left">
+            <div className="relative">
+              {/* Label Flotante */}
+              <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10 transition-all">
+                Rival
+              </label>
+
+              <select
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200 font-semibold text-slate-700 appearance-none cursor-pointer"
+                value={selectedRival}
+                onChange={(e) => setSelectedRival(e.target.value)}
+              >
+                <option value="">Todos los rivales</option>
+                {rivals.map((r) => (
+                  <option key={normalizeName(r)} value={r}>
+                    {prettySafe(r)}
+                  </option>
+                ))}
+              </select>
+
+              {/* Opcional: Un pequeño icono de flecha para que se vea más como un select premium */}
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -148,9 +168,14 @@ const NextMatch = () => {
           className={`w-full rounded-2xl border border-slate-200 bg-slate-50 p-1 ${resumen.total === 0 ? "hidden" : ""}`}
         >
           {/* Card: GENERAL */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-1">
+          <div className="relative mt-2 rounded-2xl border border-slate-200 bg-white p-1">
+            {/* Etiqueta Flotante Estilo Select */}
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+              General
+            </label>
+
             {/* Header */}
-            <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+            <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500 pt-1">
               <div>PJ</div>
               <div>G</div>
               <div>E</div>
@@ -191,15 +216,16 @@ const NextMatch = () => {
                 {displayNoMinus(resumen.dif)}
               </div>
             </div>
-            <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-              General
-            </div>
           </div>
 
           {/* LOCAL + VISITANTE */}
-          <div className="mt-1 grid gap-2 sm:grid-cols-2">
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {/* Card: LOCAL */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-1">
+            <div className="relative rounded-2xl border border-slate-200 bg-white p-1 pt-2">
+              <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+                Local
+              </label>
+
               <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                 <div>PJ</div>
                 <div>G</div>
@@ -244,13 +270,14 @@ const NextMatch = () => {
                   {displayNoMinus(resumen.local.dif)}
                 </div>
               </div>
-              <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                Local
-              </div>
             </div>
 
             {/* Card: VISITANTE */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-1">
+            <div className="relative rounded-2xl border border-slate-200 bg-white p-1 pt-2 mt-2">
+              <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+                Visitante
+              </label>
+
               <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                 <div>PJ</div>
                 <div>G</div>
@@ -295,13 +322,13 @@ const NextMatch = () => {
                   {displayNoMinus(resumen.visitante.dif)}
                 </div>
               </div>
-              <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                Visitante
-              </div>
             </div>
 
             {resumen.neutro.total > 0 && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-1">
+              <div className="relative rounded-2xl border border-slate-200 bg-white p-1 pt-2 sm:col-span-2 mt-2">
+                <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+                  Neutral
+                </label>
                 <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                   <div>PJ</div>
                   <div>G</div>
@@ -345,10 +372,6 @@ const NextMatch = () => {
                   >
                     {displayNoMinus(resumen.neutro.dif)}
                   </div>
-                </div>
-
-                <div className="mt-1 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                  Neutral
                 </div>
               </div>
             )}

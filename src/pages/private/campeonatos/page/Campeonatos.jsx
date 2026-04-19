@@ -16,6 +16,7 @@ import { Link, Navigate } from "react-router-dom";
 import { fetchUserData, useUserData } from "../../../../hooks/useUserData";
 import useRessumenesMemo from "../hooks/useRessumenesMemo";
 import { displayNoMinus } from "../../versus/util/funtions";
+import { pretty } from "../../match/utils/pretty";
 
 // ✅ NUEVO: círculo para DG y G/P (fondo blanco + ring con color)
 const StatCircle = ({ value = 0, title = "", showPlus = false }) => {
@@ -99,37 +100,40 @@ const Campeonatos = () => {
 
       {/* ✅ Controles (más prolijos) */}
       <div className="mb-2 flex flex-wrap items-end justify-center gap-4 rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
-        <div className="text-center">
-          <label className="mb-1 block text-sm font-medium text-slate-700">
+        <div className="relative">
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
             Club
           </label>
           <select
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+            className="w-full sm:w-max rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200 font-semibold text-slate-700 cursor-pointer"
             value={selectedClub}
             onChange={(e) => setSelectedClub(e.target.value)}
-            aria-label="Seleccionar club"
           >
             {clubs.map((c) => (
               <option key={c} value={c}>
-                {prettySafe(c)}
+                {pretty(c)}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="text-center">
-          <label className="mb-1 block text-sm font-medium text-slate-700">
-            Orden
-          </label>
-          <select
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
-            value={orden}
-            onChange={(e) => setOrden(e.target.value)}
-            aria-label="Ordenar campeonatos"
-          >
-            <option value="desc">Más nuevos primero</option>
-            <option value="asc">Más viejos primero</option>
-          </select>
+        <div className="text-left">
+          <div className="relative mt-2">
+            {/* Etiqueta Flotante */}
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+              Orden
+            </label>
+
+            <select
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-200 cursor-pointer"
+              value={orden}
+              onChange={(e) => setOrden(e.target.value)}
+              aria-label="Ordenar campeonatos"
+            >
+              <option value="desc">Más nuevos primero</option>
+              <option value="asc">Más viejos primero</option>
+            </select>
+          </div>
         </div>
       </div>
 

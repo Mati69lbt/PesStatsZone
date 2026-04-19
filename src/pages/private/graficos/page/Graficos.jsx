@@ -72,25 +72,32 @@ const Graficos = () => {
   return (
     <div className="p-2 max-w-7xl mx-auto">
       {" "}
-      <h1 className="text-center text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-        📈 Gráficos 📉
-      </h1>
-      {clubs.length > 1 && (
-        <div className="flex items-center justify-center gap-2 sm:justify-self-end sm:justify-end">
-          <span className="text-sm text-slate-600">Club:</span>
-          <select
-            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
-            value={visibleClub}
-            onChange={(e) => setSelectedClub(e.target.value)}
-          >
-            {clubs.map((c) => (
-              <option key={c} value={c}>
-                {pretty(c)}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+      <div className="flex flex-row items-center justify-evenly gap-4 m-2">
+        {/* Título a la izquierda */}
+        <h1 className="text-left text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-none">
+          📈 Gráficos 📉
+        </h1>
+
+        {/* Selector a la derecha */}
+        {clubs.length > 1 && (
+          <div className="relative">
+            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+              Club
+            </label>
+            <select
+              className="w-full sm:w-max rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200 font-semibold text-slate-700 cursor-pointer"
+              value={selectedClub}
+              onChange={(e) => setSelectedClub(e.target.value)}
+            >
+              {clubs.map((c) => (
+                <option key={c} value={c}>
+                  {pretty(c)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
       <div className="mt-4 space-y-3">
         <SegmentedTabs value={view} onChange={setView} />
 

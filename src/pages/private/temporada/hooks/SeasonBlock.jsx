@@ -185,19 +185,18 @@ const SeasonBlock = ({
                   {/* TABLA MOBILE (Sacamos el botón de adentro del thead) */}
                   <div className="lg:hidden w-full overflow-x-auto border border-slate-200 rounded-lg bg-white shadow-sm">
                     <table className="w-full text-[11px] border-collapse">
-                      <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
-                        <tr>
-                          <th
-                            className="px-2 py-2 w-[76px] max-w-[76px] text-center border-b border-slate-200"
-                            colSpan={10}
-                          ></th>
-                        </tr>
-                        <tr>
-                          <th className={COL_BLOQUE_TH}>Bloque</th>
+                      {/* ANTES: Había un tr con colSpan={10} vacío que generaba ese espacio feo */}
+                      <thead className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm text-[9px] uppercase tracking-tighter">
+                        {/* Fila Principal con fondo sutil */}
+                        <tr className="bg-sky-50/50 border-b border-sky-100">
+                          <th className="px-2 py-2 text-left font-black text-sky-700 w-[70px]">
+                            Condición{" "}
+                            {/* O la palabra que elijas del listado */}
+                          </th>
                           {metricas.map((m) => (
                             <th
                               key={`head-${m}`}
-                              className="px-2 py-2 text-center border-b border-slate-200"
+                              className="px-1 py-2 text-center font-bold text-sky-600 border-x border-sky-100/50"
                             >
                               {m}
                             </th>

@@ -198,7 +198,7 @@ const Ultimos10Resultados = ({ partidos = [], fixedCaptains }) => {
 
   if (!partidosOrdenados.length) {
     return (
-      <p className="text-center text-gray-500 mt-4">
+      <p className="text-center text-gray-500 mt-2">
         No hay partidos para mostrar.
       </p>
     );

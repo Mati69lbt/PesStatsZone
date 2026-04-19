@@ -32,45 +32,40 @@ const Partidos = () => {
 
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
-      <div className="flex items-start justify-evenly mb-1 px-2 border-b border-slate-100 pb-2">
-        {/* BLOQUE IZQUIERDO: Selector de Club */}
-        <div className="flex flex-col items-start w-full max-w-[180px]">
-          <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1.5 pl-1">
-            Club
-          </span>
-          <div className="relative w-full">
-            <select
-              value={selectedClub}
-              onChange={(e) => setSelectedClub(e.target.value)}
-              disabled={clubs.length <= 1}
-              className="appearance-none w-full rounded-xl border border-slate-200 bg-white pl-3 pr-8 py-2 text-sm font-bold text-slate-700 shadow-sm 
-                   transition-all cursor-pointer hover:border-slate-300 hover:bg-slate-50
-                   focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900
-                   disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
-            >
-              {clubs.map((c) => (
-                <option key={c} value={c}>
-                  {pretty(c)}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
-              <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-              </svg>
-            </div>
-          </div>
-        </div>
+      <div className="flex items-center justify-between mt-2 mb-2 px-2 border-b border-slate-100 pb-2">
+        {/* BLOQUE IZQUIERDO: Selector de Club con aire superior para la etiqueta */}
 
-        {/* BLOQUE DERECHO: Título Vertical "Evelin Style" */}
-        <div className="flex flex-col items-start text-right">
-          <span className="text-2xl mb-0.5">📋</span>
-          <h2 className="text-lg md:text-xl font-black tracking-tighter text-slate-900 leading-none">
+        {/* BLOQUE DERECHO: Título con jerarquía visual clara */}
+        <div className="flex flex-col items-end text-right">
+          <h2 className="text-xl md:text-2xl font-black tracking-tighter text-slate-900 leading-none uppercase">
             Detalle de Partidos
           </h2>
-          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">
-            Por Campeonato
-          </span>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+              Por Campeonato
+            </span>
+            <span className="text-xl">📋</span>
+          </div>
+
+
+          {/* Una pequeña línea decorativa para cerrar el bloque del título */}
+          <div className="h-1 w-12 bg-sky-500 rounded-full mt-1"></div>
+        </div>
+        <div className="relative ">
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+            Club
+          </label>
+          <select
+            className="w-full sm:w-max rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200 font-semibold text-slate-700 cursor-pointer"
+            value={selectedClub}
+            onChange={(e) => setSelectedClub(e.target.value)}
+          >
+            {clubs.map((c) => (
+              <option key={c} value={c}>
+                {pretty(c)}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

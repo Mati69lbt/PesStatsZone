@@ -64,8 +64,8 @@ const Calendario = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <div className="flex items-center gap-3 mb-6 px-2">
+    <div className="w-full max-w-4xl mx-auto p-2">
+      <div className="flex items-center gap-3 mb-2 px-2">
         <CalendarIcon className="text-slate-900" size={24} />
         <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">
           Calendario
