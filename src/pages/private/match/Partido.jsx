@@ -49,7 +49,7 @@ const Partido = () => {
   const handleChangeCaptainSelect = makeHandleChangeCaptainSelect(
     lineups,
     activeClub,
-    matchDispatch
+    matchDispatch,
   );
   const handleChangeSubstitutes = makeHandleChangeSubstitutes(matchDispatch);
 
@@ -97,13 +97,18 @@ const Partido = () => {
     }
   }, [matchId, lineupState.lineups, matchDispatch]);
 
-  
-
   return (
-    <div className="mt-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4 text-center">Registrar Partido</h1>
-      <form className="bg-white shadow-md rounded-xl p-6 space-y-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+    <div className="mt-4 max-w-md mx-auto">
+      <div className="border-l-18 border-sky-500 pl-10 py-1 mb-2">
+        <h1 className="text-2xl font-black tracking-tight text-slate-900 leading-none">
+          REGISTRAR PARTIDO
+        </h1>
+        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          Formulario de Estadísticas
+        </span>
+      </div>
+      <form className="bg-white shadow-md rounded-xl px-8 space-y-2">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
           <span className="text-lg font-bold text-blue-700">
             {matchState.activeClub
               ? pretty(matchState.activeClub)
@@ -117,7 +122,7 @@ const Partido = () => {
           onBlur={makeHandleOnBlur(
             matchDispatch,
             "rival",
-            "El campo Rival es Obligatorio"
+            "El campo Rival es Obligatorio",
           )}
           suggestions={matchState.rivalesIndex}
         />
@@ -129,7 +134,7 @@ const Partido = () => {
           onBlur={makeHandleOnBlur(
             matchDispatch,
             "torneoName",
-            "El campo Torneo es Obligatorio"
+            "El campo Torneo es Obligatorio",
           )}
         />
         <ConditionInput value={matchState.condition} onChange={handleChange} />

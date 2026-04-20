@@ -202,7 +202,7 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
   return (
     <div className="mt-2 max-w-5xl mx-auto px-2">
       <h2 className="text-xl md:text-2xl font-extrabold mb-5 text-center flex items-center justify-center gap-2">
-        <Trophy className="text-yellow-500" /> Goleadores por campeonato
+        <Trophy className="text-yellow-500" /> Goleadores por Campeonato
       </h2>
 
       {torneosOrdenados.map((torneo, torneoIdx) => {

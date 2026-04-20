@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLineups } from "../../../../context/LineUpProvider";
 import { usePartido } from "../../../../context/PartidoReducer";
 import useAuth from "../../../../hooks/useAuth";
@@ -6,9 +6,12 @@ import { fetchUserData, useUserData } from "../../../../hooks/useUserData";
 import { normalizeName } from "../../../../utils/normalizeName";
 import CampDesgl from "./CampDesgl";
 import { pretty } from "../../match/utils/pretty";
+import Notiflix from "notiflix";
+import { useNavigate } from "react-router-dom";
 
 const Partidos = () => {
   const { uid } = useAuth();
+  const navigate = useNavigate();
   const { dispatch: matchDispatch } = usePartido();
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
 
@@ -17,7 +20,9 @@ const Partidos = () => {
 
   const refreshData = async () => {
     if (!uid) return;
+    Notiflix.Loading.pulse("Actualizando..."); //
     await fetchUserData(uid, matchDispatch, lineupDispatch);
+    Notiflix.Loading.remove(); //
   };
 
   const clubs = Object.keys(lineupState?.lineups || {});
@@ -29,6 +34,33 @@ const Partidos = () => {
   const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
   const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
   const torneosConfig = bucket?.torneosConfig || {};
+
+  useEffect(() => {
+    if (!uid) return;
+
+    // Si aún no hay lineups cargados, mostramos loading
+    if (!lineupState || Object.keys(lineupState.lineups || {}).length === 0) {
+      Notiflix.Loading.circle("Cargando partidos...", {
+        svgColor: "#0ea5e9",
+        messageColor: "#0ea5e9",
+      });
+    } else {
+      Notiflix.Loading.remove();
+
+      // Si después de cargar, este club no tiene matches, redirigimos
+      if (matches.length === 0) {
+        Notiflix.Notify.info("No se encontraron partidos para este club.");
+        navigate("/versus");
+      }
+    }
+
+    return () => {
+      Notiflix.Loading.remove();
+    };
+  }, [uid, lineupState, matches.length, navigate]);
+
+  // Renderizado preventivo mientras redirige o carga
+  if (!uid || matches.length === 0) return null;
 
   return (
     <div className="p-2 max-w-screen-2xl mx-auto">
@@ -46,7 +78,6 @@ const Partidos = () => {
             </span>
             <span className="text-xl">📋</span>
           </div>
-
 
           {/* Una pequeña línea decorativa para cerrar el bloque del título */}
           <div className="h-1 w-12 bg-sky-500 rounded-full mt-1"></div>

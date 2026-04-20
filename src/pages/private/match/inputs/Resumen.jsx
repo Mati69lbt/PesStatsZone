@@ -74,7 +74,7 @@ function fmtDateDMY(v) {
 }
 
 const Section = ({ title, children }) => (
-  <div className="space-y-1.5">
+  <div className="space-y-1">
     <div className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
       {title}
     </div>
@@ -171,70 +171,76 @@ const Resumen = ({ state, activeClub }) => {
   const captain = state?.captain || state?.capitan || "";
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm space-y-5">
-      <div className="w-full grid grid-cols-2 gap-2">
-        {/* Izquierda: Torneo arriba / Fecha abajo */}
-        <div className="flex flex-col gap-2 items-start min-w-0">
+    <div className="relative mt-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm space-y-5">
+      {/* DOBLE FLOTANTE EN EL BORDE SUPERIOR */}
+      {/* Izquierda: Fecha */}
+      {fechaDisplay && (
+        <label className="absolute -top-2.5 left-4 bg-white px-2 text-[12px] font-black uppercase tracking-widest text-slate-500 z-10 border-x border-white">
+          {fechaDisplay}
+        </label>
+      )}
+
+      {/* Derecha: Condición */}
+      <label className="absolute -top-2.5 right-4 bg-white px-2 text-[12px] font-black uppercase tracking-widest text-sky-600 z-10 border-x border-white">
+        {condition !== "neutro"
+          ? condition === "visitante"
+            ? "Visitante"
+            : "Local"
+          : "Neutro"}
+      </label>
+
+      {/* PRIMER RENGLÓN: Torneo y Capitán */}
+      <div className="flex items-center justify-between w-full">
+        {/* Torneo (Izquierda) */}
+        <div className="min-w-0">
           {torneoDisplay ? (
-            <span className="text-xs px-2 py-1 rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-200">
-              {pretty(torneoDisplay)}
+            <span className="text-[14px] font-black uppercase tracking-tight text-violet-700 bg-violet-50 px-2 py-0.5 rounded-md ring-1 ring-violet-200">
+              🏆 {pretty(torneoDisplay)}
             </span>
-          ) : null}
-
-          {fechaDisplay ? (
-            <span className="text-xs px-2 py-1 rounded-full bg-slate-50 text-slate-700 ring-1 ring-slate-200">
-              {fechaDisplay}
-            </span>
-          ) : null}
+          ) : (
+            <div />
+          )}
         </div>
 
-        {/* Derecha: Condición arriba / Capitán abajo */}
-        <div className="flex flex-col gap-2 items-end min-w-0">
-          <span className="text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-700 ring-1 ring-blue-200">
-            {condition !== "neutro"
-              ? condition === "visitante"
-                ? "Visitante"
-                : "Local"
-              : "Neutro"}
-          </span>
-
+        {/* Capitán (Derecha) */}
+        <div className="min-w-0 text-right">
           {captain ? (
-            <span className="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
-              Capitán: {pretty(captain)}
+            <span className="text-[12px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md ring-1 ring-emerald-200">
+              C: {pretty(captain)}
             </span>
           ) : null}
         </div>
       </div>
 
-      {marcador}
+      {/* MARCADOR */}
+      <div>{marcador}</div>
 
-      {/* GOLEADORES (fila 1) */}
-      <div className="grid grid-cols-2 gap-6 items-stretch">
-        <div className="h-full">
-          <Section title={`Goleadores ${pretty(activeClub)}`}>
-            <Chips items={propiosArr} />
-          </Section>
+      {/* GOLEADORES Y EXPULSADOS (Se mantiene tu estructura de grilla) */}
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-6 items-stretch">
+          <div className="h-full">
+            <Section title={`Goleadores ${pretty(activeClub)}`}>
+              <Chips items={propiosArr} />
+            </Section>
+          </div>
+          <div className="h-full">
+            <Section title={`Goleadores ${rivalName}`}>
+              <Chips items={rivalesArr} />
+            </Section>
+          </div>
         </div>
 
-        <div className="h-full">
-          <Section title={`Goleadores ${rivalName}`}>
-            <Chips items={rivalesArr} />
-          </Section>
-        </div>
-      </div>
-
-      {/* EXPULSADOS (fila 2) */}
-      <div className="grid grid-cols-2  gap-6 items-stretch">
-        <div className="h-full">
-          <Section title={`Expulsados ${pretty(activeClub)}`}>
-            <Chips items={expPropiosArr} tone="red" />
-          </Section>
-        </div>
-
-        <div className="h-full">
-          <Section title={`Expulsados ${rivalName}`}>
-            <Chips items={expRivalesArr} tone="red" />
-          </Section>
+        <div className="grid grid-cols-2 gap-6 items-stretch border-t border-slate-50 pt-2">
+          <div className="h-full">
+            <Section title={`Expulsados ${pretty(activeClub)}`}>
+              <Chips items={expPropiosArr} tone="red" />
+            </Section>
+          </div>
+          <div className="h-full">
+            <Section title={`Expulsados ${rivalName}`}>
+              <Chips items={expRivalesArr} tone="red" />
+            </Section>
+          </div>
         </div>
       </div>
     </div>
