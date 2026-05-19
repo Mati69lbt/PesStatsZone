@@ -59,7 +59,7 @@ export const useRachas = (lineups = {}, config = {}) => {
           });
       };
       const checkEmpate = (f) => {
-        if (rE >= 2)
+        if (rE >= 3)
           empatados.push({
             club: clubLabel,
             rachaEmpates: rE,

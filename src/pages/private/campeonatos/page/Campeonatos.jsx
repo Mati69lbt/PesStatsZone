@@ -217,7 +217,7 @@ const Campeonatos = () => {
                 return (
                   <React.Fragment key={clave}>
                     {/* GENERAL */}
-                    <tr className="border-t border-slate-100 bg-white hover:bg-slate-50/80 transition-colors">
+                    <tr className="[&>td]:border-t-4 [&>td]:border-indigo-600 bg-white hover:bg-slate-50/80 transition-colors">
                       <td className="px-1 py-1.5 font-semibold text-center text-slate-800 w-[60px] leading-tight break-words">
                         {prettySafe(clave)}
                       </td>
