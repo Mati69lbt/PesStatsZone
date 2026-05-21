@@ -57,6 +57,9 @@ const UltimosDiez = () => {
 
   const matches = Array.isArray(data?.matches) ? data.matches : [];
   const partidosLegacy = usePartidosLegacy(matches);
+
+  console.log("partidosLegacy", partidosLegacy);
+
   return (
     <div className="p-2 max-w-5xl mx-auto">
       <div className="flex items-center justify-evenly gap-4 mb-4 mt-2 px-1">

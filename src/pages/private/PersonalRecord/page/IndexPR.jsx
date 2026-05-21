@@ -5,6 +5,7 @@ import AllGoleadores from "./AllGoleadores";
 import Calendario from "./Calendario";
 import Rachas from "./Rachas";
 import Gol from "./Gol";
+import GolVersus from "./GolVersus";
 
 const IndexPR = () => {
   const [view, setView] = useState("palmares");
@@ -81,6 +82,19 @@ const IndexPR = () => {
         </button>
         <button
           type="button"
+          onClick={() => setView("versus")}
+          className={[
+            "px-4 py-2 rounded-full text-sm font-semibold border transition shadow-sm",
+            "focus:outline-none focus:ring-2 focus:ring-black/10 active:scale-[0.98]",
+            view === "versus"
+              ? "bg-black text-white border-black"
+              : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50",
+          ].join(" ")}
+        >
+          Versus
+        </button>
+        <button
+          type="button"
           onClick={() => setView("calendario")}
           className={[
             "px-4 py-2 rounded-full text-sm font-semibold border transition shadow-sm",
@@ -103,6 +117,7 @@ const IndexPR = () => {
         {view === "gol" && <Gol />}
         {view === "goleadores" && <AllGoleadores />}
         {view === "calendario" && <Calendario />}
+        {view === "versus" && <GolVersus />}
       </div>
     </div>
   );

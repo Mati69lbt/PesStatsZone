@@ -10,12 +10,13 @@ const usePartidosLegacy = (matches = []) => {
         golesFavor: m.golFavor ?? 0,
         golesContra: m.golContra ?? 0,
         equipo: (m.captain || "").toLowerCase(),
+        torneoName: m.torneoName || "",
         esLocal:
           String(m.condition || "")
             .trim()
             .toLowerCase() === "local",
       })),
-    [matches]
+    [matches],
   );
 };
 

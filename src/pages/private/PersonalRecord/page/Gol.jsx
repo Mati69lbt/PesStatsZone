@@ -5,7 +5,7 @@ import Valla from "../utils/Rachas/Valla";
 import SinMarcar from "../utils/Rachas/SinMarcar";
 
 const Gol = () => {
-  const [view, setView] = useState("invictos");
+  const [view, setView] = useState("favor");
   return (
     <div>
       <div className="mt-3 grid grid-cols-2 md:flex md:justify-center gap-3 px-2 md:px-0">

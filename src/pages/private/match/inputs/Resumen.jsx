@@ -11,7 +11,7 @@ function goalsFromFlags(g) {
 function fmtScorers(list) {
   // excluimos expulsados de la lista de goleadores
   const arr = (Array.isArray(list) ? list : []).filter(
-    (g) => !(g.expulsion || g.expulsado)
+    (g) => !(g.expulsion || g.expulsado),
   );
   if (!arr.length) return "—";
   // devolvemos un array para poder estilizar cada chip
@@ -82,7 +82,7 @@ const Section = ({ title, children }) => (
   </div>
 );
 
-const Resumen = ({ state, activeClub }) => { 
+const Resumen = ({ state, activeClub }) => {
   const rivalName = state?.rival || "Rival";
 
   const torneoDisplay =
@@ -100,7 +100,7 @@ const Resumen = ({ state, activeClub }) => {
   const rivalGoals = rivals.reduce((acc, g) => acc + goalsFromFlags(g), 0);
 
   const ownGoalsFromOG = (rivals || []).filter(
-    (g) => g?.enContra || g?.autogol || g?.og || g?.ogContra
+    (g) => g?.enContra || g?.autogol || g?.og || g?.ogContra,
   ).length;
   const ownGoals = baseOwnGoals + ownGoalsFromOG;
 
@@ -166,7 +166,7 @@ const Resumen = ({ state, activeClub }) => {
   const expRivalesArr = fmtExpulsados(rivals);
 
   const fechaDisplay = fmtDateDMY(
-    state?.fecha || state?.date || state?.fechaPartido || ""
+    state?.fecha || state?.date || state?.fechaPartido || "",
   );
   const captain = state?.captain || state?.capitan || "";
 
@@ -206,7 +206,7 @@ const Resumen = ({ state, activeClub }) => {
         <div className="min-w-0 text-right">
           {captain ? (
             <span className="text-[12px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md ring-1 ring-emerald-200">
-              C: {pretty(captain)}
+              Capitán: {pretty(captain)}
             </span>
           ) : null}
         </div>
