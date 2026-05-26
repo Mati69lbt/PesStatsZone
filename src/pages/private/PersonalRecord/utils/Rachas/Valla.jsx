@@ -2,9 +2,10 @@
 import React, { useState } from "react";
 import { useLineups } from "../../../../../context/LineUpProvider";
 import { useGoles } from "../Hooks/useGoles"; // Ajustá esta ruta según tu estructura
-import { formatearFecha } from "../Hooks/formatearFechas";
+import { descomponerFecha, formatearFecha } from "../Hooks/formatearFechas";
+import { ordenarRachas } from "../ordenarRachas";
 
-const Valla = () => {
+const Valla = ({ sortKey, sortDirection }) => {
   const { state: lineupState } = useLineups();
   const lineups = lineupState?.lineups ?? {};
 
@@ -28,6 +29,7 @@ const Valla = () => {
   };
 
   const renderColumna = (titulo, colorBorder, listaRachas, idKey) => {
+    const listaOrdenada = ordenarRachas(listaRachas, sortKey, sortDirection);
     const isOpen = columnaAbierta === idKey;
 
     return (
@@ -43,8 +45,8 @@ const Valla = () => {
               {titulo}
             </h3>
             <span className="text-[9px] font-bold text-slate-400 uppercase">
-              {listaRachas.length}{" "}
-              {listaRachas.length === 1 ? "Racha" : "Rachas"}
+              {listaOrdenada.length}{" "}
+              {listaOrdenada.length === 1 ? "Racha" : "Rachas"}
             </span>
           </div>
 
@@ -64,59 +66,71 @@ const Valla = () => {
             isOpen ? "block mt-2" : "hidden"
           }`}
         >
-          {listaRachas.length === 0 ? (
+          {listaOrdenada.length === 0 ? (
             <p className="text-[11px] font-medium text-slate-400 italic py-2 px-1">
               Sin vallas invictas.
             </p>
           ) : (
             /* Cards en dos columnas por fila en celulares, 1 columna vertical en PC */
             <div className="grid grid-cols-2 lg:grid-cols-1 gap-2 max-h-[70vh] overflow-y-auto pr-1 scrollbar-thin">
-              {listaRachas.map((item, index) => (
-                <div
-                  key={`${idKey}-${item.club}-${index}`}
-                  className="relative rounded-xl border border-slate-200 bg-white p-2 shadow-sm transition-all hover:border-slate-300 flex flex-col justify-between"
-                >
-                  {/* 1er renglón: 3 bloques distribuidos simétricamente */}
-                  <div className="flex items-center justify-between gap-1 w-full min-h-[32px]">
-                    {/* BLOQUE 1 (Izquierda): Club multilinea si es muy largo */}
-                    <div className="flex items-center gap-0.5 max-w-[42%] leading-tight">
-                      <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-tight break-words antialiased">
-                        ⚽ {item.club}
-                      </h4>
-                    </div>
+              {listaOrdenada.map((item, index) => {
+                const inicio = descomponerFecha(item.fechaInicio);
+                const fin = descomponerFecha(item.fechaFin);
+                return (
+                  <div
+                    key={`${idKey}-${item.club}-${index}`}
+                    className="relative rounded-xl border border-slate-200 bg-white p-2 shadow-sm transition-all hover:border-slate-300 flex flex-col justify-between"
+                  >
+                    {/* 1er renglón: 3 bloques distribuidos simétricamente */}
+                    <div className="flex items-center justify-between gap-1 w-full min-h-[32px]">
+                      {/* BLOQUE 1 (Izquierda): Club multilinea si es muy largo */}
+                      <div className="flex items-center gap-0.5 max-w-[42%] leading-tight">
+                        <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-tight break-words antialiased">
+                          ⚽ {item.club}
+                        </h4>
+                      </div>
 
-                    {/* BLOQUE 2 (Centro): Partidos Seguidos con arco en cero en verde esmeralda */}
-                    <div className="flex justify-center shrink-0">
-                      <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-black tracking-tight shadow-2xs">
-                        {item.racha}
-                        <span className="text-[8px] font-bold opacity-75">
-                          PJ
+                      {/* BLOQUE 2 (Centro): Partidos Seguidos con arco en cero en verde esmeralda */}
+                      <div className="flex justify-center shrink-0">
+                        <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-black tracking-tight shadow-2xs">
+                          {item.racha}
+                          <span className="text-[8px] font-bold opacity-75">
+                            PJ
+                          </span>
                         </span>
-                      </span>
+                      </div>
+
+                      {/* BLOQUE 3 (Derecha): Identificador de Arco Invicto */}
+                      <div className="flex flex-col items-center shrink-0 justify-end max-w-[35%] pr-1">
+                        <span className="text-[10px] font-bold text-slate-400 leading-none">
+                          🔒
+                        </span>
+                        <span className="text-[10px] font-black text-slate-500 tracking-tight mt-0.5 uppercase leading-none">
+                          0 GC
+                        </span>
+                      </div>
                     </div>
 
-                    {/* BLOQUE 3 (Derecha): Identificador de Arco Invicto */}
-                    <div className="flex flex-col items-center shrink-0 justify-end max-w-[35%] pr-1">
-                      <span className="text-[10px] font-bold text-slate-400 leading-none">
-                        🔒
+                    {/* Línea sutil de separación interna */}
+                    <div className="border-t border-slate-100 my-1.5"></div>
+
+                    {/* 2do renglón: Rango de fechas unificado */}
+                    <div className="text-[12px] font-bold text-slate-500 text-center tracking-tight mt-auto">
+                      <span>{inicio.dia} / </span>
+                      <span className="text-amber-700 font-black">
+                        {inicio.mes}
                       </span>
-                      <span className="text-[10px] font-black text-slate-500 tracking-tight mt-0.5 uppercase leading-none">
-                        0 GC
+                      <span> / {inicio.anio}</span>
+                      <br />
+                      <span>{fin.dia} / </span>
+                      <span className="text-emerald-700 font-black">
+                        {fin.mes}
                       </span>
+                      <span> / {fin.anio}</span>
                     </div>
                   </div>
-
-                  {/* Línea sutil de separación interna */}
-                  <div className="border-t border-slate-100 my-1.5"></div>
-
-                  {/* 2do renglón: Rango de fechas unificado */}
-                  <div className="text-[9px] font-bold text-slate-500 text-center tracking-tight mt-auto">
-                    <span>{formatearFecha(item.fechaInicio)}</span>
-                    <span className="mx-1 text-slate-300 font-normal">-</span>
-                    <span>{formatearFecha(item.fechaFin)}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -125,16 +139,12 @@ const Valla = () => {
   };
 
   return (
-    <div className="p-2 max-w-full mx-auto space-y-4">
+    <div className="p-2 max-w-full mx-auto space-y-2">
       {/* Encabezado de sección */}
       <div className="flex flex-col items-start border-l-4 border-indigo-500 pl-4 py-1">
         <h2 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
           Vallas Invictas Consecutivas
         </h2>
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          Historial de partidos seguidos con el arco en cero (recibir un gol
-          corta la racha)
-        </span>
       </div>
 
       {/* Grid General del Panel (1 col en cel, 2 en tablets, 4 en PC) */}

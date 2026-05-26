@@ -22,7 +22,7 @@ const Calendario = () => {
 
     Object.entries(lineups).forEach(([clubKey, bucket]) => {
       const label = bucket?.label ?? clubKey;
-      const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];     
+      const matches = Array.isArray(bucket?.matches) ? bucket.matches : [];
 
       matches.forEach((m) => {
         if (!m.fecha) return;
@@ -82,12 +82,21 @@ const Calendario = () => {
             .filter((key) => key.startsWith(mesStr))
             .sort();
 
-          const totalPartidosMes = daysInMonthKeys.reduce(
-            (acc, key) => acc + matchesByDayMonth[key].length,
-            0,
+          const statsMes = daysInMonthKeys.reduce(
+            (acc, key) => {
+              matchesByDayMonth[key].forEach((m) => {
+                const res = m.final?.toLowerCase();
+                if (res === "ganado") acc.g++;
+                else if (res === "empatado") acc.e++;
+                else if (res === "perdido") acc.p++;
+                acc.total++;
+              });
+              return acc;
+            },
+            { total: 0, g: 0, e: 0, p: 0 },
           );
 
-          if (totalPartidosMes === 0) return null; // Opcional: ocultar meses vacíos
+          if (statsMes.total === 0) return null;
 
           return (
             <div
@@ -98,19 +107,58 @@ const Calendario = () => {
                 onClick={() => setOpenMonth(isOpen ? null : mIdx)}
                 className={`w-full flex items-center justify-between p-4 transition-all ${
                   isOpen
-                    ? "bg-slate-900 text-white"
+                    ? "bg-slate-700 text-white"
                     : "hover:bg-slate-50 text-slate-700"
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="font-bold uppercase tracking-widest text-sm">
+                <div className="flex items-center gap-3 w-full">
+                  {/* Nombre del mes con ancho fijo para alinear todo verticalmente */}
+                  <span className="font-bold uppercase tracking-widest text-sm w-28 flex-shrink-0">
                     {mes}
                   </span>
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isOpen ? "bg-white/20" : "bg-slate-100"}`}
-                  >
-                    {totalPartidosMes}
-                  </span>
+
+                  {/* Contenedor de estadísticas alineado simétricamente */}
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-[12px] px-2 py-0.5 rounded-md font-black tracking-wider ${
+                        isOpen
+                          ? "bg-white/10 text-white"
+                          : "bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      PJ: {statsMes.total}
+                    </span>
+
+                    <span
+                      className={`text-[12px] px-1.5 py-0.5 rounded-md font-black ${
+                        isOpen
+                          ? "bg-green-500/80 text-white"
+                          : "bg-green-500 text-white"
+                      }`}
+                    >
+                      G: {statsMes.g === 0 ? 0 : statsMes.g}
+                    </span>
+
+                    <span
+                      className={`text-[12px] px-1.5 py-0.5 rounded-md font-black ${
+                        isOpen
+                          ? "bg-amber-400/80 text-black"
+                          : "bg-amber-400 text-black"
+                      }`}
+                    >
+                      E: {statsMes.e === 0 ? 0 : statsMes.e}
+                    </span>
+
+                    <span
+                      className={`text-[12px] px-1.5 py-0.5 rounded-md font-black ${
+                        isOpen
+                          ? "bg-rose-600/80 text-white"
+                          : "bg-rose-600 text-white"
+                      }`}
+                    >
+                      P: {statsMes.p === 0 ? 0 : statsMes.p}
+                    </span>
+                  </div>
                 </div>
                 {isOpen ? (
                   <ChevronDown size={18} />
@@ -122,38 +170,118 @@ const Calendario = () => {
               {isOpen && (
                 <div className="p-2 bg-slate-50 space-y-1">
                   {daysInMonthKeys.map((dayKey) => {
-                    const dia = dayKey.split("-")[1];
-                    const partidosDia = matchesByDayMonth[dayKey];
                     const isDayOpen = openDay === dayKey;
+                    const [_, dd] = dayKey.split("-");
+
+                    // 1. PRIMERO DECLARAMOS TU VARIABLE ORIGINAL (Asegurando que sea un Array siempre)
+                    const partidosDia = matchesByDayMonth[dayKey] || [];
+
+                    // 2. RECIÉN AHÍ CALCULAMOS LAS ESTADÍSTICAS CON UN SEGURITO EXTRA
+                    const statsDia = partidosDia.reduce(
+                      (acc, m) => {
+                        const res = m?.final?.toLowerCase()?.trim();
+                        if (res === "ganado") acc.g++;
+                        else if (res === "empatado") acc.e++;
+                        else if (res === "perdido") acc.p++;
+                        acc.total++;
+                        return acc;
+                      },
+                      { total: 0, g: 0, e: 0, p: 0 },
+                    );
 
                     return (
                       <div
                         key={dayKey}
-                        className="border border-slate-200 rounded-xl bg-white overflow-hidden shadow-sm"
+                        className="border-b border-slate-500 last:border-0"
                       >
                         <button
                           onClick={() => setOpenDay(isDayOpen ? null : dayKey)}
-                          className="w-full flex items-center justify-between p-3 hover:bg-slate-50 transition-colors"
+                          className={`w-full flex items-center justify-between p-3 transition-all ${
+                            isDayOpen
+                              ? "bg-slate-700 text-white shadow-inner"
+                              : "hover:bg-slate-50 text-slate-700"
+                          }`}
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg font-black text-slate-400 w-6 text-center">
-                              {parseInt(dia)}
+                          {/* CONVERTIDO EN GRID DE 5 COLUMNAS: Logra el efecto tabla de forma limpia */}
+                          <div className="grid grid-cols-5 items-center gap-2 w-full text-left">
+                            {/* Celda 1: Fecha (Día / Mes) */}
+                            <span
+                              className={`text-xs font-black uppercase tracking-wider whitespace-nowrap ${
+                                isDayOpen ? "text-white" : "text-slate-700"
+                              }`}
+                            >
+                              {dd} / {mes}
                             </span>
-                            <span className="text-xs font-bold text-slate-600 uppercase tracking-tight">
-                              {partidosDia.length}{" "}
-                              {partidosDia.length === 1
-                                ? "Partido"
-                                : "Partidos"}
-                            </span>
+
+                            {/* Celda 2: Partidos Jugados */}
+                            <div className="justify-self-start">
+                              <span
+                                className={`text-[12px] px-1.5 py-0.5 rounded font-bold tracking-wide ${
+                                  isDayOpen
+                                    ? "bg-white/10 text-white"
+                                    : "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                PJ: {statsDia.total}
+                              </span>
+                            </div>
+
+                            {/* Celda 3: Ganados */}
+                            <div className="justify-self-start">
+                              <span
+                                className={`text-[11px] px-1.5 py-0.5 rounded font-black ${
+                                  statsDia.g === 0
+                                    ? isDayOpen
+                                      ? "text-slate-400 pl-2"
+                                      : "text-slate-300 pl-2"
+                                    : "bg-green-500 text-white"
+                                }`}
+                              >
+                                G: {statsDia.g === 0 ? "-" : statsDia.g}
+                              </span>
+                            </div>
+
+                            {/* Celda 4: Empatados */}
+                            <div className="justify-self-start">
+                              <span
+                                className={`text-[12px] px-1.5 py-0.5 rounded font-black ${
+                                  statsDia.e === 0
+                                    ? isDayOpen
+                                      ? "text-slate-400 pl-2"
+                                      : "text-slate-300 pl-2"
+                                    : "bg-amber-400 text-black"
+                                }`}
+                              >
+                                E: {statsDia.e === 0 ? "-" : statsDia.e}
+                              </span>
+                            </div>
+
+                            {/* Celda 5: Perdidos */}
+                            <div className="justify-self-start">
+                              <span
+                                className={`text-[12px] px-1.5 py-0.5 rounded font-black ${
+                                  statsDia.p === 0
+                                    ? isDayOpen
+                                      ? "text-slate-400 pl-2"
+                                      : "text-slate-300 pl-2"
+                                    : "bg-rose-600 text-white"
+                                }`}
+                              >
+                                P: {statsDia.p === 0 ? "-" : statsDia.p}
+                              </span>
+                            </div>
                           </div>
-                          {isDayOpen ? (
-                            <ChevronDown size={14} className="text-slate-300" />
-                          ) : (
-                            <ChevronRight
-                              size={14}
-                              className="text-slate-300"
-                            />
-                          )}
+
+                          {/* Flecha del acordeón alineada a la derecha de todo */}
+                          <div
+                            className={`flex-shrink-0 ml-4 ${isDayOpen ? "text-white" : "text-slate-400"}`}
+                          >
+                            {isDayOpen ? (
+                              <ChevronDown size={16} />
+                            ) : (
+                              <ChevronRight size={16} />
+                            )}
+                          </div>
                         </button>
 
                         {isDayOpen && (
@@ -171,13 +299,13 @@ const Calendario = () => {
                                       <span className="font-black text-slate-800 text-[11px] uppercase truncate">
                                         {match.__clubLabel}
                                       </span>
-                                      <span className="text-[9px] font-bold bg-slate-200 text-slate-600 px-1.5 rounded uppercase">
+                                      <span className="text-[12px] font-bold bg-slate-200 text-slate-600 px-1.5 rounded uppercase">
                                         {match.condition}
                                       </span>
                                     </div>
 
                                     {/* Renglón 2: Torneo y Capitán */}
-                                    <div className="flex items-center gap-2 text-[9px] text-slate-500 font-medium truncate">
+                                    <div className="flex items-center gap-2 text-[12px] text-slate-500 font-medium truncate">
                                       <span className="flex items-center gap-0.5">
                                         <Trophy size={10} /> {match.torneoName}{" "}
                                         ({match.torneoYear})
@@ -189,7 +317,7 @@ const Calendario = () => {
                                     </div>
 
                                     {/* NUEVO Renglón 3: Goleadores del Club */}
-                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[9px] text-blue-600 font-bold mt-0.5">
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-blue-600 font-bold mt-0.5">
                                       {match.goleadoresActiveClub &&
                                       match.goleadoresActiveClub.length > 0 ? (
                                         match.goleadoresActiveClub.map(
@@ -234,7 +362,6 @@ const Calendario = () => {
 
                                   <div className="flex flex-col items-end shrink-0 ml-2">
                                     <div className="flex items-center gap-1.5">
-                                      {/* Estado (GAN/PER/EMP) con borde sutil */}
                                       <div
                                         className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded border ${
                                           match.final === "ganado"
@@ -247,7 +374,6 @@ const Calendario = () => {
                                         {match.final}
                                       </div>
 
-                                      {/* Marcador Minimalista: Fondo gris ultra-claro y números destacados */}
                                       <div className="bg-slate-100/80 text-slate-900 text-[13px] font-black px-2.5 py-0.5 rounded-full tabular-nums border border-slate-200">
                                         {match.condition === "local" ||
                                         match.condition === "neutro"
@@ -256,9 +382,8 @@ const Calendario = () => {
                                       </div>
                                     </div>
 
-                                    {/* Rival */}
-                                    <span className="text-[9px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">
-                                       {match.rival}
+                                    <span className="text-[12px] font-bold text-slate-400 italic mt-1 uppercase tracking-tight">
+                                      {match.rival}
                                     </span>
                                   </div>
                                 </div>

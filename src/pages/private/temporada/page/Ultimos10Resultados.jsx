@@ -242,7 +242,7 @@ const {
   }
 
  return (
-   <div className="space-y-6 w-full">
+   <div className="space-y-2 w-full">
      <div className="flex items-center gap-2">
        <Titulo>Historial Reciente</Titulo>
        <div className="h-px bg-slate-100 w-full" />
@@ -251,7 +251,7 @@ const {
      {/* Bloque General */}
      {/* CAMBIO: Se usa p-4 para estandarizar el espacio interno de la tarjeta */}
      <div className="rounded-xl border bg-white p-4 shadow-sm">
-       <div className="space-y-2">
+       <div>
          <Row
            icon="📈"
            title="Últimos 10 Resultados (General)"
@@ -306,7 +306,7 @@ const {
        // CAMBIO: Removido el p-2 que achicaba el bloque contenedor del torneo entero
        <div
          key={torneo.nombre}
-         className="space-y-4 pt-4 border-t border-slate-200"
+         className="space-y-2 pt-4 border-t border-slate-200"
        >
          <div className="flex items-center gap-2">
            <h3 className="font-extrabold text-sm whitespace-nowrap text-blue-600 uppercase tracking-wider">
@@ -335,7 +335,7 @@ const {
 
          {/* Capitanes en este Torneo */}
          {/* CAMBIO: Removidos el border-l-2 y el padding izquierdo lateral que causaban que estas tarjetas internas se vieran más angostas */}
-         <div className="space-y-4">
+         <div className="space-y-2">
            {capitanes.map((cap) => {
              const rachaCapTorneo = torneo.capitanes[cap];
 

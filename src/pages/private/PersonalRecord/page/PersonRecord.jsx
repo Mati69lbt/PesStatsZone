@@ -137,7 +137,7 @@ const Stat = ({ label, value, tone, wide, compact = false }) => {
   return (
     <div
       className={[
-        "min-w-0 rounded-xl border px-2 py-2 text-center bg-white",
+        "min-w-0 rounded-xl border px-2 py-2 text-center",
         wide ? "col-span-3 sm:col-span-4 md:col-span-1" : "",
         isDiff && num !== null ? `${pillBg(num)} ${numColor(num)}` : "",
       ].join(" ")}
