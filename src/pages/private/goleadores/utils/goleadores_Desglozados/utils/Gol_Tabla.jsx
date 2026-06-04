@@ -1,26 +1,5 @@
 import React from "react";
 import { prettySafe } from "../../../../campeonatos/util/funtions";
-const CAMPOS = [
-  { value: "nombre", label: "Nombre" },
-  { value: "pj", label: "PJ" },
-  { value: "goles", label: "Goles" },
-  { value: "x2", label: "⚽x2" },
-  { value: "x3", label: "⚽x3" },
-  { value: "prom", label: "Promedio" },
-];
-
-const DIRECCIONES = [
-  { value: "asc", label: "Ascendente" },
-  { value: "desc", label: "Descendente" },
-];
-
-const COLS = [
-  { key: "pj", label: "PJ", w: "w-12" },
-  { key: "goles", label: "G", w: "w-12" },
-  { key: "x2", label: "x2", w: "w-12" },
-  { key: "x3", label: "x3", w: "w-12" },
-  { key: "prom", label: "Prom", w: "w-16", fmt: (v) => formatProm(v) },
-];
 
 const Gol_Tabla = ({
   ambito,
@@ -42,7 +21,9 @@ const Gol_Tabla = ({
       ? "General"
       : ambito === "local"
         ? "Local"
-        : "Visitante";
+        : ambito === "visitante"
+          ? "Visitante"
+          : "Neutro";
 
   // ✅ TOTALES (según el ámbito actual)
   const totals = React.useMemo(() => {
@@ -77,51 +58,7 @@ const Gol_Tabla = ({
 
   return (
     <div className="mt-1">
-      <div className="mb-2 flex w-full items-end justify-between gap-3 px-2">
-        {/* Agregamos flex-1 para que se estiren equitativamente */}
-        <div className="text-left flex-1">
-          <div className="relative mt-2">
-            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-black uppercase tracking-wide text-sky-600 z-10">
-              Campo
-            </label>
-            <select
-              value={ordenCampo}
-              onChange={(e) => setOrdenCampo(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm 
-                   transition-all cursor-pointer hover:border-sky-200
-                   focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-500"
-            >
-              {CAMPOS.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Agregamos flex-1 también aquí */}
-        <div className="text-left flex-1">
-          <div className="relative mt-2">
-            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-black uppercase tracking-wide text-sky-600 z-10">
-              Sentido
-            </label>
-            <select
-              value={ordenDireccion}
-              onChange={(e) => setOrdenDireccion(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm 
-                   transition-all cursor-pointer hover:border-sky-200
-                   focus:outline-none focus:ring-2 focus:ring-sky-100 focus:border-sky-500"
-            >
-              {DIRECCIONES.map((d) => (
-                <option key={d.value} value={d.value}>
-                  {d.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
+    
       <div className="sm:hidden max-h-[80vh] overflow-auto border rounded">
         <table className="w-full border-collapse text-[11px] tabular-nums">
           <thead className="sticky top-0 z-20 bg-slate-100 text-slate-700">

@@ -224,7 +224,7 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
               onClick={() => setOpenTorneo(isOpen ? null : torneoId)}
               className={`w-full flex items-center justify-between p-4 transition-all ${isOpen ? "bg-slate-800 text-white" : "bg-slate-700 text-white"}`}
             >
-              <span className="font-bold uppercase tracking-wide truncate">
+              <span className="font-bold uppercase tracking-wide">
                 {torneo.label}
               </span>
               <ChevronDown

@@ -1,13 +1,17 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import Gol_Tabla from "./Gol_Tabla";
 
 const DEFAULT_ORDEN = { campo: "goles", dir: "desc" };
 
-const Gol = ({ scope, matches }) => {
+const Gol = ({
+  scope,
+  matches,
+  ordenCampo,
+  setOrdenCampo,
+  ordenDireccion,
+  setOrdenDireccion,
+}) => {
   const safeMatches = Array.isArray(matches) ? matches : [];
-
-  const [ordenCampo, setOrdenCampo] = useState(DEFAULT_ORDEN.campo);
-  const [ordenDireccion, setOrdenDireccion] = useState(DEFAULT_ORDEN.dir);
 
   const goleadoresOrdenados = useMemo(() => {
     const resumen = {};
@@ -41,8 +45,7 @@ const Gol = ({ scope, matches }) => {
       const ambitos = ["general"];
       if (condition === "local") ambitos.push("local");
       else if (condition === "visitante") ambitos.push("visitante");
-      else if (condition === "neutral" || condition === "neutro")
-        ambitos.push("neutro");
+      else if (condition === "neutro") ambitos.push("neutro");
 
       // PJ por partido (starters + substitutes)
       const participantes = [

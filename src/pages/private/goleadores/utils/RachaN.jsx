@@ -126,15 +126,19 @@ function Table({ title, rows }) {
         <table className="w-full table-fixed text-[11px]">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-2 py-1 w-max text-left">Jugador</th>
-              <th className="px-2 py-1 w-[30px] text-left">Racha</th>
-              <th className="px-2 py-1 w-max">Rival</th>
+              <th className="px-2 py-1 w-[8%] text-center">#</th>
+              <th className="px-2 py-1 w-[40%] text-left">Jugador</th>
+              <th className="px-2 py-1 w-[16%] text-center">Racha</th>
+              <th className="px-2 py-1 w-[36%] text-left">Rival</th>
             </tr>
           </thead>
 
           <tbody>
-            {rows.map((r) => (
+            {rows.map((r, i) => (
               <tr key={`${r.player}-${title}`} className="border-t">
+                <td className="px-2 py-1 text-center text-slate-500">
+                  {i + 1}
+                </td>
                 <td className="px-2 py-1 capitalize truncate whitespace-nowrap">
                   {r.player}
                 </td>
@@ -150,7 +154,7 @@ function Table({ title, rows }) {
                       setOpenKey(
                         openKey === `${r.player}-${title}`
                           ? null
-                          : `${r.player}-${title}`
+                          : `${r.player}-${title}`,
                       )
                     }
                     className={
@@ -186,12 +190,12 @@ const RachaN = ({ data }) => {
 
     // Solo partidos del club (ignoramos rival)
     const matchesClub = (Array.isArray(d?.matches) ? d.matches : []).filter(
-      (m) => norm(m?.club) === clubLower
+      (m) => norm(m?.club) === clubLower,
     );
 
     // Orden por createdAt (como pediste)
     const matchesSorted = [...matchesClub].sort(
-      (a, b) => (a?.createdAt ?? 0) - (b?.createdAt ?? 0)
+      (a, b) => (a?.createdAt ?? 0) - (b?.createdAt ?? 0),
     );
 
     // (extra safety) aseguramos que starters/substitutes/goleadores sean comparables
@@ -225,10 +229,14 @@ const RachaN = ({ data }) => {
       <div className="mt-1 text-sm opacity-70">
         Club: <span className="capitalize">{computed.clubLower}</span>
       </div>
-      <div className="flex items-start justify-center gap-3">
-        <Table title="General" rows={computed.rowsAll} />
-        <div className="flex flex-col gap-1 w-max">
+      <div className="flex flex-col lg:flex-row items-start justify-center gap-3">
+        <div className="w-full lg:flex-1 min-w-0">
+          <Table title="General" rows={computed.rowsAll} />
+        </div>
+        <div className="w-full lg:flex-1 min-w-0">
           <Table title="Local" rows={computed.rowsLocal} />
+        </div>
+        <div className="w-full lg:flex-1 min-w-0">
           <Table title="Visitante" rows={computed.rowsVisitante} />
         </div>
       </div>
