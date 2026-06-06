@@ -129,109 +129,111 @@ const Row = ({ icon, title, list }) => (
 );
 
 const Ultimos10Resultados = ({ partidos = [], fixedCaptains }) => {
-const {
-  partidosOrdenados,
-  ultimos10General,
-  ultimos10Local,
-  ultimos10Visitante,
-  capitanes,
-  ultimos10PorCapitan,
-  listaTorneosProcesados, 
-} = useMemo(() => {
-  const ordenados = [...(partidos || [])].sort(
-    (a, b) => new Date(b.fecha) - new Date(a.fecha),
-  );
-
-  const top10 = (arr) => arr.slice(0, 10);
-
-  const general = top10(ordenados);
-  const local = top10(ordenados.filter((p) => !!p.esLocal));
-  const visitante = top10(ordenados.filter((p) => !p.esLocal));
-
-  const capsRaw =
-    Array.isArray(fixedCaptains) && fixedCaptains.length
-      ? fixedCaptains.map((c) => c.toLowerCase())
-      : [
-          ...new Set(
-            ordenados
-              .map((p) => (p.equipo || "").toLowerCase())
-              .filter(Boolean),
-          ),
-        ];
-
-  const caps = capsRaw
-    .map((cap) => {
-      const lastIndex = ordenados.findIndex(
-        (p) => (p.equipo || "").toLowerCase() === cap,
-      );
-      return { cap, lastIndex };
-    })
-    .filter((x) => x.lastIndex !== -1 && x.lastIndex < 10) // regla #2
-    .sort((a, b) => a.lastIndex - b.lastIndex) // regla #1
-    .map((x) => x.cap);
-
-  const porCap = Object.fromEntries(
-    caps.map((cap) => {
-      const base = ordenados.filter(
-        (p) => (p.equipo || "").toLowerCase() === cap,
-      );
-      return [
-        cap,
-        {
-          general: top10(base),
-          local: top10(base.filter((p) => !!p.esLocal)),
-          visitante: top10(base.filter((p) => !p.esLocal)),
-        },
-      ];
-    }),
-  );
-
-  const nombresTorneos = [
-    ...new Set(ordenados.map((p) => p.torneoName).filter(Boolean)),
-  ].sort();
-
-  const listaTorneosProcesados = nombresTorneos.map((nombre) => {
-    // Filtramos todos los partidos que pertenecen a este torneo específico
-    const partidosDeEsteTorneo = ordenados.filter(
-      (p) => p.torneoName === nombre,
+  const [capitanesOpen, setCapitanesOpen] = useState(false);
+  const [torneoOpen, setTorneoOpen] = useState(false);
+  const {
+    partidosOrdenados,
+    ultimos10General,
+    ultimos10Local,
+    ultimos10Visitante,
+    capitanes,
+    ultimos10PorCapitan,
+    listaTorneosProcesados,
+  } = useMemo(() => {
+    const ordenados = [...(partidos || [])].sort(
+      (a, b) => new Date(b.fecha) - new Date(a.fecha),
     );
 
-    // Estructuramos las rachas por capitán específicas de este torneo
-    const porCapTorneo = Object.fromEntries(
+    const top10 = (arr) => arr.slice(0, 10);
+
+    const general = top10(ordenados);
+    const local = top10(ordenados.filter((p) => !!p.esLocal));
+    const visitante = top10(ordenados.filter((p) => !p.esLocal));
+
+    const capsRaw =
+      Array.isArray(fixedCaptains) && fixedCaptains.length
+        ? fixedCaptains.map((c) => c.toLowerCase())
+        : [
+            ...new Set(
+              ordenados
+                .map((p) => (p.equipo || "").toLowerCase())
+                .filter(Boolean),
+            ),
+          ];
+
+    const caps = capsRaw
+      .map((cap) => {
+        const lastIndex = ordenados.findIndex(
+          (p) => (p.equipo || "").toLowerCase() === cap,
+        );
+        return { cap, lastIndex };
+      })
+      .filter((x) => x.lastIndex !== -1 && x.lastIndex < 10) // regla #2
+      .sort((a, b) => a.lastIndex - b.lastIndex) // regla #1
+      .map((x) => x.cap);
+
+    const porCap = Object.fromEntries(
       caps.map((cap) => {
-        const baseCapTorneo = partidosDeEsteTorneo.filter(
+        const base = ordenados.filter(
           (p) => (p.equipo || "").toLowerCase() === cap,
         );
         return [
           cap,
           {
-            general: top10(baseCapTorneo),
-            local: top10(baseCapTorneo.filter((p) => !!p.esLocal)),
-            visitante: top10(baseCapTorneo.filter((p) => !p.esLocal)),
+            general: top10(base),
+            local: top10(base.filter((p) => !!p.esLocal)),
+            visitante: top10(base.filter((p) => !p.esLocal)),
           },
         ];
       }),
     );
 
-    return {
-      nombre,
-      general: top10(partidosDeEsteTorneo),
-      local: top10(partidosDeEsteTorneo.filter((p) => !!p.esLocal)),
-      visitante: top10(partidosDeEsteTorneo.filter((p) => !p.esLocal)),
-      capitanes: porCapTorneo,
-    };
-  });
+    const nombresTorneos = [
+      ...new Set(ordenados.map((p) => p.torneoName).filter(Boolean)),
+    ];
 
-  return {
-    partidosOrdenados: ordenados,
-    ultimos10General: general,
-    ultimos10Local: local,
-    ultimos10Visitante: visitante,
-    capitanes: caps,
-    ultimos10PorCapitan: porCap,
-    listaTorneosProcesados,
-  };
-}, [partidos, fixedCaptains]);
+    const listaTorneosProcesados = nombresTorneos.map((nombre) => {
+      // Filtramos todos los partidos que pertenecen a este torneo específico
+      const partidosDeEsteTorneo = ordenados.filter(
+        (p) => p.torneoName === nombre,
+      );
+
+      // Estructuramos las rachas por capitán específicas de este torneo
+      const porCapTorneo = Object.fromEntries(
+        caps.map((cap) => {
+          const baseCapTorneo = partidosDeEsteTorneo.filter(
+            (p) => (p.equipo || "").toLowerCase() === cap,
+          );
+          return [
+            cap,
+            {
+              general: top10(baseCapTorneo),
+              local: top10(baseCapTorneo.filter((p) => !!p.esLocal)),
+              visitante: top10(baseCapTorneo.filter((p) => !p.esLocal)),
+            },
+          ];
+        }),
+      );
+
+      return {
+        nombre,
+        general: top10(partidosDeEsteTorneo),
+        local: top10(partidosDeEsteTorneo.filter((p) => !!p.esLocal)),
+        visitante: top10(partidosDeEsteTorneo.filter((p) => !p.esLocal)),
+        capitanes: porCapTorneo,
+      };
+    });
+
+    return {
+      partidosOrdenados: ordenados,
+      ultimos10General: general,
+      ultimos10Local: local,
+      ultimos10Visitante: visitante,
+      capitanes: caps,
+      ultimos10PorCapitan: porCap,
+      listaTorneosProcesados,
+    };
+  }, [partidos, fixedCaptains]);
 
   if (!partidosOrdenados.length) {
     return (
@@ -241,137 +243,165 @@ const {
     );
   }
 
- return (
-   <div className="space-y-2 w-full">
-     <div className="flex items-center gap-2">
-       <Titulo>Historial Reciente</Titulo>
-       <div className="h-px bg-slate-100 w-full" />
-     </div>
+  return (
+    <div className="space-y-2 w-full">
+      <div className="flex items-center gap-2">
+        <Titulo>Historial Reciente</Titulo>
+        <div className="h-px bg-slate-100 w-full" />
+      </div>
 
-     {/* Bloque General */}
-     {/* CAMBIO: Se usa p-4 para estandarizar el espacio interno de la tarjeta */}
-     <div className="rounded-xl border bg-white p-4 shadow-sm">
-       <div>
-         <Row
-           icon="📈"
-           title="Últimos 10 Resultados (General)"
-           list={ultimos10General}
-         />
-         <Row
-           icon="🏠"
-           title="Últimos 10 Resultados (Local)"
-           list={ultimos10Local}
-         />
-         <Row
-           icon="🚌"
-           title="Últimos 10 Resultados (Visitante)"
-           list={ultimos10Visitante}
-         />
-       </div>
-     </div>
+      {/* Bloque General */}
+      {/* CAMBIO: Se usa p-4 para estandarizar el espacio interno de la tarjeta */}
+      <div className="rounded-xl border bg-white p-4 shadow-sm">
+        <div>
+          <Row
+            icon="📈"
+            title="Últimos 10 Resultados (General)"
+            list={ultimos10General}
+          />
+          <Row
+            icon="🏠"
+            title="Últimos 10 Resultados (Local)"
+            list={ultimos10Local}
+          />
+          <Row
+            icon="🚌"
+            title="Últimos 10 Resultados (Visitante)"
+            list={ultimos10Visitante}
+          />
+        </div>
+      </div>
 
-     {/* Por capitán General */}
-     {/* CAMBIO: Se usa un contenedor gap idéntico para que no varíen los márgenes */}
-     <div className="space-y-2">
-       {capitanes.map((cap) => (
-         // CAMBIO: Se unifica a p-4 para igualar a las demás tarjetas de capitanes
-         <div key={cap} className="rounded-xl border bg-white p-4 shadow-sm">
-           <div className="mb-2 text-sm font-semibold text-slate-700">
-             🧤 Últimos 10 con {pretty(cap)}
-           </div>
+      {/* Por capitán General */}
+      {/* CAMBIO: Se usa un contenedor gap idéntico para que no varíen los márgenes */}
+      {capitanes.length > 0 && (
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setCapitanesOpen((prev) => !prev)}
+            className="w-full flex items-center justify-between px-2 py-2 rounded-xl border bg-white shadow-sm text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+          >
+            <span>🧤 Capitanes</span>
+            <span>{capitanesOpen ? "▲" : "▼"}</span>
+          </button>
+          <div
+            className={`transition-all duration-300 ease-in-out overflow-hidden ${capitanesOpen ? "max-h-[5000px] opacity-100" : "max-h-0 opacity-0"}`}
+          >
+            <div className="space-y-2">
+              {capitanes.map((cap) => (
+                <div
+                  key={cap}
+                  className="rounded-xl border bg-white p-2 shadow-sm"
+                >
+                  <div className="mb-2 text-sm font-semibold text-slate-700">
+                    🧤 Últimos 10 con {pretty(cap)}
+                  </div>
+                  <div className="space-y-2">
+                    <Row
+                      icon="📌"
+                      title="General"
+                      list={ultimos10PorCapitan[cap]?.general || []}
+                    />
+                    <Row
+                      icon="🏠"
+                      title="Local"
+                      list={ultimos10PorCapitan[cap]?.local || []}
+                    />
+                    <Row
+                      icon="🚌"
+                      title="Visitante"
+                      list={ultimos10PorCapitan[cap]?.visitante || []}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
-           <div className="space-y-2">
-             <Row
-               icon="📌"
-               title="General"
-               list={ultimos10PorCapitan[cap]?.general || []}
-             />
-             <Row
-               icon="🏠"
-               title="Local"
-               list={ultimos10PorCapitan[cap]?.local || []}
-             />
-             <Row
-               icon="🚌"
-               title="Visitante"
-               list={ultimos10PorCapitan[cap]?.visitante || []}
-             />
-           </div>
-         </div>
-       ))}
-     </div>
+      <div>
+        <button
+          type="button"
+          onClick={() => setTorneoOpen((prev) => !prev)}
+          className="w-full flex items-center justify-between px-4 py-2 rounded-xl border bg-white shadow-sm text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          <span>🏆 Torneos</span>
+          <span>{torneoOpen ? "▲" : "▼"}</span>
+        </button>
+        {listaTorneosProcesados.map((torneo) => (
+          <div
+            key={torneo.nombre}
+            className={`transition-all duration-300 ease-in-out overflow-hidden space-y-2 mt-2 ${torneoOpen ? "max-h-[5000px] opacity-100" : "max-h-0 opacity-0"}`}
+          >
+            <div className="flex items-center gap-2">
+              <h3 className="font-extrabold text-sm whitespace-nowrap text-blue-600 uppercase tracking-wider ml-6">
+                🏆 {pretty(torneo.nombre)}
+              </h3>
+              <div className="h-px bg-blue-600 w-full" />
+            </div>
 
-     {/* Mapeamos dinámicamente tu array 'listaTorneosProcesados' abajo del global */}
-     {listaTorneosProcesados.map((torneo) => (
-       // CAMBIO: Removido el p-2 que achicaba el bloque contenedor del torneo entero
-       <div
-         key={torneo.nombre}
-         className="space-y-2 pt-4 border-t border-slate-200"
-       >
-         <div className="flex items-center gap-2">
-           <h3 className="font-extrabold text-sm whitespace-nowrap text-blue-600 uppercase tracking-wider">
-             🏆 {pretty(torneo.nombre)}
-           </h3>
-           <div className="h-px bg-blue-100 w-full" />
-         </div>
+          
+            <div className="rounded-xl border bg-white p-4 shadow-sm">
+              <div className="space-y-2">
+                <Row
+                  icon="📈"
+                  title="Últimos 10 (General)"
+                  list={torneo.general}
+                />
+                <Row icon="🏠" title="Últimos 10 (Local)" list={torneo.local} />
+                <Row
+                  icon="🚌"
+                  title="Últimos 10 (Visitante)"
+                  list={torneo.visitante}
+                />
+              </div>
+            </div>
 
-         {/* Últimos 10 del Torneo */}
-         {/* CAMBIO: Se usa p-4 para emparejar el ancho exacto con el bloque general */}
-         <div className="rounded-xl border bg-white p-4 shadow-sm">
-           <div className="space-y-2">
-             <Row
-               icon="📈"
-               title="Últimos 10 (General)"
-               list={torneo.general}
-             />
-             <Row icon="🏠" title="Últimos 10 (Local)" list={torneo.local} />
-             <Row
-               icon="🚌"
-               title="Últimos 10 (Visitante)"
-               list={torneo.visitante}
-             />
-           </div>
-         </div>
+            {/* Capitanes en este Torneo */}
+            {/* CAMBIO: Removidos el border-l-2 y el padding izquierdo lateral que causaban que estas tarjetas internas se vieran más angostas */}
+            <div className="space-y-2">
+              {capitanes.map((cap) => {
+                const rachaCapTorneo = torneo.capitanes[cap];
 
-         {/* Capitanes en este Torneo */}
-         {/* CAMBIO: Removidos el border-l-2 y el padding izquierdo lateral que causaban que estas tarjetas internas se vieran más angostas */}
-         <div className="space-y-2">
-           {capitanes.map((cap) => {
-             const rachaCapTorneo = torneo.capitanes[cap];
+                // Si el capitán no tiene partidos en este torneo específico, no renderizamos un cuadro vacío
+                if (!rachaCapTorneo || rachaCapTorneo.general.length === 0)
+                  return null;
 
-             // Si el capitán no tiene partidos en este torneo específico, no renderizamos un cuadro vacío
-             if (!rachaCapTorneo || rachaCapTorneo.general.length === 0)
-               return null;
-
-             return (
-               <div
-                 key={`${torneo.nombre}-${cap}`}
-                 className="rounded-xl border bg-white p-4 shadow-sm"
-               >
-                 <div className="mb-2 text-xs font-bold text-slate-500">
-                   🧤 Últimos 10 con {pretty(cap)} en {pretty(torneo.nombre)}
-                 </div>
-                 <div className="space-y-2">
-                   <Row
-                     icon="📌"
-                     title="General"
-                     list={rachaCapTorneo.general}
-                   />
-                   <Row icon="🏠" title="Local" list={rachaCapTorneo.local} />
-                   <Row
-                     icon="🚌"
-                     title="Visitante"
-                     list={rachaCapTorneo.visitante}
-                   />
-                 </div>
-               </div>
-             );
-           })}
-         </div>
-       </div>
-     ))}
-   </div>
- );
+                return (
+                  <div
+                    key={`${torneo.nombre}-${cap}`}
+                    className="rounded-xl border bg-white p-4 shadow-sm"
+                  >
+                    <div className="mb-2 text-xs font-bold text-slate-500">
+                      🧤 Últimos 10 con {pretty(cap)} en {pretty(torneo.nombre)}
+                    </div>
+                    <div className="space-y-2">
+                      <Row
+                        icon="📌"
+                        title="General"
+                        list={rachaCapTorneo.general}
+                      />
+                      <Row
+                        icon="🏠"
+                        title="Local"
+                        list={rachaCapTorneo.local}
+                      />
+                      <Row
+                        icon="🚌"
+                        title="Visitante"
+                        list={rachaCapTorneo.visitante}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default Ultimos10Resultados;

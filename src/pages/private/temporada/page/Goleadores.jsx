@@ -18,8 +18,8 @@ const TopGoleadores = ({
   showHomeAway = false,
   all = null,
 }) => {
-  const [openAccordion, setOpenAccordion] = useState(false);
   const [open, setOpen] = useState(false);
+  const [openTab, setOpenTab] = useState(null);
 
   // igual que en CampDesgl.jsx (misma lógica)
   const calcularGolesGoleador = (g) => {
@@ -362,8 +362,8 @@ const TopGoleadores = ({
                 <VerticalTable
                   title={t.label}
                   list={t.list}
-                  isOpen={open === t.key}
-                  onToggle={() => setOpen(open === t.key ? null : t.key)}
+                  isOpen={openTab === t.key}
+                  onToggle={() => setOpenTab(openTab === t.key ? null : t.key)}
                 />
               </div>
             ))}
@@ -379,8 +379,8 @@ const TopGoleadores = ({
                 <VerticalTable
                   title={t.label}
                   list={t.list}
-                  isOpen={open === t.key}
-                  onToggle={() => setOpen(open === t.key ? null : t.key)}
+                  isOpen={openTab === t.key}
+                  onToggle={() => setOpenTab(openTab === t.key ? null : t.key)}
                 />
               </div>
             ))}

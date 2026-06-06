@@ -104,80 +104,96 @@ function buildRows({ matchesSorted, playersActive, clubLower, mode }) {
   }
 
   // Orden: más sequía arriba
-  rows.sort((a, b) => b.drought - a.drought);
+  rows.sort((a, b) => a.drought - b.drought);
 
   return rows;
 }
 
-function Table({ title, rows }) {
+function Table({ title, rows, isOpen = true, onToggle = null }) {
   const [openKey, setOpenKey] = useState(null);
   return (
     <div className="rounded-lg border border-slate-200 overflow-hidden bg-white">
       {/* Header integrado */}
-      <div className="bg-slate-50 px-2 py-1 border-b border-slate-200">
-        <h2 className="text-[14px] text-center font-semibold">{title}</h2>
+     
+
+      <div
+        onClick={onToggle || undefined}
+        className={`bg-slate-50 px-2 py-1 border-b border-slate-200 flex items-center justify-between
+    ${onToggle ? "cursor-pointer hover:bg-slate-100 transition-colors" : ""}`}
+      >
+        <h2 className="text-[14px] text-center font-semibold w-full">
+          {title}
+        </h2>
+        {onToggle && (
+          <span className="text-slate-400 text-xs">{isOpen ? "▲" : "▼"}</span>
+        )}
       </div>
 
-      {rows.length === 0 ? (
-        <div className="px-2 py-2 text-[11px] opacity-70">
-          No hay jugadores con racha negativa para mostrar.
-        </div>
-      ) : (
-        <table className="w-full table-fixed text-[11px]">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-2 py-1 w-[8%] text-center">#</th>
-              <th className="px-2 py-1 w-[40%] text-left">Jugador</th>
-              <th className="px-2 py-1 w-[16%] text-center">Racha</th>
-              <th className="px-2 py-1 w-[36%] text-left">Rival</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {rows.map((r, i) => (
-              <tr key={`${r.player}-${title}`} className="border-t">
-                <td className="px-2 py-1 text-center text-slate-500">
-                  {i + 1}
-                </td>
-                <td className="px-2 py-1 capitalize truncate whitespace-nowrap">
-                  {r.player}
-                </td>
-
-                <td className=" text-center px-2 py-1 font-semibold whitespace-nowrap bg-amber-100">
-                  {r.drought}
-                </td>
-
-                <td className="px-2 py-1">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenKey(
-                        openKey === `${r.player}-${title}`
-                          ? null
-                          : `${r.player}-${title}`,
-                      )
-                    }
-                    className={
-                      "block w-full text-left " +
-                      (openKey === `${r.player}-${title}`
-                        ? "whitespace-normal break-words"
-                        : "truncate whitespace-nowrap")
-                    }
-                    title={r.rival} // desktop hover sigue funcionando
-                  >
-                    {r.rival}
-                  </button>
-                </td>
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${onToggle && !isOpen ? "max-h-0 opacity-0" : "max-h-[2000px] opacity-100"}`}
+      >
+        {rows.length === 0 ? (
+          <div className="px-2 py-2 text-[11px] opacity-70">
+            No hay jugadores con racha negativa para mostrar.
+          </div>
+        ) : (
+          <table className="w-full table-fixed text-[11px]">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-2 py-1 w-[8%] text-center">#</th>
+                <th className="px-2 py-1 w-[40%] text-left">Jugador</th>
+                <th className="px-2 py-1 w-[16%] text-center">Racha</th>
+                <th className="px-2 py-1 w-[36%] text-left">Rival</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={`${r.player}-${title}`} className="border-t">
+                  <td className="px-2 py-1 text-center text-slate-500">
+                    {i + 1}
+                  </td>
+                  <td className="px-2 py-1 capitalize truncate whitespace-nowrap">
+                    {r.player}
+                  </td>
+
+                  <td className=" text-center px-2 py-1 font-semibold whitespace-nowrap bg-amber-100">
+                    {r.drought}
+                  </td>
+
+                  <td className="px-2 py-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenKey(
+                          openKey === `${r.player}-${title}`
+                            ? null
+                            : `${r.player}-${title}`,
+                        )
+                      }
+                      className={
+                        "block w-full text-left " +
+                        (openKey === `${r.player}-${title}`
+                          ? "whitespace-normal break-words"
+                          : "truncate whitespace-nowrap")
+                      }
+                      title={r.rival} // desktop hover sigue funcionando
+                    >
+                      {r.rival}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }
 
 const RachaN = ({ data }) => {
+  const [openTab, setOpenTab] = useState(null);
   const computed = useMemo(() => {
     const d = data ?? {};
 
@@ -226,18 +242,34 @@ const RachaN = ({ data }) => {
   return (
     <div className="p-2">
       <h1 className="text-2xl font-bold">Racha de Sequía Goleadora</h1>
-      <div className="mt-1 text-sm opacity-70">
-        Club: <span className="capitalize">{computed.clubLower}</span>
-      </div>
       <div className="flex flex-col lg:flex-row items-start justify-center gap-3">
         <div className="w-full lg:flex-1 min-w-0">
-          <Table title="General" rows={computed.rowsAll} />
+          <Table
+            title="General"
+            rows={computed.rowsAll}
+            isOpen={openTab === "general"}
+            onToggle={() =>
+              setOpenTab(openTab === "general" ? null : "general")
+            }
+          />
         </div>
         <div className="w-full lg:flex-1 min-w-0">
-          <Table title="Local" rows={computed.rowsLocal} />
+          <Table
+            title="Local"
+            rows={computed.rowsLocal}
+            isOpen={openTab === "local"}
+            onToggle={() => setOpenTab(openTab === "local" ? null : "local")}
+          />
         </div>
         <div className="w-full lg:flex-1 min-w-0">
-          <Table title="Visitante" rows={computed.rowsVisitante} />
+          <Table
+            title="Visitante"
+            rows={computed.rowsVisitante}
+            isOpen={openTab === "visitante"}
+            onToggle={() =>
+              setOpenTab(openTab === "visitante" ? null : "visitante")
+            }
+          />
         </div>
       </div>
     </div>

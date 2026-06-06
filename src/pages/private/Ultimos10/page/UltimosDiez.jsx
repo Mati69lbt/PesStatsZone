@@ -62,7 +62,7 @@ const UltimosDiez = () => {
 
   return (
     <div className="p-2 max-w-5xl mx-auto">
-      <div className="flex items-center justify-evenly gap-4 mb-4 mt-2 px-1">
+      <div className="flex items-center justify-evenly gap-4 mb-2 mt-2 px-1">
         {/* BLOQUE IZQUIERDO: Título con personalidad */}
         <div className="relative flex flex-col pt-2 ">
           {" "}

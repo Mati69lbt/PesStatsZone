@@ -48,7 +48,7 @@ const getMatchSeason = (m) => {
 
 // [CAMBIAR buildListFromMap por esto]
 
-const VerticalTable = ({ title, list }) => {
+const VerticalTable = ({ title, list, isOpen = true, onToggle = null }) => {
   const [sortKey, setSortKey] = React.useState("goals");
   const sortedList = React.useMemo(() => {
     return [...(list || [])].sort((a, b) => {
@@ -60,94 +60,114 @@ const VerticalTable = ({ title, list }) => {
 
   return (
     <div className="w-full rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
-      <div className="px-2 py-2 border-b border-slate-200 text-[10px] font-semibold text-center uppercase bg-emerald-50">
+      <div
+        onClick={onToggle || undefined}
+        className={`px-3 py-2 border-b border-slate-200 text-[10px] font-semibold tracking-wide text-center uppercase text-slate-800 bg-emerald-50
+          ${onToggle ? "cursor-pointer hover:bg-emerald-100 transition-colors flex items-center justify-between" : ""}`}
+      >
         {title}
+        {onToggle && <span>{isOpen ? "▲" : "▼"}</span>}
       </div>
 
-      {/* Agregamos table-fixed y w-full */}
-      <table className="w-full text-[11px] border-collapse table-fixed">
-        <thead>
-          <tr className="bg-slate-100 border-b border-slate-200 text-[9px] uppercase text-slate-500 font-bold">
-            <th className="w-[12%] px-1 py-1 text-center">Pos</th>
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${onToggle && !isOpen ? "max-h-0 opacity-0" : "max-h-[2000px] opacity-100"}`}
+      >
+        <table className="w-full text-[11px] border-collapse table-fixed">
+          <thead>
+            <tr className="bg-slate-100 border-b border-slate-200 text-[9px] uppercase text-slate-500 font-bold">
+              <th className="w-[12%] px-1 py-1 text-center">Pos</th>
 
-            <th
-              className={`w-[30%] px-2 py-1 text-left cursor-pointer hover:text-slate-800 ${sortKey === "name" ? "text-blue-600" : ""}`}
-              onClick={() => setSortKey("name")}
-            >
-              Jugador
-            </th>
-
-            <th
-              className={`w-[12%] px-1 py-1 text-center cursor-pointer hover:text-slate-800 ${sortKey === "goals" ? "text-blue-600" : ""}`}
-              onClick={() => setSortKey("goals")}
-            >
-              G
-            </th>
-
-            <th
-              className={`w-[12%] px-1 py-1 text-center cursor-pointer hover:text-slate-800 ${sortKey === "pj" ? "text-blue-600" : ""}`}
-              onClick={() => setSortKey("pj")}
-            >
-              PJ
-            </th>
-
-            <th
-              className={`w-[16%] px-1 py-1 text-right pr-2 cursor-pointer hover:text-slate-800 ${sortKey === "prom" ? "text-blue-600" : ""}`}
-              onClick={() => setSortKey("prom")}
-            >
-              Prom
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {!sortedList || sortedList.length === 0 ? (
-            <tr>
-              <td className="px-3 py-3 text-center text-slate-500" colSpan={5}>
-                Sin goles
-              </td>
-            </tr>
-          ) : (
-            sortedList.map((j, i) => (
-              <tr
-                key={j.name}
-                className="border-b border-slate-100 hover:bg-emerald-50/30 transition-colors"
+              <th
+                className={`w-[30%] px-2 py-1 text-left cursor-pointer hover:text-slate-800 ${sortKey === "name" ? "text-blue-600" : ""}`}
+                onClick={() => setSortKey("name")}
               >
-                <td className="px-1 py-2 text-center align-middle">
-                  {rankStyles(i).icon}
-                </td>
-                {/* TRUNCADO APLICADO AQUÍ */}
-                <td className="px-2 py-2 text-left font-medium text-slate-700 truncate overflow-hidden whitespace-nowrap">
-                  {prettySafe(j.name)}
-                </td>
-                <td className="px-1 py-2 text-center font-bold text-slate-900 bg-emerald-50/20">
-                  {j.goals}
-                </td>
-                <td className="px-1 py-2 text-center text-slate-500 tabular-nums">
-                  {j.pj}
-                </td>
-                <td className="px-1 py-2 text-right pr-2 font-mono text-emerald-600 font-semibold">
-                  {j.prom.toFixed(2)}
+                Jugador
+              </th>
+              <th
+                className={`w-[30%] px-2 py-1 text-left cursor-pointer hover:text-slate-800 ${sortKey === "club" ? "text-blue-600" : ""}`}
+                onClick={() => setSortKey("club")}
+              >
+                Club
+              </th>
+
+              <th
+                className={`w-[12%] px-1 py-1 text-center cursor-pointer hover:text-slate-800 ${sortKey === "goals" ? "text-blue-600" : ""}`}
+                onClick={() => setSortKey("goals")}
+              >
+                G
+              </th>
+
+              <th
+                className={`w-[12%] px-1 py-1 text-center cursor-pointer hover:text-slate-800 ${sortKey === "pj" ? "text-blue-600" : ""}`}
+                onClick={() => setSortKey("pj")}
+              >
+                PJ
+              </th>
+
+              <th
+                className={`w-[16%] px-1 py-1 text-right pr-2 cursor-pointer hover:text-slate-800 ${sortKey === "prom" ? "text-blue-600" : ""}`}
+                onClick={() => setSortKey("prom")}
+              >
+                Prom
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {!sortedList || sortedList.length === 0 ? (
+              <tr>
+                <td
+                  className="px-3 py-3 text-center text-slate-500"
+                  colSpan={5}
+                >
+                  Sin goles
                 </td>
               </tr>
-            ))
-          )}
-          {/* Fila de Totales corregida para 5 columnas */}
-          {(list || []).length > 0 && (
-            <tr className="bg-slate-50 border-t border-slate-200">
-              <td
-                className="px-2 py-2 text-right font-semibold text-slate-700"
-                colSpan={2}
-              >
-                Total
-              </td>
-              <td className="px-1 py-2 text-center tabular-nums font-extrabold text-slate-900 bg-emerald-50/50">
-                {totalGoles}
-              </td>
-              <td colSpan={2}></td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            ) : (
+              sortedList.map((j, i) => (
+                <tr
+                  key={j.name}
+                  className="border-b border-slate-100 hover:bg-emerald-50/30 transition-colors"
+                >
+                  <td className="px-1 py-2 text-center align-middle">
+                    {rankStyles(i).icon}
+                  </td>
+                  {/* TRUNCADO APLICADO AQUÍ */}
+                  <td className="px-2 py-2 text-left font-medium text-slate-700 truncate overflow-hidden whitespace-nowrap">
+                    {prettySafe(j.name)}
+                  </td>
+                  <td className="px-2 py-2 text-left font-medium text-slate-700 truncate overflow-hidden whitespace-nowrap">
+                    {prettySafe(j.club)}
+                  </td>
+                  <td className="px-1 py-2 text-center font-bold text-slate-900 bg-emerald-50/20">
+                    {j.goals}
+                  </td>
+                  <td className="px-1 py-2 text-center text-slate-500 tabular-nums">
+                    {j.pj}
+                  </td>
+                  <td className="px-1 py-2 text-right pr-2 font-mono text-emerald-600 font-semibold">
+                    {j.prom.toFixed(2)}
+                  </td>
+                </tr>
+              ))
+            )}
+            {/* Fila de Totales corregida para 5 columnas */}
+            {(list || []).length > 0 && (
+              <tr className="bg-slate-50 border-t border-slate-200">
+                <td
+                  className="px-2 py-2 text-right font-semibold text-slate-700"
+                  colSpan={2}
+                >
+                  Total
+                </td>
+                <td className="px-1 py-2 text-center tabular-nums font-extrabold text-slate-900 bg-emerald-50/50">
+                  {totalGoles}
+                </td>
+                <td colSpan={2}></td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
@@ -162,7 +182,8 @@ const GolEuropa = ({
   showHomeAway = false,
   all = null,
 }) => {
-  const [openTemporada, setOpenTemporada] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [openTab, setOpenTab] = useState(false);
 
   const goalsMaps = React.useMemo(() => {
     const ms = all?.matches;
@@ -170,6 +191,7 @@ const GolEuropa = ({
 
     const allowed = new Set((years || []).map(String));
     const allMap = {};
+    const clubMap = {};
     const pjMap = {};
     const pjLocalMap = {};
     const pjVisitanteMap = {};
@@ -228,6 +250,7 @@ const GolEuropa = ({
 
         // Sumar al total general
         allMap[name] = (allMap[name] || 0) + goles;
+        clubMap[name] = match?.club;
 
         // Sumar según condición del partido
         if (cond === "local") {
@@ -245,11 +268,12 @@ const GolEuropa = ({
       visitante: visitanteMap,
       pjLocal: pjLocalMap,
       pjVisitante: pjVisitanteMap,
+      club: clubMap,
     };
   }, [all, years]);
 
   // [REEMPLAZA tu buildListFromMap por este]
-  const buildListFromMap = (map, limit, pjMapSource) =>
+  const buildListFromMap = (map, limit, pjMapSource, clubMapSource) =>
     Object.entries(map || {})
       .map(([name, goals]) => {
         const pj = pjMapSource?.[name] || 0;
@@ -258,6 +282,7 @@ const GolEuropa = ({
           goals,
           pj,
           prom: pj > 0 ? goals / pj : 0,
+          club: clubMapSource?.[name],
         };
       })
       .filter((x) => x.goals > 0) // 🔥 Importante: Solo los que metieron goles
@@ -269,17 +294,22 @@ const GolEuropa = ({
       .slice(0, limit); // 🔥 Aplicar el límite (topN)
 
   const lista = goalsMaps
-    ? buildListFromMap(goalsMaps.all, topN, goalsMaps.pj)
+    ? buildListFromMap(goalsMaps.all, topN, goalsMaps.pj, goalsMaps.club)
     : [];
 
   const halfN = Math.floor(topN / 2);
 
   const listaLocal = goalsMaps
-    ? buildListFromMap(goalsMaps.local, halfN, goalsMaps.pjLocal) // <--- Usa pjLocal
+    ? buildListFromMap(goalsMaps.local, topN, goalsMaps.pjLocal, goalsMaps.club) // <--- Usa pjLocal
     : [];
 
   const listaVisitante = goalsMaps
-    ? buildListFromMap(goalsMaps.visitante, halfN, goalsMaps.pjVisitante) // <--- Usa pjVisitante
+    ? buildListFromMap(
+        goalsMaps.visitante,
+        topN,
+        goalsMaps.pjVisitante,
+        goalsMaps.club,
+      ) // <--- Usa pjVisitante
     : [];
 
   if (lista.length === 0) return null;
@@ -298,7 +328,7 @@ const GolEuropa = ({
       <div>
         <button
           type="button"
-          onClick={() => setOpenTemporada(!openTemporada)}
+          onClick={() => setOpen((prev) => !prev)}
           className="w-full flex items-center justify-center py-2 group focus:outline-none"
         >
           <h1 className="md:text-2xl font-extrabold text-center text-slate-800 tracking-tight transition-transform group-hover:scale-[1.02]">
@@ -308,7 +338,7 @@ const GolEuropa = ({
               <ChevronDown
                 size={20}
                 className={`ml-1 text-slate-400 transition-transform duration-300 ${
-                  openTemporada ? "rotate-180" : "rotate-0"
+                  open ? "rotate-180" : "rotate-0"
                 }`}
               />
             </span>
@@ -317,38 +347,51 @@ const GolEuropa = ({
 
         <div
           className={`transition-all duration-500 ease-in-out overflow-hidden ${
-            openTemporada
+            open
               ? "max-h-[2500px] opacity-100 mt-2 mb-2"
               : "max-h-0 opacity-0 pointer-events-none"
           }`}
         >
-          <div className={`${className} px-2`}>
-            {/* El grid principal que separa General de (Local/Visitante) */}
-            <div className="grid grid-cols-2 gap-2 items-start">
-              {/* Columna Izquierda: Tabla General */}
-              <div className="min-w-0 w-full">
-                <VerticalTable
-                  title={`Goleadores ${yearsLabel}`}
-                  list={lista}
-                />
-              </div>
+          <div className={`${className} px-2 flex flex-col gap-2`}>
+            {/* Columna Izquierda: Tabla General */}
+            <div className="min-w-0 w-full">
+              <VerticalTable
+                title={`Goleadores ${yearsLabel}`}
+                list={lista}
+                isOpen={openTab === "general"}
+                onToggle={() =>
+                  setOpenTab(openTab === "general" ? null : "general")
+                }
+              />
+            </div>
 
-              {/* Columna Derecha: Local y Visitante apilados */}
-              {showHomeAway && (
-                <div className="min-w-0 grid grid-rows-2 gap-2">
+            {/* Columna Derecha: Local y Visitante apilados */}
+            {showHomeAway && (
+              <>
+                <div className="min-w-0 w-full">
                   <VerticalTable
                     title={`Local ${yearsLabel}`}
                     list={listaLocal}
                     className="w-full"
+                    isOpen={openTab === "local"}
+                    onToggle={() =>
+                      setOpenTab(openTab === "local" ? null : "local")
+                    }
                   />
+                </div>
+                <div className="min-w-0 w-full">
                   <VerticalTable
                     title={`Visitante ${yearsLabel}`}
                     list={listaVisitante}
                     className="w-full"
+                    isOpen={openTab === "visitante"}
+                    onToggle={() =>
+                      setOpenTab(openTab === "visitante" ? null : "visitante")
+                    }
                   />
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
         </div>
       </div>
