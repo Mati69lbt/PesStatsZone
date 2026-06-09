@@ -2,7 +2,7 @@
 import Notiflix from "notiflix";
 import { useEffect, useRef } from "react";
 import { normalizeName } from "../../../../utils/normalizeName";
-import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../../../../configuration/firebase";
 
 const useUpdateLineup = (uid, activeClub, lineups, players) => {
@@ -43,13 +43,21 @@ const useUpdateLineup = (uid, activeClub, lineups, players) => {
     }
 
     (async () => {
-      try {        
-        await updateDoc(doc(db, "users", uid), {
-          [`lineups.${clubKey}.players`]: playersNorm,
-          [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
-        });
+      try {
+        await setDoc(
+          doc(db, "users", uid),
+          {
+            lineups: {
+              [clubKey]: {
+                players: playersNorm,
+                updatedAt: serverTimestamp(),
+              },
+            },
+          },
+          { merge: true },
+        );
         lastSentRef.current = { clubKey, playersJson: payloadJson };
-        Notiflix.Notify.success("Plantel sincronizado");      
+        Notiflix.Notify.success("Plantel sincronizado");
       } catch (e) {
         console.debug("[SYNC] FAIL", e);
         Notiflix.Notify.failure("No se pudo sincronizar el plantel");
