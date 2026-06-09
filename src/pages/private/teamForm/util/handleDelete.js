@@ -3,8 +3,13 @@ import Notiflix from "notiflix";
 import { normalizeName } from "../../../../utils/normalizeName";
 import { LINEUP_DELETE_LOCAL } from "../../../../context/LineUpProvider";
 import { db } from "../../../../configuration/firebase";
-import { deleteField, doc, serverTimestamp, updateDoc } from "firebase/firestore";
-
+import {
+  deleteField,
+  doc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 const handleDelete = (lineup, activeClub, teamName, uid, dispatch) => {
   const clubKey = normalizeName(activeClub || teamName);
@@ -20,19 +25,28 @@ const handleDelete = (lineup, activeClub, teamName, uid, dispatch) => {
 
       const clubKey = normalizeName(activeClub || teamName);
       if (!uid || !clubKey) return;
+      // DESPUÉS
       try {
+        await setDoc(
+          doc(db, "users", uid),
+          {
+            lineups: { [clubKey]: { updatedAt: serverTimestamp() } },
+          },
+          { merge: true },
+        );
+
         await updateDoc(doc(db, "users", uid), {
           [`lineups.${clubKey}.formations.${lineup.id}`]: deleteField(),
           [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
         });
       } catch (e) {
         console.error(e);
-        Notiflix.Notify.failure("No se pudo eliminar en la nube");
+        Notiflix.Notify.failure("No se pudo eliminar la formación en la nube");
       }
     },
     () => {
       // ❌ si cancela → no hagas nada
-    }
+    },
   );
 };
 

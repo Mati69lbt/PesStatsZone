@@ -2,13 +2,11 @@
 import Notiflix from "notiflix";
 import { normalizeName } from "../../../../utils/normalizeName";
 import { LINEUP_SAVE_LOCAL } from "../../../../context/LineUpProvider";
-import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../../../../configuration/firebase";
 
-
-
 const handleUpdateStarters = async ({
-  formationId, 
+  formationId,
   starters,
   captainName,
   activeClub,
@@ -17,7 +15,7 @@ const handleUpdateStarters = async ({
   uid,
   dispatch,
   setShowForm,
-  createdAt
+  createdAt,
 }) => {
   if (!formationId) {
     Notiflix.Notify.failure("No hay formación seleccionada para actualizar.");
@@ -76,17 +74,21 @@ const handleUpdateStarters = async ({
 
   // ✅ Persistencia Firestore SIN pisar createdAt (actualizo fields puntuales)
   try {
-    await updateDoc(doc(db, "users", uid), {
-      [`lineups.${clubKey}.formations.${formationId}.captain`]: captain,
-      [`lineups.${clubKey}.formations.${formationId}.starters`]:
-        startersPayload,
-      [`lineups.${clubKey}.formations.${formationId}.updatedAt`]:
-        serverTimestamp(),
-
-      // mantengo tu lógica de players normalizados
-      [`lineups.${clubKey}.players`]: [...new Set(players.map(normalizeName))],
-      [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
-    });
+    await setDoc(
+      doc(db, "users", uid),
+      {
+        [`lineups.${clubKey}.formations.${formationId}.captain`]: captain,
+        [`lineups.${clubKey}.formations.${formationId}.starters`]:
+          startersPayload,
+        [`lineups.${clubKey}.formations.${formationId}.updatedAt`]:
+          serverTimestamp(),
+        [`lineups.${clubKey}.players`]: [
+          ...new Set(players.map(normalizeName)),
+        ],
+        [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
+      },
+      { merge: true },
+    );
 
     setShowForm?.(false);
     Notiflix.Notify.success("Formación actualizada");

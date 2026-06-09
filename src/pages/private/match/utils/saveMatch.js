@@ -66,8 +66,8 @@ const saveMatch = async ({
     ownGoals > rivalGoals
       ? "ganado"
       : ownGoals < rivalGoals
-      ? "perdido"
-      : "empatado";
+        ? "perdido"
+        : "empatado";
 
   const points = outcome === "ganado" ? 3 : outcome === "empatado" ? 1 : 0;
   const gf = ownGoals;
@@ -89,7 +89,7 @@ const saveMatch = async ({
     torneoName: name,
     torneoYear: year,
     torneoDisplay: display,
-    createdAt: isEditing ? editingCreatedAt ?? Date.now() : Date.now(),
+    createdAt: isEditing ? (editingCreatedAt ?? Date.now()) : Date.now(),
     updatedAt: Date.now(),
     starters: starters,
     substitutes: substitutes,
@@ -113,7 +113,7 @@ const saveMatch = async ({
       torneosIndex: arrayUnion(name.toLowerCase()),
       rivalesIndex: rivalClean ? arrayUnion(rivalClean.toLowerCase()) : [],
     },
-    { merge: true }
+    { merge: true },
   );
 
   const clubKey = normalizeName ? normalizeName(activeClub) : activeClub;
@@ -138,13 +138,21 @@ const saveMatch = async ({
       ? currentMatches.map((m) => (m?.id === id ? match : m))
       : [...currentMatches, match]; // fallback: si no lo encontró, lo agrega
 
-    await updateDoc(userRef, {
-      [`lineups.${clubKey}.matches`]: nextMatches,
-    });
+    await setDoc(
+      userRef,
+      {
+        lineups: { [clubKey]: { matches: nextMatches } },
+      },
+      { merge: true },
+    );
   } else {
-    await updateDoc(userRef, {
-      [`lineups.${clubKey}.matches`]: arrayUnion(match),
-    });
+    await setDoc(
+      userRef,
+      {
+        lineups: { [clubKey]: { matches: arrayUnion(match) } },
+      },
+      { merge: true },
+    );
   }
 
   // ------------------------------------------------------------------
@@ -217,14 +225,14 @@ const saveMatch = async ({
     const torneoKey = makeTorneoKey(name, year);
 
     const startersSet = new Set(
-      (starters || []).map((s) => normalizeName(s)).filter(Boolean)
+      (starters || []).map((s) => normalizeName(s)).filter(Boolean),
     );
     if (captain) startersSet.add(normalizeName(captain));
 
     const subsSet = new Set(
       (substitutes || [])
         .map((s) => normalizeName(s))
-        .filter((p) => p && !startersSet.has(p))
+        .filter((p) => p && !startersSet.has(p)),
     );
 
     const appearancesUpdates = {};
@@ -366,7 +374,7 @@ const saveMatch = async ({
       const base = `lineups.${clubKey}.rivalsPlayers.${p}`;
       incIf(
         `${base}.matchesPlayed`,
-        (newItems.get(p) || 0) - (oldItems.get(p) || 0)
+        (newItems.get(p) || 0) - (oldItems.get(p) || 0),
       );
       incIf(`${base}.goals`, n.goals - o.goals);
       incIf(`${base}.dobletes`, n.dobletes - o.dobletes);
@@ -380,14 +388,14 @@ const saveMatch = async ({
     const collectAppearance = (m) => {
       const cap = normalizeName(m?.captain || "");
       const startersSet = new Set(
-        (m?.starters || []).map((s) => normalizeName(s)).filter(Boolean)
+        (m?.starters || []).map((s) => normalizeName(s)).filter(Boolean),
       );
       if (cap) startersSet.add(cap);
 
       const subsSet = new Set(
         (m?.substitutes || [])
           .map((s) => normalizeName(s))
-          .filter((p) => p && !startersSet.has(p))
+          .filter((p) => p && !startersSet.has(p)),
       );
 
       const map = new Map();
