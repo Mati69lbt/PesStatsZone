@@ -2,7 +2,7 @@
 import Notiflix from "notiflix";
 import { normalizeName } from "../../../../utils/normalizeName";
 import { LINEUP_SAVE_LOCAL } from "../../../../context/LineUpProvider";
-import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../../../../configuration/firebase";
 
 const handleSaveStarters = async ({
@@ -29,7 +29,7 @@ const handleSaveStarters = async ({
   }
   if (!activeClub && !teamName) {
     Notiflix.Notify.failure(
-      "Guardá el nombre del equipo antes de guardar la formación."
+      "Guardá el nombre del equipo antes de guardar la formación.",
     );
     return;
   }
@@ -66,15 +66,25 @@ const handleSaveStarters = async ({
 
   // Persistencia en Firestore
   try {
-    await updateDoc(doc(db, "users", uid), {
-      [`lineups.${clubKey}.formations.${id}`]: {
-        createdAt: createdAtISO,
-        captain,
-        starters: startersPayload,
+    await setDoc(
+      doc(db, "users", uid),
+      {
+        lineups: {
+          [clubKey]: {
+            formations: {
+              [id]: {
+                createdAt: createdAtISO,
+                captain,
+                starters: startersPayload,
+              },
+            },
+            players: [...new Set(players.map(normalizeName))],
+            updatedAt: serverTimestamp(),
+          },
+        },
       },
-      [`lineups.${clubKey}.players`]: [...new Set(players.map(normalizeName))],
-      [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
-    });
+      { merge: true },
+    );
 
     setShowForm(false);
     Notiflix.Notify.success("Equipo guardado");

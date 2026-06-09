@@ -15,7 +15,6 @@ export default function Navbar() {
   const { user, handleLogout, uid, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  
 
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [forzarHamburguesa, setForzarHamburguesa] = useState(false);
@@ -297,7 +296,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 33.3</span>
+                <span>Versión: 33.4</span>
               </div>
             </div>
           </div>
