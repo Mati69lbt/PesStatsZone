@@ -17,6 +17,7 @@ export const SAVE_CLUB_NAME = "SAVE_CLUB_NAME";
 export const CLUB_LOAD_FROM_ACTIVE = "CLUB_LOAD_FROM_ACTIVE";
 export const LINEUPS_UPSERT_BUCKET = "LINEUPS_UPSERT_BUCKET";
 export const LINEUPS_SET_ALL = "LINEUPS_SET_ALL";
+export const LINEUP_UPDATE_FORMATION = "LINEUP_UPDATE_FORMATION";
 
 export const lineupInitialState = {
   captainName: null,
@@ -187,6 +188,28 @@ export function lineupReducer(state, action) {
       );
       if (formations.length === before) return state;
 
+      return {
+        ...state,
+        lineups: {
+          ...state.lineups,
+          [club]: { ...bucket, formations },
+        },
+      };
+    }
+
+    // AGREGAR ACÁ (después del cierre del case LINEUP_DELETE_LOCAL)
+    case "LINEUP_UPDATE_FORMATION": {
+      const club = normalizeName(state.activeClub ?? "");
+      if (!club) return state;
+      const bucket = state.lineups?.[club];
+      if (!bucket) return state;
+      const { id, captain, starters } = action.payload;
+      if (!id) return state;
+      const formations = bucket.formations.map((f) =>
+        f.id === id
+          ? { ...f, captain: normalizeName(captain), starters: [...starters] }
+          : f,
+      );
       return {
         ...state,
         lineups: {

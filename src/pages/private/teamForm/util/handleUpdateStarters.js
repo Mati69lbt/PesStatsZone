@@ -2,7 +2,7 @@
 import Notiflix from "notiflix";
 import { normalizeName } from "../../../../utils/normalizeName";
 import { LINEUP_SAVE_LOCAL } from "../../../../context/LineUpProvider";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../configuration/firebase";
 
 const handleUpdateStarters = async ({
@@ -58,17 +58,13 @@ const handleUpdateStarters = async ({
   const captain = captainName;
   const startersPayload = [...starters];
 
-  // ✅ Reducer local (reutilizo la misma action para upsert local por id)
-  // Nota: si tu reducer pisa createdAt cuando no viene, pasale createdAt desde el original.
+
   dispatch?.({
-    type: LINEUP_SAVE_LOCAL,
+    type: "LINEUP_UPDATE_FORMATION",
     payload: {
       id: formationId,
-      name: teamName,
       captain: captainName,
       starters: startersPayload,
-      ...(createdAt ? { createdAt } : {}), // no lo piso si no lo mandás
-      players: [...players],
     },
   });
 
@@ -77,19 +73,21 @@ const handleUpdateStarters = async ({
     await setDoc(
       doc(db, "users", uid),
       {
-        [`lineups.${clubKey}.formations.${formationId}.captain`]: captain,
-        [`lineups.${clubKey}.formations.${formationId}.starters`]:
-          startersPayload,
-        [`lineups.${clubKey}.formations.${formationId}.updatedAt`]:
-          serverTimestamp(),
-        [`lineups.${clubKey}.players`]: [
-          ...new Set(players.map(normalizeName)),
-        ],
-        [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
+        lineups: { [clubKey]: { updatedAt: serverTimestamp() } },
       },
       { merge: true },
     );
 
+    // después actualizamos con dot notation (funciona correctamente en updateDoc)
+    await updateDoc(doc(db, "users", uid), {
+      [`lineups.${clubKey}.formations.${formationId}.captain`]: captain,
+      [`lineups.${clubKey}.formations.${formationId}.starters`]:
+        startersPayload,
+      [`lineups.${clubKey}.formations.${formationId}.updatedAt`]:
+        serverTimestamp(),
+      [`lineups.${clubKey}.players`]: [...new Set(players.map(normalizeName))],
+      [`lineups.${clubKey}.updatedAt`]: serverTimestamp(),
+    });
     setShowForm?.(false);
     Notiflix.Notify.success("Formación actualizada");
     return true;

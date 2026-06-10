@@ -232,23 +232,42 @@ const Formations = ({
                                     ? "bg-green-600 text-white hover:bg-green-700"
                                     : "bg-gray-200 text-gray-500 cursor-not-allowed"
                                 }`}
-                                onClick={async (e) => {
+                                onClick={(e) => {
                                   e.stopPropagation();
                                   if (!canUpdate) return;
-                                  const ok = await handleUpdateStarters({
-                                    formationId: editingId,
-                                    starters: draftStarters,
-                                    captainName: draftCaptain,
-                                    activeClub,
-                                    teamName,
-                                    players,
-                                    uid,
-                                    dispatch,
-                                    setShowForm,
-                                  });
-
-                                  if (ok) setDraftStarters(draftStarters);
+                                  Notiflix.Confirm.show(
+                                    "Actualizar formación",
+                                    "¿Confirmás los cambios?",
+                                    "Sí, actualizar",
+                                    "Cancelar",
+                                    async () => {
+                                      const ok = await handleUpdateStarters({
+                                        formationId: editingId,
+                                        starters: draftStarters,
+                                        captainName: draftCaptain,
+                                        activeClub,
+                                        teamName,
+                                        players,
+                                        uid,
+                                        dispatch,
+                                        setShowForm,
+                                      });
+                                      if (ok) stopEdit();
+                                    },
+                                    () => {},
+                                  );
                                 }}
+                                // const ok = await handleUpdateStarters({
+                                //   formationId: editingId,
+                                //   starters: draftStarters,
+                                //   captainName: draftCaptain,
+                                //   activeClub,
+                                //   teamName,
+                                //   players,
+                                //   uid,
+                                //   dispatch,
+                                //   setShowForm,
+                                // });
                                 disabled={!canUpdate}
                                 title={
                                   canUpdate
