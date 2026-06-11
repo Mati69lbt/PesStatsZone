@@ -98,7 +98,7 @@ const Partido = () => {
   }, [matchId, lineupState.lineups, matchDispatch]);
 
   return (
-    <div className="mt-4 max-w-md mx-auto">
+    <div className="m-2 max-w-md mx-auto">
       <div className="border-l-18 border-sky-500 pl-10 py-1 mb-2">
         <h1 className="text-2xl font-black tracking-tight text-slate-900 leading-none">
           REGISTRAR PARTIDO

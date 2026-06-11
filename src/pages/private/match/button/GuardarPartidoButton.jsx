@@ -6,7 +6,7 @@ const GuardarPartidoButton = ({ disabled, onClick }) => {
       <button
         type="button"
         disabled={disabled}
-        className="bg-green-500 text-white rounded w-full p-2 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-green-500 text-white rounded w-full p-2 font-bold mb-2 disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={onClick}
       >
         Guardar
