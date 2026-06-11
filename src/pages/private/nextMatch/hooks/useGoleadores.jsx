@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { golesDeItem, nombreDeItem } from "../utils/utils";
 
-
 // rows: [{ name, pj, g, x2, x3 }]
 const buildTabla = (matches, getter) => {
+
+ 
   const map = new Map();
 
   (matches ?? []).forEach((m) => {
@@ -38,10 +39,12 @@ const buildTabla = (matches, getter) => {
     });
   });
 
-  return Array.from(map.values()).sort(
-    (a, b) =>
-      b.g - a.g || b.x3 - a.x3 || b.x2 - a.x2 || a.name.localeCompare(b.name),
-  );
+  return Array.from(map.values())
+    .filter((r) => r.g > 0) // ← solo los que metieron al menos 1 gol
+    .sort(
+      (a, b) =>
+        b.g - a.g || b.x3 - a.x3 || b.x2 - a.x2 || a.name.localeCompare(b.name),
+    );
 };
 
 // OJO: usan hooks => llamalas dentro del componente

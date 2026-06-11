@@ -74,7 +74,7 @@ const Invictos = ({ sortKey, sortDirection }) => {
               {listaOrdenada.map((item, index) => {
                 const inicio = descomponerFecha(item.fechaInicio);
                 const fin = descomponerFecha(item.fechaFin);
-                console.log("item", item);
+           
 
                 return (
                   <div

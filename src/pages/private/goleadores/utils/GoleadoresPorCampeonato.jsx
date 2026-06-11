@@ -200,7 +200,7 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
   }
 
   return (
-    <div className="mt-2 max-w-5xl mx-auto px-2">
+    <div className="mt-2 w-full sm:w-max sm:mx-auto px-2">
       <h2 className="text-xl md:text-2xl font-extrabold mb-5 text-center flex items-center justify-center gap-2">
         <Trophy className="text-yellow-500" /> Goleadores por Campeonato
       </h2>
@@ -225,7 +225,15 @@ const GoleadoresPorCampeonato = ({ matches, bucket }) => {
               className={`w-full flex items-center justify-between p-4 transition-all ${isOpen ? "bg-slate-800 text-white" : "bg-slate-700 text-white"}`}
             >
               <span className="font-bold uppercase tracking-wide">
-                {torneo.label}
+                {torneo.label.replace(
+                  /(\s+\b(19|20)\d{2}(?:\s*[-–]\s*(19|20)\d{2})?\s*)$/,
+                  "",
+                )}{" "}
+                <span className="whitespace-nowrap">
+                  {torneo.label.match(
+                    /((?:19|20)\d{2}(?:\s*[-–]\s*(?:19|20)\d{2})?)\s*$/,
+                  )?.[1] ?? ""}
+                </span>
               </span>
               <ChevronDown
                 className={`transition-transform ${isOpen ? "rotate-180" : ""}`}

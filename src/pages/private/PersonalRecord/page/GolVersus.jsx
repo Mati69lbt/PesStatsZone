@@ -76,7 +76,7 @@ const GolVersus = () => {
   const activeClubName = lineupState?.activeClub || "Mi Club";
 
   return (
-    <div className="p-1 md:p-4 max-w-4xl mx-auto animate-fade-in">
+    <div className="p-2 md:p-4 max-w-4xl mx-auto animate-fade-in">
       {/* Selector de Pestañas (Optimizado responsivo) */}
       <div className="flex justify-center gap-1 mb-4 bg-slate-100 p-1 rounded-xl max-w-sm mx-auto border border-slate-200 shadow-inner">
         {[

@@ -84,7 +84,7 @@ const Campeonatos = () => {
   }
 
   return (
-    <div className="p-1 max-w-screen-2xl mx-auto">
+    <div className="p-2 max-w-screen-2xl mx-auto">
       <div className="flex items-center justify-center gap-4 mb-2">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
           🏆 Campeonatos

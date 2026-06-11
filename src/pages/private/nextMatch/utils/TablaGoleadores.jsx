@@ -3,8 +3,7 @@ import { pretty } from "../../match/utils/pretty";
 
 const TablaGoleadores = ({ title, rows, hidePJ = false }) => {
   const safeRows = Array.isArray(rows) ? rows : [];
-
-
+  
   return (
     <div className="min-w-0 rounded-2xl border border-slate-200 bg-white mt-1">
       <div className="m-1 text-center text-sm font-semibold text-slate-700     overflow-hidden text-ellipsis whitespace-nowrap p-1">
@@ -37,7 +36,6 @@ const TablaGoleadores = ({ title, rows, hidePJ = false }) => {
                   r?.name?.trim() === "__OG__"
                     ? "En Contra"
                     : pretty(r?.name ?? "");
-             
 
                 return (
                   <tr key={r.name}>

@@ -263,7 +263,9 @@ export const buildRanking = (matches, getter) => {
 
 export const getPlayedPlayers = (m) => {
   const starters = Array.isArray(m?.starters) ? m.starters : [];
-  const subs = Array.isArray(m?.subs) ? m.subs : [];
+  const subs = Array.isArray(m?.substitutes) ? m.substitutes : [];
+
+
 
   const toName = (x) => {
     if (!x) return "";
