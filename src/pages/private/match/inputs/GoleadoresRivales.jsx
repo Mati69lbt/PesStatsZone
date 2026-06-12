@@ -124,7 +124,7 @@ const GoleadoresRivales = ({ state, dispatch, disabled }) => {
         />
         <datalist id="rival-players-list">
           {suggestions.map((opt) => (
-            <option key={opt} value={opt} />
+            <option key={opt} value={pretty(opt)} />
           ))}
         </datalist>
 

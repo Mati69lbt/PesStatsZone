@@ -1,5 +1,6 @@
 //cspell: ignore Notiflix notiflix
 import React from "react";
+import { pretty } from "../../match/utils/pretty";
 
 const InputTeamName = ({
   value,
@@ -33,7 +34,7 @@ const InputTeamName = ({
 
         <datalist id="club-suggestions">
           {(suggestions || []).map(({ key, label }) => (
-            <option key={key} value={label} />
+            <option key={key} value={pretty(label)} />
           ))}
         </datalist>
 
