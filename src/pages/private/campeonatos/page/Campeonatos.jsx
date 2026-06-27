@@ -142,7 +142,7 @@ const Campeonatos = () => {
       {/* ========================= */}
       <div className="lg:hidden max-h-[75vh] overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm w-full">
         <div className="flex justify-center p-2">
-          <table className="w-max text-[12px] md:text-sm border-separate border-spacing-px bg-white">
+          <table className="w-max text-[10px] md:text-sm border-separate border-spacing-px bg-white">
             <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] uppercase tracking-wide">
               <tr>
                 <th className="px-2 py-2 text-left border-b border-slate-200 w-[35px]">
@@ -257,7 +257,7 @@ const Campeonatos = () => {
                       <td className={`px-1 py-1 text-center ${colGen}`}>
                         <div className="flex flex-col items-center justify-center min-w-[45px]">
                           <span className="whitespace-nowrap font-medium">
-                            {ptsG}/{poG}
+                            {ptsG} / {poG}
                           </span>
                           <span className="text-[10px] opacity-80">{efG}%</span>
                         </div>

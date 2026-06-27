@@ -80,11 +80,11 @@ const renderStatsCells = (stats = {}) =>
         ) : m === "DF" ? (
           <CircleValue value={val} title={`DF = ${val}`} />
         ) : m === "PTS/EFEC" ? (
-          <div className="flex flex-col items-center leading-none">
-            <span className="text-[10px] font-bold tabular-nums">
+          <div className="flex flex-col items-center leading-none gap-1">
+            <span className="text-[10px] tabular-nums font-bold">
               {val.obtenidos} / {val.posibles}
             </span>
-            <span className="text-[9px] text-slate-600 tabular-nums">
+            <span className="text-[12px] tabular-nums text-black-500 ">
               {val.efec}%
             </span>
           </div>
@@ -184,7 +184,7 @@ const SeasonBlock = ({
                 <div className="flex flex-col gap-3 p-1 w-full">
                   {/* TABLA MOBILE (Sacamos el botón de adentro del thead) */}
                   <div className="lg:hidden w-full overflow-x-auto border border-slate-200 rounded-lg bg-white shadow-sm">
-                    <table className="w-full text-[11px] border-collapse">
+                    <table className="w-full text-[10px] border-collapse">
                       {/* ANTES: Había un tr con colSpan={10} vacío que generaba ese espacio feo */}
                       <thead className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm text-[9px] uppercase tracking-tighter">
                         {/* Fila Principal con fondo sutil */}
