@@ -1,12 +1,11 @@
-import { prettySafe } from "../../../campeonatos/util/funtions";
-
+import React from "react";
 const rankStyles = (index) => {
-  if (index === 0) return { bg: "bg-amber-50", icon: "🥇", isTop3: true };
-  if (index === 1) return { bg: "bg-slate-50", icon: "🥈", isTop3: true };
-  if (index === 2) return { bg: "bg-orange-50/40", icon: "🥉", isTop3: true };
-  return { bg: "bg-white", icon: `${index + 1}º`, isTop3: false };
+  if (index === 0) return { bg: "bg-amber-50", icon: "🥇" };
+  if (index === 1) return { bg: "bg-slate-50", icon: "🥈" };
+  if (index === 2) return { bg: "bg-orange-50/40", icon: "🥉" };
+  return { bg: "bg-white", icon: `${index + 1}º` };
 };
-export const TablaHistorica = ({ title, list, isOpen, onToggle }) => {
+const TablaAnios = ({ title, list, isOpen, onToggle }) => {
   return (
     <div className="w-full rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
       {/* Header clickeable */}
@@ -29,20 +28,16 @@ export const TablaHistorica = ({ title, list, isOpen, onToggle }) => {
         <table className="w-full text-[11px] border-collapse table-fixed">
           <thead>
             <tr className="bg-slate-100 border-b border-slate-200 text-[9px] uppercase text-slate-500 font-bold">
-              <th className="w-[6%] px-1 py-2 text-center">Pos</th>
-              <th className="w-[20%] px-2 py-2 text-left">Jugador</th>
-              <th className="w-[26%] px-2 py-2 text-left">Club</th>
-              <th className="w-[8%] px-1 py-2 text-center">Año</th>
-              <th className="w-[8%] px-1 py-2 text-center">G</th>
-              <th className="w-[8%] px-1 py-2 text-center">PJ</th>
-              <th className="w-[14%] px-1 py-2 text-center">Prom</th>
+              <th className="w-[15%] px-1 py-2 text-center">Pos</th>
+              <th className="w-[55%] px-2 py-2 text-center">Año</th>
+              <th className="w-[30%] px-1 py-2 text-center">Goles</th>
             </tr>
           </thead>
           <tbody>
-            {list.length === 0 ? (
+            {!list || list.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={3}
                   className="px-3 py-3 text-center text-slate-400 text-[11px]"
                 >
                   Sin datos
@@ -53,27 +48,15 @@ export const TablaHistorica = ({ title, list, isOpen, onToggle }) => {
                 const { bg, icon } = rankStyles(i);
                 return (
                   <tr
-                    key={`${j.name}-${j.year}-${i}`}
+                    key={`${j.year}-${i}`}
                     className={`${bg} border-b border-slate-100 hover:bg-blue-50/30 transition-colors`}
                   >
-                    <td className="px-2 py-1 text-center font-bold">{icon}</td>
-                    <td className="px-3 py-1 text-left font-semibold text-slate-800 truncate whitespace-nowrap overflow-hidden">
-                      {prettySafe(j.name)}
-                    </td>
-                    <td className="px-1 py-2 text-left text-slate-600 whitespace-nowrap overflow-hidden">
-                      {prettySafe(j.club)}
-                    </td>
-                    <td className="px-2 py-2 text-center font-mono text-slate-500">
+                    <td className="px-1 py-2 text-center font-bold">{icon}</td>
+                    <td className="px-2 py-2 text-center font-mono text-slate-700 font-semibold">
                       {j.year}
                     </td>
                     <td className="px-1 py-2 text-center font-black text-slate-900 bg-slate-50/50">
                       {j.goals}
-                    </td>
-                    <td className="px-1 py-2 text-center text-slate-500 tabular-nums">
-                      {j.pj}
-                    </td>
-                    <td className="px-1 py-2 text-center font-mono text-blue-600 font-semibold">
-                      {j.prom.toFixed(2)}
                     </td>
                   </tr>
                 );
@@ -85,3 +68,5 @@ export const TablaHistorica = ({ title, list, isOpen, onToggle }) => {
     </div>
   );
 };
+
+export default TablaAnios;

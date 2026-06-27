@@ -1,6 +1,8 @@
-import { TablaHistorica } from "./TablaAnual";
+import TablaAnios from "./TablaAnios";
 
-export const RenderBloque = ({
+
+
+export const RenderBloqueAnios = ({
   titulo,
   icono,
   tabs,
@@ -18,7 +20,7 @@ export const RenderBloque = ({
       onClick={() => setOpen((prev) => !prev)}
       className="w-full flex items-center justify-center py-2 focus:outline-none group"
     >
-      <h2 className="text-l md:text-2xl font-extrabold text-center m-2 text-slate-800 tracking-tight">
+      <h2 className="text-2xl md:text-1xl font-extrabold text-center m-2 text-slate-800 tracking-tight">
         <span
           className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${fromColor} via-amber-50 ${toColor} px-4 py-2 shadow-sm border ${borderColor}`}
         >
@@ -40,7 +42,7 @@ export const RenderBloque = ({
       <div className="hidden lg:flex flex-row items-start gap-2 w-full">
         {tabs.map((t) => (
           <div key={t.key} className="flex-1 min-w-0">
-            <TablaHistorica
+            <TablaAnios
               title={t.label}
               list={t.list}
               isOpen={openTab === t.key}
@@ -53,7 +55,7 @@ export const RenderBloque = ({
       {/* MOBILE */}
       <div className="lg:hidden flex flex-col gap-1 w-full">
         {tabs.map((t) => (
-          <TablaHistorica
+          <TablaAnios
             key={t.key}
             title={t.label}
             list={t.list}
