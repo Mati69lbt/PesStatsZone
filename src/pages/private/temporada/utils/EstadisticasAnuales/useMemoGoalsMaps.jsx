@@ -1,21 +1,28 @@
 import { useMemo } from "react";
-import { calcularGolesGoleador, getMatchYear } from "./estAnuales";
+import {
+  calcularGolesGoleador,
+  getMatchYear,
+  getMatchSeason,
+  buildLista,
+  buildResumenPorPeriodo,
+  buildListFromMap,
+} from "./estAnuales";
 
-export const useGoalsMaps = (all, years) => {
-  return useMemo(() => {
+// ─── HOOKS ANUALES (enero-diciembre) ─────────────────────────────────────────
+
+export const useGoalsMaps = (all, years) =>
+  useMemo(() => {
     const ms = all?.matches;
-
     if (!Array.isArray(ms) || ms.length === 0) return null;
 
     const allowed = new Set((years || []).map(String));
-    const allMap = {};
-    const pjMap = {};
-    const pjLocalMap = {};
-    const pjVisitanteMap = {};
-    const localMap = {};
-    const visitanteMap = {};
-    const clubMap = {};
-
+    const allMap = {},
+      pjMap = {},
+      pjLocalMap = {},
+      pjVisitanteMap = {};
+    const localMap = {},
+      visitanteMap = {},
+      clubMap = {};
     const normCond = (c) =>
       String(c || "")
         .toLowerCase()
@@ -24,55 +31,31 @@ export const useGoalsMaps = (all, years) => {
     for (const match of ms) {
       const y = getMatchYear(match);
       if (allowed.size > 0 && (!y || !allowed.has(String(y)))) continue;
-
-      const cond = normCond(match?.condition); // "local", "visitante" o "neutral"
-
-      // 1. LÓGICA DE PARTIDOS JUGADOS (PJ) - Acceso directo a match
-      const starters = Array.isArray(match?.starters) ? match.starters : [];
-      const substitutes = Array.isArray(match?.substitutes)
-        ? match.substitutes
-        : [];
-
-      // Unimos y usamos Set para evitar duplicados en el mismo partido
-      const participaron = new Set([...starters, ...substitutes]);
-
+      const cond = normCond(match?.condition);
+      const participaron = new Set([
+        ...(Array.isArray(match?.starters) ? match.starters : []),
+        ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
+      ]);
       participaron.forEach((pName) => {
         if (!pName) return;
-
-        // PJ General
         pjMap[pName] = (pjMap[pName] || 0) + 1;
-
-        // PJ por Condición (ignorando neutrales para las tablas específicas)
-        if (cond === "local") {
-          pjLocalMap[pName] = (pjLocalMap[pName] || 0) + 1;
-        } else if (cond === "visitante") {
+        if (cond === "local") pjLocalMap[pName] = (pjLocalMap[pName] || 0) + 1;
+        else if (cond === "visitante")
           pjVisitanteMap[pName] = (pjVisitanteMap[pName] || 0) + 1;
-        }
       });
-
-      // 2. LÓGICA DE GOLEADORES
       const scorers = Array.isArray(match?.goleadoresActiveClub)
         ? match.goleadoresActiveClub
         : [];
-
       for (const g of scorers) {
         if (g?.isOwnGoal) continue;
-
         const name = g?.name;
         const goles = calcularGolesGoleador(g);
-
         if (!name || goles <= 0) continue;
-
-        // Sumar al total general
         allMap[name] = (allMap[name] || 0) + goles;
         clubMap[name] = match?.club;
-
-        // Sumar según condición del partido
-        if (cond === "local") {
-          localMap[name] = (localMap[name] || 0) + goles;
-        } else if (cond === "visitante") {
+        if (cond === "local") localMap[name] = (localMap[name] || 0) + goles;
+        else if (cond === "visitante")
           visitanteMap[name] = (visitanteMap[name] || 0) + goles;
-        }
       }
     }
     return {
@@ -85,640 +68,116 @@ export const useGoalsMaps = (all, years) => {
       club: clubMap,
     };
   }, [all, years]);
-};
 
+// Top goleadores por año
 export const useListaHistorica = (all, topN) =>
-  useMemo(() => {
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return [];
-
-    // agrupar matches por año
-    const porAño = {};
-    for (const match of ms) {
-      const y = getMatchYear(match);
-      if (!y) continue;
-      if (!porAño[y]) porAño[y] = [];
-      porAño[y].push(match);
-    }
-
-    // para cada año, calcular goles por jugador
-    const filas = [];
-    for (const [year, matchesDelAño] of Object.entries(porAño)) {
-      const golesMap = {};
-      const pjMap = {};
-      const clubMap = {};
-
-      for (const match of matchesDelAño) {
-        // PJ
-        const participaron = new Set([
-          ...(Array.isArray(match?.starters) ? match.starters : []),
-          ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
-        ]);
-        participaron.forEach((p) => {
-          if (!p) return;
-          pjMap[p] = (pjMap[p] || 0) + 1;
-        });
-
-        // Goles
-        const scorers = Array.isArray(match?.goleadoresActiveClub)
-          ? match.goleadoresActiveClub
-          : [];
-        for (const g of scorers) {
-          if (g?.isOwnGoal) continue;
-          const name = g?.name;
-          const goles = calcularGolesGoleador(g);
-          if (!name || goles <= 0) continue;
-          golesMap[name] = (golesMap[name] || 0) + goles;
-          clubMap[name] = match?.club;
-        }
-      }
-
-      // convertir a filas
-      for (const [name, goals] of Object.entries(golesMap)) {
-        const pj = pjMap[name] || 0;
-        filas.push({
-          name,
-          club: clubMap[name] || "",
-          goals,
-          pj,
-          prom: pj > 0 ? goals / pj : 0,
-          year,
-        });
-      }
-    }
-
-    return filas
-      .sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name))
-      .slice(0, topN);
-  }, [all, topN]);
-
-// AGREGAR al final del archivo
+  useMemo(
+    () => buildLista(all?.matches, getMatchYear, null, topN, "goals"),
+    [all, topN],
+  );
 export const useListaHistoricaLocal = (all, topN) =>
-  useMemo(() => {
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return [];
-
-    const porAño = {};
-    for (const match of ms) {
-      const cond = String(match?.condition || "")
-        .toLowerCase()
-        .trim();
-      if (cond !== "local") continue; // ← solo locales
-      const y = getMatchYear(match);
-      if (!y) continue;
-      if (!porAño[y]) porAño[y] = [];
-      porAño[y].push(match);
-    }
-
-    const filas = [];
-    for (const [year, matchesDelAño] of Object.entries(porAño)) {
-      const golesMap = {};
-      const pjMap = {};
-      const clubMap = {};
-
-      for (const match of matchesDelAño) {
-        const participaron = new Set([
-          ...(Array.isArray(match?.starters) ? match.starters : []),
-          ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
-        ]);
-        participaron.forEach((p) => {
-          if (!p) return;
-          pjMap[p] = (pjMap[p] || 0) + 1;
-        });
-
-        const scorers = Array.isArray(match?.goleadoresActiveClub)
-          ? match.goleadoresActiveClub
-          : [];
-        for (const g of scorers) {
-          if (g?.isOwnGoal) continue;
-          const name = g?.name;
-          const goles = calcularGolesGoleador(g);
-          if (!name || goles <= 0) continue;
-          golesMap[name] = (golesMap[name] || 0) + goles;
-          clubMap[name] = match?.club;
-        }
-      }
-
-      for (const [name, goals] of Object.entries(golesMap)) {
-        const pj = pjMap[name] || 0;
-        filas.push({
-          name,
-          club: clubMap[name] || "",
-          goals,
-          pj,
-          prom: pj > 0 ? goals / pj : 0,
-          year,
-        });
-      }
-    }
-
-    return filas
-      .sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name))
-      .slice(0, topN);
-  }, [all, topN]);
-
+  useMemo(
+    () => buildLista(all?.matches, getMatchYear, "local", topN, "goals"),
+    [all, topN],
+  );
 export const useListaHistoricaVisitante = (all, topN) =>
-  useMemo(() => {
-    // idéntico pero con cond !== "visitante"
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return [];
+  useMemo(
+    () => buildLista(all?.matches, getMatchYear, "visitante", topN, "goals"),
+    [all, topN],
+  );
 
-    const porAño = {};
-    for (const match of ms) {
-      const cond = String(match?.condition || "")
-        .toLowerCase()
-        .trim();
-      if (cond !== "visitante") continue; // ← solo visitantes
-      const y = getMatchYear(match);
-      if (!y) continue;
-      if (!porAño[y]) porAño[y] = [];
-      porAño[y].push(match);
-    }
-
-    const filas = [];
-    for (const [year, matchesDelAño] of Object.entries(porAño)) {
-      const golesMap = {};
-      const pjMap = {};
-      const clubMap = {};
-
-      for (const match of matchesDelAño) {
-        const participaron = new Set([
-          ...(Array.isArray(match?.starters) ? match.starters : []),
-          ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
-        ]);
-        participaron.forEach((p) => {
-          if (!p) return;
-          pjMap[p] = (pjMap[p] || 0) + 1;
-        });
-
-        const scorers = Array.isArray(match?.goleadoresActiveClub)
-          ? match.goleadoresActiveClub
-          : [];
-        for (const g of scorers) {
-          if (g?.isOwnGoal) continue;
-          const name = g?.name;
-          const goles = calcularGolesGoleador(g);
-          if (!name || goles <= 0) continue;
-          golesMap[name] = (golesMap[name] || 0) + goles;
-          clubMap[name] = match?.club;
-        }
-      }
-
-      for (const [name, goals] of Object.entries(golesMap)) {
-        const pj = pjMap[name] || 0;
-        filas.push({
-          name,
-          club: clubMap[name] || "",
-          goals,
-          pj,
-          prom: pj > 0 ? goals / pj : 0,
-          year,
-        });
-      }
-    }
-
-    return filas
-      .sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name))
-      .slice(0, topN);
-  }, [all, topN]);
-
-// AGREGAR al final
+// Mejor promedio por año (mínimo 8 goles)
 export const useListaMejorPromedio = (all, topN) =>
-  useMemo(() => {
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return [];
-
-    const porAño = {};
-    for (const match of ms) {
-      const y = getMatchYear(match);
-      if (!y) continue;
-      if (!porAño[y]) porAño[y] = [];
-      porAño[y].push(match);
-    }
-
-    const filas = [];
-    for (const [year, matchesDelAño] of Object.entries(porAño)) {
-      const golesMap = {};
-      const pjMap = {};
-      const clubMap = {};
-
-      for (const match of matchesDelAño) {
-        const participaron = new Set([
-          ...(Array.isArray(match?.starters) ? match.starters : []),
-          ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
-        ]);
-        participaron.forEach((p) => {
-          if (!p) return;
-          pjMap[p] = (pjMap[p] || 0) + 1;
-        });
-
-        const scorers = Array.isArray(match?.goleadoresActiveClub)
-          ? match.goleadoresActiveClub
-          : [];
-        for (const g of scorers) {
-          if (g?.isOwnGoal) continue;
-          const name = g?.name;
-          const goles = calcularGolesGoleador(g);
-          if (!name || goles <= 0) continue;
-          golesMap[name] = (golesMap[name] || 0) + goles;
-          clubMap[name] = match?.club;
-        }
-      }
-
-      for (const [name, goals] of Object.entries(golesMap)) {
-        const pj = pjMap[name] || 0;
-        filas.push({
-          name,
-          club: clubMap[name] || "",
-          goals,
-          pj,
-          prom: pj > 0 ? goals / pj : 0,
-          year,
-        });
-      }
-    }
-
-    return filas
-      .filter((x) => x.goals > 8)
-      .sort(
-        (a, b) =>
-          b.prom - a.prom || b.goals - a.goals || a.name.localeCompare(b.name),
-      )
-      .slice(0, topN);
-  }, [all, topN]);
-
+  useMemo(
+    () => buildLista(all?.matches, getMatchYear, null, topN, "prom", 8),
+    [all, topN],
+  );
 export const useListaMejorPromedioLocal = (all, topN) =>
-  useMemo(() => {
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return [];
-
-    const porAño = {};
-    for (const match of ms) {
-      const cond = String(match?.condition || "")
-        .toLowerCase()
-        .trim();
-      if (cond !== "local") continue;
-      const y = getMatchYear(match);
-      if (!y) continue;
-      if (!porAño[y]) porAño[y] = [];
-      porAño[y].push(match);
-    }
-
-    const filas = [];
-    for (const [year, matchesDelAño] of Object.entries(porAño)) {
-      const golesMap = {};
-      const pjMap = {};
-      const clubMap = {};
-
-      for (const match of matchesDelAño) {
-        const participaron = new Set([
-          ...(Array.isArray(match?.starters) ? match.starters : []),
-          ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
-        ]);
-        participaron.forEach((p) => {
-          if (!p) return;
-          pjMap[p] = (pjMap[p] || 0) + 1;
-        });
-
-        const scorers = Array.isArray(match?.goleadoresActiveClub)
-          ? match.goleadoresActiveClub
-          : [];
-        for (const g of scorers) {
-          if (g?.isOwnGoal) continue;
-          const name = g?.name;
-          const goles = calcularGolesGoleador(g);
-          if (!name || goles <= 0) continue;
-          golesMap[name] = (golesMap[name] || 0) + goles;
-          clubMap[name] = match?.club;
-        }
-      }
-
-      for (const [name, goals] of Object.entries(golesMap)) {
-        const pj = pjMap[name] || 0;
-        filas.push({
-          name,
-          club: clubMap[name] || "",
-          goals,
-          pj,
-          prom: pj > 0 ? goals / pj : 0,
-          year,
-        });
-      }
-    }
-
-    return filas
-      .filter((x) => x.goals > 8)
-      .sort(
-        (a, b) =>
-          b.prom - a.prom || b.goals - a.goals || a.name.localeCompare(b.name),
-      )
-      .slice(0, topN);
-  }, [all, topN]);
-
+  useMemo(
+    () => buildLista(all?.matches, getMatchYear, "local", topN, "prom", 8),
+    [all, topN],
+  );
 export const useListaMejorPromedioVisitante = (all, topN) =>
-  useMemo(() => {
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return [];
+  useMemo(
+    () => buildLista(all?.matches, getMatchYear, "visitante", topN, "prom", 8),
+    [all, topN],
+  );
 
-    const porAño = {};
-    for (const match of ms) {
-      const cond = String(match?.condition || "")
-        .toLowerCase()
-        .trim();
-      if (cond !== "visitante") continue;
-      const y = getMatchYear(match);
-      if (!y) continue;
-      if (!porAño[y]) porAño[y] = [];
-      porAño[y].push(match);
-    }
-
-    const filas = [];
-    for (const [year, matchesDelAño] of Object.entries(porAño)) {
-      const golesMap = {};
-      const pjMap = {};
-      const clubMap = {};
-
-      for (const match of matchesDelAño) {
-        const participaron = new Set([
-          ...(Array.isArray(match?.starters) ? match.starters : []),
-          ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
-        ]);
-        participaron.forEach((p) => {
-          if (!p) return;
-          pjMap[p] = (pjMap[p] || 0) + 1;
-        });
-
-        const scorers = Array.isArray(match?.goleadoresActiveClub)
-          ? match.goleadoresActiveClub
-          : [];
-        for (const g of scorers) {
-          if (g?.isOwnGoal) continue;
-          const name = g?.name;
-          const goles = calcularGolesGoleador(g);
-          if (!name || goles <= 0) continue;
-          golesMap[name] = (golesMap[name] || 0) + goles;
-          clubMap[name] = match?.club;
-        }
-      }
-
-      for (const [name, goals] of Object.entries(golesMap)) {
-        const pj = pjMap[name] || 0;
-        filas.push({
-          name,
-          club: clubMap[name] || "",
-          goals,
-          pj,
-          prom: pj > 0 ? goals / pj : 0,
-          year,
-        });
-      }
-    }
-
-    return filas
-      .filter((x) => x.goals > 8)
-      .sort(
-        (a, b) =>
-          b.prom - a.prom || b.goals - a.goals || a.name.localeCompare(b.name),
-      )
-      .slice(0, topN);
-  }, [all, topN]);
-
-// AGREGAR al final de useMemoGoalsMaps.jsx
-
+// Más PJ por año
 export const useListaMasPJ = (all, topN) =>
-  useMemo(() => {
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return [];
-
-    const porAño = {};
-    for (const match of ms) {
-      const y = getMatchYear(match);
-      if (!y) continue;
-      if (!porAño[y]) porAño[y] = [];
-      porAño[y].push(match);
-    }
-
-    const filas = [];
-    for (const [year, matchesDelAño] of Object.entries(porAño)) {
-      const golesMap = {};
-      const pjMap = {};
-      const clubMap = {};
-
-      for (const match of matchesDelAño) {
-        const participaron = new Set([
-          ...(Array.isArray(match?.starters) ? match.starters : []),
-          ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
-        ]);
-        participaron.forEach((p) => {
-          if (!p) return;
-          pjMap[p] = (pjMap[p] || 0) + 1;
-          clubMap[p] = match?.club;
-        });
-
-        const scorers = Array.isArray(match?.goleadoresActiveClub)
-          ? match.goleadoresActiveClub
-          : [];
-        for (const g of scorers) {
-          if (g?.isOwnGoal) continue;
-          const name = g?.name;
-          const goles = calcularGolesGoleador(g);
-          if (!name || goles <= 0) continue;
-          golesMap[name] = (golesMap[name] || 0) + goles;
-        }
-      }
-
-      for (const [name, pj] of Object.entries(pjMap)) {
-        const goals = golesMap[name] || 0;
-        filas.push({
-          name,
-          club: clubMap[name] || "",
-          goals,
-          pj,
-          prom: pj > 0 ? goals / pj : 0,
-          year,
-        });
-      }
-    }
-
-    return filas
-      .sort(
-        (a, b) =>
-          b.pj - a.pj || b.goals - a.goals || a.name.localeCompare(b.name),
-      )
-      .slice(0, topN);
-  }, [all, topN]);
-
+  useMemo(
+    () => buildLista(all?.matches, getMatchYear, null, topN, "pj"),
+    [all, topN],
+  );
 export const useListaMasPJLocal = (all, topN) =>
-  useMemo(() => {
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return [];
-
-    const porAño = {};
-    for (const match of ms) {
-      const cond = String(match?.condition || "")
-        .toLowerCase()
-        .trim();
-      if (cond !== "local") continue;
-      const y = getMatchYear(match);
-      if (!y) continue;
-      if (!porAño[y]) porAño[y] = [];
-      porAño[y].push(match);
-    }
-
-    const filas = [];
-    for (const [year, matchesDelAño] of Object.entries(porAño)) {
-      const golesMap = {};
-      const pjMap = {};
-      const clubMap = {};
-
-      for (const match of matchesDelAño) {
-        const participaron = new Set([
-          ...(Array.isArray(match?.starters) ? match.starters : []),
-          ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
-        ]);
-        participaron.forEach((p) => {
-          if (!p) return;
-          pjMap[p] = (pjMap[p] || 0) + 1;
-          clubMap[p] = match?.club;
-        });
-
-        const scorers = Array.isArray(match?.goleadoresActiveClub)
-          ? match.goleadoresActiveClub
-          : [];
-        for (const g of scorers) {
-          if (g?.isOwnGoal) continue;
-          const name = g?.name;
-          const goles = calcularGolesGoleador(g);
-          if (!name || goles <= 0) continue;
-          golesMap[name] = (golesMap[name] || 0) + goles;
-        }
-      }
-
-      for (const [name, pj] of Object.entries(pjMap)) {
-        const goals = golesMap[name] || 0;
-        filas.push({
-          name,
-          club: clubMap[name] || "",
-          goals,
-          pj,
-          prom: pj > 0 ? goals / pj : 0,
-          year,
-        });
-      }
-    }
-
-    return filas
-      .sort(
-        (a, b) =>
-          b.pj - a.pj || b.goals - a.goals || a.name.localeCompare(b.name),
-      )
-      .slice(0, topN);
-  }, [all, topN]);
-
+  useMemo(
+    () => buildLista(all?.matches, getMatchYear, "local", topN, "pj"),
+    [all, topN],
+  );
 export const useListaMasPJVisitante = (all, topN) =>
-  useMemo(() => {
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return [];
+  useMemo(
+    () => buildLista(all?.matches, getMatchYear, "visitante", topN, "pj"),
+    [all, topN],
+  );
 
-    const porAño = {};
-    for (const match of ms) {
-      const cond = String(match?.condition || "")
-        .toLowerCase()
-        .trim();
-      if (cond !== "visitante") continue;
-      const y = getMatchYear(match);
-      if (!y) continue;
-      if (!porAño[y]) porAño[y] = [];
-      porAño[y].push(match);
-    }
-
-    const filas = [];
-    for (const [year, matchesDelAño] of Object.entries(porAño)) {
-      const golesMap = {};
-      const pjMap = {};
-      const clubMap = {};
-
-      for (const match of matchesDelAño) {
-        const participaron = new Set([
-          ...(Array.isArray(match?.starters) ? match.starters : []),
-          ...(Array.isArray(match?.substitutes) ? match.substitutes : []),
-        ]);
-        participaron.forEach((p) => {
-          if (!p) return;
-          pjMap[p] = (pjMap[p] || 0) + 1;
-          clubMap[p] = match?.club;
-        });
-
-        const scorers = Array.isArray(match?.goleadoresActiveClub)
-          ? match.goleadoresActiveClub
-          : [];
-        for (const g of scorers) {
-          if (g?.isOwnGoal) continue;
-          const name = g?.name;
-          const goles = calcularGolesGoleador(g);
-          if (!name || goles <= 0) continue;
-          golesMap[name] = (golesMap[name] || 0) + goles;
-        }
-      }
-
-      for (const [name, pj] of Object.entries(pjMap)) {
-        const goals = golesMap[name] || 0;
-        filas.push({
-          name,
-          club: clubMap[name] || "",
-          goals,
-          pj,
-          prom: pj > 0 ? goals / pj : 0,
-          year,
-        });
-      }
-    }
-
-    return filas
-      .sort(
-        (a, b) =>
-          b.pj - a.pj || b.goals - a.goals || a.name.localeCompare(b.name),
-      )
-      .slice(0, topN);
-  }, [all, topN]);
-
-  // AGREGAR al final de useMemoGoalsMaps.jsx
+// Resumen goles por año
 export const useResumenPorAño = (all) =>
-  useMemo(() => {
-    const ms = all?.matches;
-    if (!Array.isArray(ms) || ms.length === 0) return { general: [], local: [], visitante: [] };
+  useMemo(() => buildResumenPorPeriodo(all?.matches, getMatchYear), [all]);
 
-    const general = {};
-    const local = {};
-    const visitante = {};
+// ─── HOOKS EUROPEOS (julio-junio) ────────────────────────────────────────────
 
-    for (const match of ms) {
-      const y = getMatchYear(match);
-      if (!y) continue;
+// Top goleadores por temporada
+export const useListaHistoricaEuro = (all, topN) =>
+  useMemo(
+    () => buildLista(all?.matches, getMatchSeason, null, topN, "goals"),
+    [all, topN],
+  );
+export const useListaHistoricaLocalEuro = (all, topN) =>
+  useMemo(
+    () => buildLista(all?.matches, getMatchSeason, "local", topN, "goals"),
+    [all, topN],
+  );
+export const useListaHistoricaVisitanteEuro = (all, topN) =>
+  useMemo(
+    () => buildLista(all?.matches, getMatchSeason, "visitante", topN, "goals"),
+    [all, topN],
+  );
 
-      const cond = String(match?.condition || "").toLowerCase().trim();
-      const scorers = Array.isArray(match?.goleadoresActiveClub) ? match.goleadoresActiveClub : [];
+// Mejor promedio por temporada (mínimo 8 goles)
+export const useListaMejorPromedioEuro = (all, topN) =>
+  useMemo(
+    () => buildLista(all?.matches, getMatchSeason, null, topN, "prom", 8),
+    [all, topN],
+  );
+export const useListaMejorPromedioLocalEuro = (all, topN) =>
+  useMemo(
+    () => buildLista(all?.matches, getMatchSeason, "local", topN, "prom", 8),
+    [all, topN],
+  );
+export const useListaMejorPromedioVisitanteEuro = (all, topN) =>
+  useMemo(
+    () =>
+      buildLista(all?.matches, getMatchSeason, "visitante", topN, "prom", 8),
+    [all, topN],
+  );
 
-      let golesPartido = 0;
-      for (const g of scorers) {
-        if (g?.isOwnGoal) continue;
-        const goles = calcularGolesGoleador(g);
-        golesPartido += goles;
-      }
+// Más PJ por temporada
+export const useListaMasPJEuro = (all, topN) =>
+  useMemo(
+    () => buildLista(all?.matches, getMatchSeason, null, topN, "pj"),
+    [all, topN],
+  );
+export const useListaMasPJLocalEuro = (all, topN) =>
+  useMemo(
+    () => buildLista(all?.matches, getMatchSeason, "local", topN, "pj"),
+    [all, topN],
+  );
+export const useListaMasPJVisitanteEuro = (all, topN) =>
+  useMemo(
+    () => buildLista(all?.matches, getMatchSeason, "visitante", topN, "pj"),
+    [all, topN],
+  );
 
-      general[y] = (general[y] || 0) + golesPartido;
-      if (cond === "local") local[y] = (local[y] || 0) + golesPartido;
-      if (cond === "visitante") visitante[y] = (visitante[y] || 0) + golesPartido;
-    }
-
-    const toFilas = (map) =>
-      Object.entries(map)
-        .map(([year, goals]) => ({ year, goals }))
-        .sort((a, b) => b.goals - a.goals);
-
-    return {
-      general: toFilas(general),
-      local: toFilas(local),
-      visitante: toFilas(visitante),
-    };
-  }, [all]);
+// Resumen goles por temporada
+export const useResumenPorTemporada = (all) =>
+  useMemo(() => buildResumenPorPeriodo(all?.matches, getMatchSeason), [all]);

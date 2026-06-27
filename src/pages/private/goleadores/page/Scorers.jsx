@@ -16,6 +16,7 @@ import Goleadores_Desglozados from "../utils/goleadores_Desglozados/page/Goleado
 import GolEuropa from "../utils/GolEuropa";
 import PartidosJugados from "../utils/goleadores_Desglozados/page/PartidosJugados";
 import EstaAnual from "../../temporada/page/EstaAnual";
+import EstaEuro from "../../temporada/page/EstaEuro";
 
 const getSeasonKeyFromMatch = (m) => {
   const raw = m?.fecha || m?.createdAt;
@@ -213,6 +214,9 @@ const Scorers = () => {
       {view === "racha" && <RachaN data={data} />}
       {view === "estAnuales" && (
         <EstaAnual all={{ matches: allMatchesFromAllClubs }} />
+      )}
+      {view === "estEuro" && (
+        <EstaEuro all={{ matches: allMatchesFromAllClubs }} />
       )}
       {view === "año" && (
         <div className="flex flex-col gap-4">

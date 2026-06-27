@@ -31,8 +31,8 @@ export const TablaHistorica = ({ title, list, isOpen, onToggle }) => {
             <tr className="bg-slate-100 border-b border-slate-200 text-[9px] uppercase text-slate-500 font-bold">
               <th className="w-[6%] px-1 py-2 text-center">Pos</th>
               <th className="w-[20%] px-2 py-2 text-left">Jugador</th>
-              <th className="w-[26%] px-2 py-2 text-left">Club</th>
-              <th className="w-[8%] px-1 py-2 text-center">Año</th>
+              <th className="w-[25%] px-2 py-2 text-left">Club</th>
+              <th className="px-1 py-2 text-center">Año</th>
               <th className="w-[8%] px-1 py-2 text-center">G</th>
               <th className="w-[8%] px-1 py-2 text-center">PJ</th>
               <th className="w-[14%] px-1 py-2 text-center">Prom</th>

@@ -18,7 +18,7 @@ export const RenderBloque = ({
       onClick={() => setOpen((prev) => !prev)}
       className="w-full flex items-center justify-center py-2 focus:outline-none group"
     >
-      <h2 className="text-l md:text-2xl font-extrabold text-center m-2 text-slate-800 tracking-tight">
+      <h2 className="text-l md:text-xl font-extrabold text-center m-2 text-slate-800 tracking-tight">
         <span
           className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${fromColor} via-amber-50 ${toColor} px-4 py-2 shadow-sm border ${borderColor}`}
         >
