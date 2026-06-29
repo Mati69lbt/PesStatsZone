@@ -119,7 +119,13 @@ const Season = () => {
             setOpenBlock={setOpenBlock}
           />
         ))}
-      {view === "europeo" && <SeasonEurope lineups={lineups} />}
+      {view === "europeo" && (
+        <SeasonEurope
+          lineups={lineups}
+          openBlock={openBlock}
+          setOpenBlock={setOpenBlock}
+        />
+      )}
     </div>
   );
 };
