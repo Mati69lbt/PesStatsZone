@@ -1,21 +1,45 @@
 // cspell: ignore funtions
 
-export const buildCaptains = (allMatches) => {
+export const getMatchYear = (m) => {
+  const fecha = m?.fecha;
+  if (!fecha) return null;
+  const d = new Date(fecha);
+  if (!Number.isFinite(d.getTime())) return null;
+  return String(d.getFullYear());
+};
+
+export const getMatchSeason = (m) => {
+  const fecha = m?.fecha;
+  if (!fecha) return null;
+  const d = new Date(
+    typeof fecha === "string" && /^\d{4}-\d{2}-\d{2}$/.test(fecha)
+      ? `${fecha}T00:00:00`
+      : fecha,
+  );
+  if (!Number.isNaN(d.getTime())) {
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    return month >= 7 ? `${year}-${year + 1}` : `${year - 1}-${year}`;
+  }
+  return null;
+};
+
+export const BuildClubs = (allMatches, getPeriodo) => {
   if (!Array.isArray(allMatches) || allMatches.length === 0) return [];
 
-  const map = new Map(); // key: "captain__club"
+  const map = new Map(); // key: "club__periodo"
 
   for (const match of allMatches) {
-    const captain = (match?.captain || "").trim();
     const club = (match?.club || "").trim();
-    if (!captain || !club) continue;
+    const periodo = getPeriodo(match);
+    if (!club || !periodo) continue;
 
-    const key = `${captain}__${club}`;
+    const key = `${club}__${periodo}`;
 
     if (!map.has(key)) {
       map.set(key, {
-        captain,
         club,
+        periodo,
         pj: 0,
         g: 0,
         e: 0,
@@ -23,39 +47,25 @@ export const buildCaptains = (allMatches) => {
         gf: 0,
         gc: 0,
         dif: 0,
-        // por condición
         local: { pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dif: 0 },
         visitante: { pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dif: 0 },
         neutral: { pj: 0, g: 0, e: 0, p: 0, gf: 0, gc: 0, dif: 0 },
-        minYear: Infinity,
-        maxYear: -Infinity,
       });
     }
 
     const row = map.get(key);
-
-    // rango de años
-    const fecha = match?.fecha;
-    if (fecha) {
-      const y = new Date(fecha).getFullYear();
-      if (Number.isFinite(y)) {
-        if (y < row.minYear) row.minYear = y;
-        if (y > row.maxYear) row.maxYear = y;
-      }
-    }
-
     const gf = Number(match?.golFavor || 0);
     const gc = Number(match?.golContra || 0);
     const outcome = gf > gc ? "g" : gf < gc ? "p" : "e";
 
-    // sumar general
+    // general
     row.pj += 1;
     row.gf += gf;
     row.gc += gc;
     row[outcome] += 1;
     row.dif = row.gf - row.gc;
 
-    // sumar por condición
+    // por condición
     const cond = String(match?.condition || "")
       .toLowerCase()
       .trim();
@@ -79,12 +89,6 @@ export const buildCaptains = (allMatches) => {
 
   return Array.from(map.values()).map((row) => ({
     ...row,
-    yearRange:
-      row.minYear === Infinity
-        ? "—"
-        : row.minYear === row.maxYear
-          ? String(row.minYear)
-          : `${row.minYear} - ${row.maxYear}`,
     gp: row.g - row.p,
     pts: row.g * 3 + row.e,
     posibles: row.pj * 3,
@@ -93,8 +97,8 @@ export const buildCaptains = (allMatches) => {
   }));
 };
 
-export const SORT_FIELDS = [
-  { key: "nombre", label: "🧤" },
+export const SORT_FIELDS_CLUBS = [
+  { key: "club", label: "🏟️" },
   { key: "pj", label: "PJ" },
   { key: "g", label: "G" },
   { key: "e", label: "E" },
@@ -106,16 +110,16 @@ export const SORT_FIELDS = [
   { key: "efec", label: "%" },
 ];
 
-export const sortCaptains = (list, field, dir, condKey = null) => {
+export const sortClubs = (list, field, dir, condKey = null) => {
   return [...list].sort((a, b) => {
     let valA, valB;
 
     const srcA = condKey ? (a[condKey] ?? {}) : a;
     const srcB = condKey ? (b[condKey] ?? {}) : b;
 
-    if (field === "nombre") {
-      valA = `${a.captain} ${a.club}`.toLowerCase();
-      valB = `${b.captain} ${b.club}`.toLowerCase();
+    if (field === "club") {
+      valA = `${a.club} ${a.periodo}`.toLowerCase();
+      valB = `${b.club} ${b.periodo}`.toLowerCase();
       return dir === "asc"
         ? valA.localeCompare(valB)
         : valB.localeCompare(valA);
@@ -131,10 +135,6 @@ export const sortCaptains = (list, field, dir, condKey = null) => {
     } else if (field === "gp") {
       valA = (srcA?.g ?? 0) - (srcA?.p ?? 0);
       valB = (srcB?.g ?? 0) - (srcB?.p ?? 0);
-    } else if (field.includes(".")) {
-      const [cond, subField] = field.split(".");
-      valA = a[cond]?.[subField] ?? 0;
-      valB = b[cond]?.[subField] ?? 0;
     } else {
       valA = srcA?.[field] ?? 0;
       valB = srcB?.[field] ?? 0;

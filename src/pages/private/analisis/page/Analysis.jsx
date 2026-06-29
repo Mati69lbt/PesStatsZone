@@ -87,6 +87,13 @@ const Analysis = () => {
           <span className="mt-1 inline-flex w-fit items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
             🔎 Resumen
           </span>
+          <button
+            type="button"
+            onClick={() => navigate("/capitanes")}
+            className="inline-flex items-center mt-2 rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+          >
+            🧤 Capitanes
+          </button>
         </h1>
 
         <div className="relative">
@@ -107,15 +114,7 @@ const Analysis = () => {
         </div>
       </div>
 
-      <div className="flex justify-center mb-2">
-        <button
-          type="button"
-          onClick={() => navigate("/capitanes")}
-          className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
-        >
-          🧤 Capitanes
-        </button>
-      </div>
+      <div className="flex justify-center mb-2"></div>
 
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center justify-between px-6 py-2 border-b border-slate-200">

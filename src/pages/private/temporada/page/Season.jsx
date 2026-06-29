@@ -3,7 +3,7 @@ import useAuth from "../../../../hooks/useAuth";
 import { usePartido } from "../../../../context/PartidoReducer";
 import { useLineups } from "../../../../context/LineUpProvider";
 import { useUserData } from "../../../../hooks/useUserData";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import SeasonBlock from "../hooks/SeasonBlock";
 import Blocks from "../hooks/Blocks";
 import useResumenTemporada from "../hooks/useResumenTemporada";
@@ -12,7 +12,9 @@ import { normalizeName } from "../../../../utils/normalizeName";
 import SeasonEurope from "./SeasonEurope";
 
 const Season = () => {
+  const [openBlock, setOpenBlock] = useState(null);
   const { uid } = useAuth();
+  const navigate = useNavigate();
   const { state: matchState, dispatch: matchDispatch } = usePartido();
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
 
@@ -94,6 +96,13 @@ const Season = () => {
             <h1 className="text-2xl font-black tracking-tighter text-slate-900 leading-none">
               Temporadas{" "}
             </h1>
+            <button
+              type="button"
+              onClick={() => navigate("/clubes")}
+              className="inline-flex items-center mt-2 rounded-xl border   border-slate-200 bg-white px-2 py-2 text-l font-semibold text-slate-700 shadow-sm hover:bg-slate-200 transition-colors"
+            >
+              🏟️ Clubes
+            </button>
           </div>
         </div>
       </div>
@@ -106,6 +115,8 @@ const Season = () => {
             bucket={b.bucket}
             year={b.year}
             matchesForYear={b.matchesForYear}
+            openBlock={openBlock} // ← agregar
+            setOpenBlock={setOpenBlock}
           />
         ))}
       {view === "europeo" && <SeasonEurope lineups={lineups} />}

@@ -101,15 +101,15 @@ const SeasonBlock = ({
   year,
   matchesForYear,
   mode = "anual",
+  openBlock,
+  setOpenBlock,
 }) => {
   const [data, setData] = useState(null);
-  const [open, setOpen] = useState({});
+  const [open, setOpen] = useState(null);
 
   const toggleTemporada = (temp) => {
-    setOpen((prev) => ({
-      ...prev,
-      [temp]: !prev[temp],
-    }));
+    const key = `${clubKey}-${year}-${temp}`;
+    setOpenBlock((prev) => (prev === key ? null : key));
   };
 
   useEffect(() => {
@@ -149,7 +149,7 @@ const SeasonBlock = ({
       {temporadasDesc.map((temp) => {
         const rTemp = resumenPorTemporada[temp];
         if (!rTemp) return null;
-        const isOpen = open[temp];
+        const isOpen = openBlock === `${clubKey}-${year}-${temp}`;
 
         const caps = Array.isArray(captainsOrdenados) ? captainsOrdenados : [];
         const tripleSeason = rTemp.general || emptyTriple();
@@ -282,129 +282,182 @@ const SeasonBlock = ({
                 </div>
 
                 {/* DESKTOP */}
-                <div className="hidden lg:block max-h-[75vh] overflow-auto border border-slate-200 rounded-lg bg-white shadow-sm">
-                  <table className="mx-auto w-full min-w-[860px] text-[11px] md:text-sm border-collapse">
-                    <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] md:text-xs uppercase tracking-wide">
-                      <tr>
-                        <th className="px-2 py-2 w-28 whitespace-nowrap text-left border-b border-slate-200">
-                          Temporada
-                        </th>
-                        <th
-                          className="px-2 py-2 text-center border-b border-slate-200"
-                          colSpan={metricas.length * 2}
-                        >
-                          {clubLabel}
-                        </th>
-                      </tr>
-                      <tr>
-                        <th className="px-2 py-1 text-center border-b border-slate-200"></th>
-                        {metricas.map((m) => (
-                          <th
-                            key={`G-${m}`}
-                            className="px-2 py-1 text-center border-b border-slate-200"
-                          >
-                            {m}
-                          </th>
-                        ))}
-                        {metricas.map((m) => (
-                          <th
-                            key={`N-${m}`}
-                            className="px-2 py-1 text-center border-b border-slate-200"
-                          >
-                            {m} N
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
+                <div className="hidden lg:block p-2">
+                  {/* Función helper para renderizar una tablita */}
+                  {(() => {
+                    const COLS = [
+                      "PJ",
+                      "G",
+                      "E",
+                      "P",
+                      "G/P",
+                      "GF",
+                      "GC",
+                      "DF",
+                      "%",
+                    ];
 
-                    <tbody>
-                      <tr className="bg-white border-t border-slate-100 hover:bg-slate-50/70 transition-colors">
-                        <td className="border-r border-slate-200 font-semibold text-center">
-                          {temp}
-                        </td>
-                        <FilaDatos
+                    const MiniTabla = ({
+                      title,
+                      stats,
+                      bgHeader = "bg-sky-50",
+                    }) => {
+                      const g = stats?.g ?? 0;
+                      const e = stats?.e ?? 0;
+                      const p = stats?.p ?? 0;
+                      const pj = stats?.pj ?? 0;
+                      const gf = stats?.gf ?? 0;
+                      const gc = stats?.gc ?? 0;
+                      const df = stats?.df ?? 0;
+                      const gp = g - p;
+                      const obtenidos = g * 3 + e;
+                      const posibles = pj * 3;
+                      const efec =
+                        posibles > 0
+                          ? Math.round((obtenidos / posibles) * 100)
+                          : 0;
+
+                      const rowBg =
+                        g >= e && g > p
+                          ? "bg-green-100"
+                          : p > g && p >= e
+                            ? "bg-red-100"
+                            : "bg-yellow-100";
+
+                      const ringGp =
+                        gp > 0
+                          ? "ring-green-400"
+                          : gp < 0
+                            ? "ring-red-400"
+                            : "ring-yellow-400";
+                      const ringDf =
+                        df > 0
+                          ? "ring-green-400"
+                          : df < 0
+                            ? "ring-red-400"
+                            : "ring-yellow-400";
+
+                      return (
+                        <div className="rounded-lg border border-slate-200 overflow-hidden text-[11px]">
+                          <div
+                            className={`px-2 py-1 text-center font-bold uppercase tracking-wide text-slate-700 text-[12px] border-b border-slate-200 ${bgHeader}`}
+                          >
+                            {title}
+                          </div>
+                          <table className="w-full border-collapse">
+                            <thead>
+                              <tr className="bg-slate-100 text-slate-500 text-[9px] uppercase">
+                                {COLS.map((c) => (
+                                  <th key={c} className="px-2 py-1 text-center">
+                                    {c}
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className={rowBg}>
+                                <td className="px-2 py-1.5 text-center font-bold">
+                                  {pj}
+                                </td>
+                                <td className="px-2 py-1.5 text-center font-bold">
+                                  {g}
+                                </td>
+                                <td className="px-2 py-1.5 text-center">{e}</td>
+                                <td className="px-2 py-1.5 text-center">{p}</td>
+                                <td className="px-2 py-1.5 text-center">
+                                  <span
+                                    className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringGp} w-6 h-6 text-[10px] font-extrabold`}
+                                  >
+                                    {Math.abs(gp)}
+                                  </span>
+                                </td>
+                                <td className="px-2 py-1.5 text-center">
+                                  {gf}
+                                </td>
+                                <td className="px-2 py-1.5 text-center">
+                                  {gc}
+                                </td>
+                                <td className="px-2 py-1.5 text-center">
+                                  <span
+                                    className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringDf} w-6 h-6 text-[10px] font-extrabold`}
+                                  >
+                                    {Math.abs(df)}
+                                  </span>
+                                </td>
+                                <td className="px-2 py-1.5 text-center">
+                                  <div
+                                    className="flex flex-col items-center leading-none gap-1
+                                  "
+                                  >
+                                    <span className="font-bold text-[10px]">
+                                      {obtenidos} / {posibles}
+                                    </span>
+                                    <span className="text-[12px] text-slate-500">
+                                      {efec}%
+                                    </span>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    };
+
+                    const FilaCuatro = ({ label, triple, isClub = false }) => (
+                      <div className="mb-2">
+                        <div className="grid grid-cols-4 gap-2">
+                          <MiniTabla
+                            title={
+                              isClub ? `${clubLabel} · ${temp}` : pretty(label)
+                            }
+                            stats={triple?.General}
+                            bgHeader="bg-sky-50"
+                          />
+                          <MiniTabla
+                            title="Local"
+                            stats={triple?.Local}
+                            bgHeader="bg-green-50"
+                          />
+                          <MiniTabla
+                            title="Visitante"
+                            stats={triple?.Visitante}
+                            bgHeader="bg-orange-50"
+                          />
+                          <MiniTabla
+                            title="Neutral"
+                            stats={triple?.Neutral}
+                            bgHeader="bg-slate-50"
+                          />
+                        </div>
+                      </div>
+                    );
+
+                    return (
+                      <div>
+                        {/* Fila del club */}
+                        <FilaCuatro
                           triple={rTemp.general}
-                          orden={["General", "Neutral"]}
+                          isClub
+                          label={clubLabel}
                         />
-                      </tr>
 
-                      <tr className="bg-slate-50">
-                        <td className="border-r border-slate-200 px-2 py-1 text-center text-[10px] uppercase text-slate-600">
-                          Condición
-                        </td>
-                        {metricas.map((m) => (
-                          <th
-                            key={`L-${m}`}
-                            className="border border-black px-2 py-1 text-center text-[12px]"
-                          >
-                            {m} L
-                          </th>
-                        ))}
-                        {metricas.map((m) => (
-                          <th
-                            key={`V-${m}`}
-                            className="border border-black px-2 py-1 text-center text-[12px]"
-                          >
-                            {m} V
-                          </th>
-                        ))}
-                      </tr>
-
-                      <tr className="bg-white border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
-                        <td className="border-r border-slate-200 px-2 py-1 text-center text-[10px] uppercase text-slate-600">
-                          Totales
-                        </td>
-                        <FilaDatos
-                          triple={rTemp.general}
-                          orden={["Local", "Visitante"]}
-                        />
-                      </tr>
-
-                      {caps.map((cap) => {
-                        const tripleCap =
-                          rTemp.capitanes?.[cap] || emptyTriple();
-                        return (
-                          <React.Fragment key={`${temp}-${cap}`}>
-                            <tr className="bg-slate-100 border-t border-slate-200">
-                              <td className="border-r border-slate-200 font-semibold px-2 py-1 text-left">
-                                {pretty(cap)}
-                              </td>
-                              <BloqueHeader
-                                etiquetas={["General", "Neutral"]}
-                                sufijos={["", " N"]}
-                              />
-                            </tr>
-
-                            <tr className="bg-white hover:bg-slate-50/70 transition-colors">
-                              <td className="border-r border-slate-200 px-2 py-1"></td>
-                              <FilaDatos
-                                triple={tripleCap}
-                                orden={["General", "Neutral"]}
-                              />
-                            </tr>
-
-                            <tr className="bg-slate-50">
-                              <td className="border-r border-slate-200 px-2 py-1 text-[10px] uppercase text-slate-600">
-                                Condición
-                              </td>
-                              <BloqueHeader
-                                etiquetas={["Local", "Visitante"]}
-                                sufijos={[" L", " V"]}
-                              />
-                            </tr>
-
-                            <tr className="bg-white border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
-                              <td className="border-r border-slate-200 px-2 py-1"></td>
-                              <FilaDatos
-                                triple={tripleCap}
-                                orden={["Local", "Visitante"]}
-                              />
-                            </tr>
-                          </React.Fragment>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                        {/* Filas por capitán */}
+                        {caps.map((cap) => {
+                          const tripleCap =
+                            rTemp.capitanes?.[cap] || emptyTriple();
+                          if ((tripleCap?.General?.pj ?? 0) === 0) return null;
+                          return (
+                            <FilaCuatro
+                              key={cap}
+                              label={cap}
+                              triple={tripleCap}
+                            />
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
