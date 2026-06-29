@@ -24,6 +24,7 @@ import Ajustes from "./pages/private/campeonatos/ajustes/page/Ajustes";
 import NextMatch from "./pages/private/nextMatch/page/NextMatch";
 import Config from "./pages/private/config/page/Config";
 import IndexPR from "./pages/private/PersonalRecord/page/IndexPR";
+import Capitanes from "./pages/private/analisis/capitanes/page/Capitanes";
 
 function Hydrator() {
   const { uid } = useAuth();
@@ -76,6 +77,7 @@ const App = () => {
           <Route path="/goleadores" element={<Scorers />} />
           <Route path="/record" element={<IndexPR />} />
           <Route path="/config" element={<Config />} />
+          <Route path="/capitanes" element={<Capitanes />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

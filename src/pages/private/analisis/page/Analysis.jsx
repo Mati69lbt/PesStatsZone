@@ -11,6 +11,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 const Analysis = () => {
   const { uid } = useAuth();
+  const navigate = useNavigate();
   const { state: matchState, dispatch: matchDispatch } = usePartido();
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
 
@@ -59,8 +60,6 @@ const Analysis = () => {
     Neutral: triple?.Neutral || emptyRow(),
   });
 
-  const visibleClub = selectedClub;
-
   const captainsVisible = captains.filter(
     (cap) => (cap?.total?.General?.pj ?? 0) > 0,
   );
@@ -90,26 +89,36 @@ const Analysis = () => {
           </span>
         </h1>
 
-         <div className="relative">
-                <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
-                  Club
-                </label>
-                <select
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200 font-semibold text-slate-700"
-                  value={selectedClub}
-                  onChange={(e) => setSelectedClub(e.target.value)}
-                >
-                  {clubs.map((c) => (
-                    <option key={c} value={c}>
-                      {pretty(c)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        <div className="relative">
+          <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+            Club
+          </label>
+          <select
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200 font-semibold text-slate-700"
+            value={selectedClub}
+            onChange={(e) => setSelectedClub(e.target.value)}
+          >
+            {clubs.map((c) => (
+              <option key={c} value={c}>
+                {pretty(c)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="flex justify-center mb-2">
+        <button
+          type="button"
+          onClick={() => navigate("/capitanes")}
+          className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-2 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+        >
+          🧤 Capitanes
+        </button>
       </div>
 
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+        <div className="flex items-center justify-between px-6 py-2 border-b border-slate-200">
           <h2 className="text-sm font-extrabold tracking-wide text-slate-800 uppercase">
             Totales Generales
           </h2>
@@ -120,9 +129,9 @@ const Analysis = () => {
           </span>
         </div>
 
-        <div className="p-2">
+        <div className="p-1">
           <div className="overflow-x-auto">
-            <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
+            <div className="flex flex-col gap-2 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
               {captainsVisibleOrdered.map((cap) => (
                 <div
                   key={`total-${cap.captain}`}
@@ -141,7 +150,6 @@ const Analysis = () => {
         </div>
       </section>
 
-      {/* Por campeonato: sección por torneo (recientes primero), en cada una TODAS las tarjetitas */}
       <div className="mt-2 space-y-6 ">
         {tournamentsOrdered.map((tName) => (
           <section
