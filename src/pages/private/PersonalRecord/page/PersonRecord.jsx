@@ -98,7 +98,7 @@ const PersonalRecord = () => {
   const resumen = useMemo(() => buildResumen(allMatches), [allMatches]);
 
   return (
-    <div className="p-2 max-w-screen-2xl mx-auto">
+    <div className="p-2 w-max mx-auto">
       <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 text-center mb-3">
         📌 Personal Record
       </h1>
@@ -188,7 +188,7 @@ const ResumenBlock = ({ title, r }) => (
           value={
             <div className="flex flex-col leading-none items-center">
               <span className="text-[10px] font-bold">
-                {r.pts}/{r.maxPts}
+                {r.pts} / {r.maxPts}
               </span>
               <span className="text-sky-600">{r.pct}%</span>
             </div>
@@ -211,9 +211,9 @@ const ResumenBlock = ({ title, r }) => (
       <Stat
         label="PTS/EFEC"
         value={
-          <div className="flex flex-col leading-none">
-            <span className="text-[10px]">
-              {r.pts}/{r.maxPts}
+          <div className="flex flex-col leading-none gap-1">
+            <span className="text-[12px]">
+              {r.pts} / {r.maxPts}
             </span>
             <span className="text-sky-600 font-bold">{r.pct}%</span>
           </div>

@@ -372,246 +372,167 @@ const Campeonatos = () => {
       </div>
 
       {/* ========================= */}
-      {/* ✅ DESKTOP/TABLET: tabla completa */}
+      {/* ✅ DESKTOP: tablitas por campeonato */}
       {/* ========================= */}
-      <div className="hidden lg:block max-h-[75vh] overflow-auto rounded-2xl border border-slate-200 bg-white shadow-sm p-2">
-        <table className="mx-auto w-max table-auto text-[11px] md:text-sm border-collapse">
-          <thead className="sticky top-0 z-10 bg-sky-50 text-slate-700 font-semibold shadow-sm text-[10px] md:text-xs uppercase tracking-wide">
-            <tr>
-              <th className="px-3 py-2 text-left border-b border-slate-200">
-                Campeonato
-              </th>
+      <div className="hidden lg:block">
+        {(() => {
+          const COLS = ["PJ", "G", "E", "P", "G/P", "GF", "GC", "DF", "%"];
 
-              {/* General */}
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                PJ
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                G
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                E
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                P
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                G/P
-              </th>
+          const MiniRow = ({ label, stats, bgLabel = "bg-slate-50" }) => {
+            if (!stats || stats.pj === 0) return null;
+            const { g = 0, e = 0, p = 0, pj = 0, gf = 0, gc = 0 } = stats;
+            const df = gf - gc;
+            const gp = g - p;
+            const obtenidos = g * 3 + e;
+            const posibles = pj * 3;
+            const efec =
+              posibles > 0 ? Math.round((obtenidos / posibles) * 100) : 0;
+            const bg = getColorSegunResultado(stats);
+            const ringGp =
+              gp > 0
+                ? "ring-emerald-600"
+                : gp < 0
+                  ? "ring-rose-600"
+                  : "ring-yellow-500";
+            const ringDf =
+              df > 0
+                ? "ring-emerald-600"
+                : df < 0
+                  ? "ring-rose-600"
+                  : "ring-yellow-500";
 
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                GF
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                GC
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                DG
-              </th>
-              <th className="px-2 py-2 text-left border-b  border-r border-slate-300">
-                Pts / Efec.
-              </th>
-
-              {/* Local */}
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                PJ L
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                G L
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                E L
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                P L
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                G/P L
-              </th>
-
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                GF L
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                GC L
-              </th>
-              <th className="px-2 py-2 text-center border-b  border-r border-slate-300">
-                DG L
-              </th>
-
-              {/* Visitante */}
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                PJ V
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                G V
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                E V
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                P V
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                G/P V
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                GF V
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                GC V
-              </th>
-              <th className="px-2 py-2 text-center border-b border-slate-200">
-                DG V
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {clavesOrdenadas.map((clave, idx) => {
-              const r = resumenes?.[clave];
-              if (!r) return null; // ✅ evita crash si falta data
-
-              const rowBg = idx % 2 === 0 ? "bg-white" : "bg-slate-50";
-
-              const dg = getDG(r.general);
-              const dgL = getDG(r.local);
-              const dgV = getDG(r.visitante);
-
-              // ✅ NUEVO: G/P
-              const gp = Number(r.general?.g || 0) - Number(r.general?.p || 0);
-              const gpL = Number(r.local?.g || 0) - Number(r.local?.p || 0);
-              const gpV =
-                Number(r.visitante?.g || 0) - Number(r.visitante?.p || 0);
-
-              const colGen = getColorSegunResultado(r.general);
-              const colLoc = getColorSegunResultado(r.local);
-              const colVis = getColorSegunResultado(r.visitante);
-
-              const { puntos, efectividad, posibles } = puntosYefectividad(
-                r.general,
-              );
-
-              return (
-                <tr
-                  key={clave}
-                  className={`${rowBg} border-t border-slate-100 hover:bg-slate-100/70 transition-colors`}
-                >
-                  <td className="px-3 py-1.5 font-semibold text-left text-slate-800">
-                    {prettySafe(clave)}
-                  </td>
-
-                  {/* General */}
-                  <td className={`px-2 py-1 text-center ${colGen}`}>
-                    {r.general.pj}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colGen}`}>
-                    {r.general.g}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colGen}`}>
-                    {r.general.e}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colGen}`}>
-                    {r.general.p}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colGen}`}>
-                    <StatCircle
-                      value={gp}
-                      title={`G/P = ${r.general.g} - ${r.general.p} = ${gp}`}
-                    />
-                  </td>
-
-                  <td className={`px-2 py-1 text-center ${colGen}`}>
-                    {r.general.gf}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colGen}`}>
-                    {r.general.gc}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colGen}`}>
-                    <StatCircle value={dg} showPlus title={`DG = ${dg}`} />
-                  </td>
-
-                  <td
-                    className={`px-2 py-1 text-left ${colGen} border-r border-slate-200`}
-                  >
-                    {puntos}/{posibles} - {efectividad}%
-                  </td>
-
-                  {/* Local */}
-                  <td className={`px-2 py-1 text-center ${colLoc}`}>
-                    {r.local.pj}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colLoc}`}>
-                    {r.local.g}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colLoc}`}>
-                    {r.local.e}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colLoc}`}>
-                    {r.local.p}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colLoc}`}>
-                    <StatCircle
-                      value={gpL}
-                      title={`G/P = ${r.local.g} - ${r.local.p} = ${gpL}`}
-                    />
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colLoc}`}>
-                    {r.local.gf}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colLoc}`}>
-                    {r.local.gc}
-                  </td>
-                  <td
-                    className={`px-2 py-1 text-center ${colLoc} border-r border-slate-200`}
-                  >
-                    <StatCircle value={dgL} showPlus title={`DG = ${dgL}`} />
-                  </td>
-
-                  {/* Visitante */}
-                  <td className={`px-2 py-1 text-center ${colVis}`}>
-                    {r.visitante.pj}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colVis}`}>
-                    {r.visitante.g}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colVis}`}>
-                    {r.visitante.e}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colVis}`}>
-                    {r.visitante.p}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colVis}`}>
-                    <StatCircle
-                      value={gpV}
-                      title={`G/P = ${r.visitante.g} - ${r.visitante.p} = ${gpV}`}
-                    />
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colVis}`}>
-                    {r.visitante.gf}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colVis}`}>
-                    {r.visitante.gc}
-                  </td>
-                  <td className={`px-2 py-1 text-center ${colVis}`}>
-                    <StatCircle value={dgV} showPlus title={`DG = ${dgV}`} />
-                  </td>
-                </tr>
-              );
-            })}
-
-            {clavesOrdenadas.length === 0 && (
+            return (
               <tr>
                 <td
-                  className="px-2 py-4 text-center text-slate-500"
-                  colSpan={26}
+                  className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-600 border-b border-slate-100 ${bgLabel}`}
                 >
-                  No hay partidos cargados para este club.
+                  {label}
+                </td>
+                <td
+                  className={`px-2 py-1.5 text-center text-[11px] border-b border-slate-100 ${bg}`}
+                >
+                  {pj}
+                </td>
+                <td
+                  className={`px-2 py-1.5 text-center text-[11px] border-b border-slate-100 ${bg}`}
+                >
+                  {g}
+                </td>
+                <td
+                  className={`px-2 py-1.5 text-center text-[11px] border-b border-slate-100 ${bg}`}
+                >
+                  {e}
+                </td>
+                <td
+                  className={`px-2 py-1.5 text-center text-[11px] border-b border-slate-100 ${bg}`}
+                >
+                  {p}
+                </td>
+                <td
+                  className={`px-2 py-1.5 text-center border-b border-slate-100 ${bg}`}
+                >
+                  <span
+                    className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringGp} h-6 w-6 text-[10px] font-extrabold text-black`}
+                  >
+                    {Math.abs(gp)}
+                  </span>
+                </td>
+                <td
+                  className={`px-2 py-1.5 text-center text-[11px] border-b border-slate-100 ${bg}`}
+                >
+                  {gf}
+                </td>
+                <td
+                  className={`px-2 py-1.5 text-center text-[11px] border-b border-slate-100 ${bg}`}
+                >
+                  {gc}
+                </td>
+                <td
+                  className={`px-2 py-1.5 text-center border-b border-slate-100 ${bg}`}
+                >
+                  <span
+                    className={`inline-flex items-center justify-center rounded-full bg-white ring-2 ${ringDf} h-6 w-6 text-[10px] font-extrabold text-black`}
+                  >
+                    {Math.abs(df)}
+                  </span>
+                </td>
+                <td
+                  className={`px-2 py-1.5 text-center border-b border-slate-100 ${bg}`}
+                >
+                  <div className="flex flex-col items-center leading-none gap-1.5">
+                    <span className="font-bold text-[10px]">
+                      {obtenidos} / {posibles}
+                    </span>
+                    <span className="text-[12px] text-slate-500">{efec}%</span>
+                  </div>
                 </td>
               </tr>
-            )}
-          </tbody>
-        </table>
+            );
+          };
+
+          return (
+            <div className="flex flex-wrap gap-3 mt-2 justify-evenly w-full">
+              {clavesOrdenadas.map((clave) => {
+                const r = resumenes?.[clave];
+                if (!r) return null;
+                return (
+                  <div
+                    key={clave}
+                    className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden w-[380px]"
+                  >
+                    <div className="px-3 py-2 bg-sky-50 border-b border-slate-200 text-sm font-bold text-slate-800">
+                      {prettySafe(clave)}
+                    </div>
+                    <table className="text-[11px] border-collapse w-full">
+                      <thead>
+                        <tr>
+                          <th className="px-2 py-1 text-left text-[9px] uppercase text-slate-500 border-b border-slate-100">
+                            Condición
+                          </th>
+                          {COLS.map((c) => (
+                            <th
+                              key={c}
+                              className="px-2 py-1 text-center text-[9px] uppercase text-slate-500 border-b border-slate-100"
+                            >
+                              {c}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <MiniRow
+                          label="General"
+                          stats={r.general}
+                          bgLabel="bg-sky-50"
+                        />
+                        <MiniRow
+                          label="Local"
+                          stats={r.local}
+                          bgLabel="bg-green-50"
+                        />
+                        <MiniRow
+                          label="Visitante"
+                          stats={r.visitante}
+                          bgLabel="bg-orange-50"
+                        />
+                        <MiniRow
+                          label="Neutral"
+                          stats={r.neutral}
+                          bgLabel="bg-slate-50"
+                        />
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })}
+              {clavesOrdenadas.length === 0 && (
+                <div className="text-slate-500 text-sm px-2 py-4">
+                  No hay partidos cargados para este club.
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
