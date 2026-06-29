@@ -169,7 +169,7 @@ const NextMatch = () => {
 
         {/* Fila 2: Resumen */}
         <div
-          className={`w-full rounded-2xl border border-slate-200 bg-slate-200 p-1 ${resumen.total === 0 ? "hidden" : ""}`}
+          className={`w-max mx-auto rounded-2xl border border-slate-200 bg-slate-200 p-1 ${resumen.total === 0 ? "hidden" : ""}`}
         >
           {/* Card: GENERAL */}
           <div className="relative mt-2 rounded-2xl border border-slate-400 bg-white p-1">
@@ -382,21 +382,15 @@ const NextMatch = () => {
 
       {selectedRival && (
         <div
-          className={`mb-1 grid grid-cols-2 gap-2 ${resumen.total === 0 ? "hidden" : ""} `}
+          className={`mb-1 flex justify-evenly h-full  mt-2 gap-2 ${resumen.total === 0 ? "hidden" : ""} `}
         >
-          <div className="min-w-0">
-            <TablaGoleadores
-              title={prettySafe(clubKey)}
-              rows={clubRowsWithPJ}
-            />
-          </div>
-          <div className="min-w-0">
-            <TablaGoleadores
-              title={prettySafe(selectedRival)}
-              rows={rivalRows}
-              hidePJ
-            />
-          </div>
+          <TablaGoleadores title={prettySafe(clubKey)} rows={clubRowsWithPJ} />
+
+          <TablaGoleadores
+            title={prettySafe(selectedRival)}
+            rows={rivalRows}
+            hidePJ
+          />
         </div>
       )}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

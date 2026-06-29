@@ -163,7 +163,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md w-full sticky top-0 z-50">
       {!forzarHamburguesa && (
-        <div className="max-w-6xl mx-auto px-1 py-3 flex items-center gap-2">
+        <div className="w-max mx-auto px-1 py-2 flex items-center gap-2 justify-evenly">
           {/* Izquierda: marca */}
           <span
             className="text-2xl font-bold text-blue-600 whitespace-nowrap cursor-pointer"
@@ -173,18 +173,23 @@ export default function Navbar() {
           </span>
 
           {/* Centro: select navegación */}
-          <div className="flex-1 flex justify-center min-w-0 w-full">
-            <select
-              value={location.pathname}
-              onChange={(e) => navigate(e.target.value)}
-              className="px-14 py-3 rounded-xl border border-gray-300 bg-white text-lg font-bold shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            >
-              {links.map(({ path, label }) => (
-                <option key={path} value={path}>
-                  {label}
-                </option>
-              ))}
-            </select>
+          <div className="flex-1 flex justify-evenly min-w-0 w-full">
+            {links.map(({ path, label }) => (
+              <button
+                key={path}
+                type="button"
+                onClick={() => navigate(path)}
+                className={`text-xl px-2 py-1 rounded-lg transition-colors
+        ${
+          location.pathname === path
+            ? "bg-blue-100 text-blue-600 scale-110"
+            : "hover:bg-slate-100 text-slate-600"
+        }`}
+                title={path.replace("/", "")}
+              >
+                {label}
+              </button>
+            ))}
           </div>
 
           {/* Derecha: DT + acciones (siempre en la misma línea) */}
