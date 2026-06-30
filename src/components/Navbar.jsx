@@ -30,15 +30,19 @@ export default function Navbar() {
 
   useEffect(() => {
     const evaluarPantalla = () => {
-      const ancho = window.innerWidth;
-      const alto = window.innerHeight;
+      const ancho = window.visualViewport?.width ?? window.innerWidth;
+      const alto = window.visualViewport?.height ?? window.innerHeight;
       setForzarHamburguesa(ancho < 1024 || alto < 432);
     };
 
-    evaluarPantalla(); // al cargar
+    evaluarPantalla();
+
+    window.visualViewport?.addEventListener("resize", evaluarPantalla);
     window.addEventListener("resize", evaluarPantalla);
     window.addEventListener("orientationchange", evaluarPantalla);
+
     return () => {
+      window.visualViewport?.removeEventListener("resize", evaluarPantalla);
       window.removeEventListener("resize", evaluarPantalla);
       window.removeEventListener("orientationchange", evaluarPantalla);
     };
