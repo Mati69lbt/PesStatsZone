@@ -254,7 +254,7 @@ export default function Navbar() {
               </button>
             </div>
 
-            <div className="w-full grid grid-cols-3 gap-4">
+            <div className="w-max grid grid-cols-3 gap-2">
               {links.map(({ path, label }) => (
                 <Link
                   key={path}
@@ -301,7 +301,7 @@ export default function Navbar() {
                 <span className="text-s mt-1">Salir</span>
               </button>
               <div className="flex flex-col items-center justify-center rounded-xl border text-center">
-                <span>Versión: 33.5</span>
+                <span>Versión: 33.6</span>
               </div>
             </div>
           </div>
