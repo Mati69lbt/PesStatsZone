@@ -24,7 +24,7 @@ const Invictos = ({ sortKey, sortDirection }) => {
   const [columnaAbierta, setColumnaAbierta] = useState(null);
 
   const toggleColumna = (id) => {
-    setColumnaAbierta(id);
+    setColumnaAbierta((prev) => (prev === id ? null : id));
   };
 
   const renderColumna = (titulo, colorBorder, listaRachas, idKey) => {
@@ -74,7 +74,6 @@ const Invictos = ({ sortKey, sortDirection }) => {
               {listaOrdenada.map((item, index) => {
                 const inicio = descomponerFecha(item.fechaInicio);
                 const fin = descomponerFecha(item.fechaFin);
-           
 
                 return (
                   <div

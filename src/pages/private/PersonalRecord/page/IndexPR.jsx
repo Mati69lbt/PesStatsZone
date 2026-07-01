@@ -6,6 +6,7 @@ import Calendario from "./Calendario";
 import Rachas from "./Rachas";
 import Gol from "./Gol";
 import GolVersus from "./GolVersus";
+import RachasCapitanes from "./RachasCapitanes";
 
 const IndexPR = () => {
   const [view, setView] = useState("palmares");
@@ -18,11 +19,11 @@ const IndexPR = () => {
     { id: "calendario", label: "📅 Calendario" },
     { id: "rachas", label: "🔥 Rachas Históricas" },
     { id: "gol", label: "🎯 Goles Detallados" },
-    { id: "golversus", label: "🏟️ Goles Versus" },
+    { id: "golversus", label: "🏟️ Rachas de Capitanes" },
   ];
 
   return (
-    <div className="p-2 md:p-4 max-w-7xl mx-auto space-y-2">
+    <div className="p-2 md:p-4 w-max mx-auto space-y-2">
       {/* CONTENEDOR DEL SELECT (Centrado y ajustado al contenido con w-max) */}
       <div className="flex justify-center py-2">
         <div className="relative w-max mx-auto">
@@ -69,7 +70,7 @@ const IndexPR = () => {
         {view === "calendario" && <Calendario />}
         {view === "rachas" && <Rachas />}
         {view === "gol" && <Gol />}
-        {view === "golversus" && <GolVersus />}
+        {view === "golversus" && <RachasCapitanes />}
       </div>
     </div>
   );

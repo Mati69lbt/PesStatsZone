@@ -28,6 +28,46 @@ import usePlayed from "../hooks/usePlayed";
 import useclubRowsWithPJ from "../hooks/useclubRowsWithPJ";
 import { Loading } from "notiflix/build/notiflix-loading-aio";
 
+const ResumenCard = ({ title, data }) => (
+  <div className="relative rounded-2xl border border-slate-400 bg-white p-1">
+    <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
+      {title}
+    </label>
+
+    <div className="grid grid-cols-8 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+      <div>PJ</div>
+      <div>G</div>
+      <div>E</div>
+      <div>P</div>
+      <div>G/P</div>
+      <div>GF</div>
+      <div>GC</div>
+      <div>DIF</div>
+    </div>
+
+    <div className="grid grid-cols-8 gap-2 text-center text-sm font-bold text-slate-900">
+      <div className="rounded-xl border px-2 py-1 text-center">
+        {data.total}
+      </div>
+      <div className="rounded-xl border px-2 py-1 text-center">{data.g}</div>
+      <div className="rounded-xl border px-2 py-1 text-center">{data.e}</div>
+      <div className="rounded-xl border px-2 py-1 text-center">{data.p}</div>
+      <div
+        className={`rounded-xl border px-2 py-1 ${pillBg(data.gp)} ${numColor(data.gp)}`}
+      >
+        {displayNoMinus(data.gp)}
+      </div>
+      <div className="rounded-xl border px-2 py-1">{data.gf}</div>
+      <div className="rounded-xl border px-2 py-1">{data.gc}</div>
+      <div
+        className={`rounded-xl border px-2 py-1 ${pillBg(data.dif)} ${numColor(data.dif)}`}
+      >
+        {displayNoMinus(data.dif)}
+      </div>
+    </div>
+  </div>
+);
+
 const NextMatch = () => {
   const { hasLineupsLoaded, clubs, activeClub, lineupState } = useClubData();
   if (!hasLineupsLoaded) {
@@ -168,232 +208,37 @@ const NextMatch = () => {
         ) : null}
 
         {/* Fila 2: Resumen */}
-        <div
-          className={`w-max mx-auto rounded-2xl border border-slate-200 bg-slate-200 p-1 ${resumen.total === 0 ? "hidden" : ""}`}
-        >
-          {/* Card: GENERAL */}
-          <div className="relative mt-2 rounded-2xl border border-slate-400 bg-white p-1">
-            {/* Etiqueta Flotante Estilo Select */}
-            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
-              General
-            </label>
-
-            {/* Header */}
-            <div className="grid grid-cols-8 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-              <div>PJ</div>
-              <div>G</div>
-              <div>E</div>
-              <div>P</div>
-              <div>G/P</div>
-              <div>GF</div>
-              <div>GC</div>
-              <div>DIF</div>
-            </div>
-
-            {/* Values */}
-            <div className="grid grid-cols-8 gap-2 text-center text-sm font-bold text-slate-900">
-              <div className="rounded-xl border px-2 py-1 text-center">
-                {resumen.total}
-              </div>
-              <div className="rounded-xl border px-2 py-1 text-center">
-                {resumen.g}
-              </div>
-              <div className="rounded-xl border px-2 py-1 text-center">
-                {resumen.e}
-              </div>
-              <div className="rounded-xl border px-2 py-1 text-center">
-                {resumen.p}
-              </div>
-
-              <div
-                className={`rounded-xl border px-2 py-1 ${pillBg(resumen.gp)} ${numColor(resumen.gp)}`}
-              >
-                {displayNoMinus(resumen.gp)}
-              </div>
-
-              <div className="rounded-xl border px-2 py-1">{resumen.gf}</div>
-              <div className="rounded-xl border px-2 py-1">{resumen.gc}</div>
-
-              <div
-                className={`rounded-xl border px-2 py-1 ${pillBg(resumen.dif)} ${numColor(resumen.dif)}`}
-              >
-                {displayNoMinus(resumen.dif)}
-              </div>
-            </div>
-          </div>
-
-          {/* Card: LOCAL */}
-          <div className="relative rounded-2xl border border-slate-500 bg-white p-1 pt-2 mt-2">
-            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
-              Local
-            </label>
-
-            <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-              <div>PJ</div>
-              <div>G</div>
-              <div>E</div>
-              <div>P</div>
-              <div>G/P</div>
-              <div>GF</div>
-              <div>GC</div>
-              <div>DIF</div>
-            </div>
-
-            <div className="grid grid-cols-8 gap-2 text-center text-sm font-bold text-slate-900">
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.local.total}
-              </div>
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.local.g}
-              </div>
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.local.e}
-              </div>
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.local.p}
-              </div>
-
-              <div
-                className={`rounded-xl border px-2 py-1 ${pillBg(resumen.local.gp)} ${numColor(resumen.local.gp)}`}
-              >
-                {displayNoMinus(resumen.local.gp)}
-              </div>
-
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.local.gf}
-              </div>
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.local.gc}
-              </div>
-
-              <div
-                className={`rounded-xl border px-2 py-1 ${pillBg(resumen.local.dif)} ${numColor(resumen.local.dif)}`}
-              >
-                {displayNoMinus(resumen.local.dif)}
-              </div>
-            </div>
-          </div>
-
-          {/* Card: VISITANTE */}
-          <div className="relative rounded-2xl border  border-slate-500 bg-white p-1 pt-2 mt-2">
-            <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
-              Visitante
-            </label>
-
-            <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-              <div>PJ</div>
-              <div>G</div>
-              <div>E</div>
-              <div>P</div>
-              <div>G/P</div>
-              <div>GF</div>
-              <div>GC</div>
-              <div>DIF</div>
-            </div>
-
-            <div className="grid grid-cols-8 gap-2 text-center text-sm font-bold text-slate-900">
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.visitante.total}
-              </div>
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.visitante.g}
-              </div>
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.visitante.e}
-              </div>
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.visitante.p}
-              </div>
-
-              <div
-                className={`rounded-xl border px-2 py-1 ${pillBg(resumen.visitante.gp)} ${numColor(resumen.visitante.gp)}`}
-              >
-                {displayNoMinus(resumen.visitante.gp)}
-              </div>
-
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.visitante.gf}
-              </div>
-              <div className="rounded-xl border px-2 py-1">
-                {resumen.visitante.gc}
-              </div>
-
-              <div
-                className={`rounded-xl border px-2 py-1 ${pillBg(resumen.visitante.dif)} ${numColor(resumen.visitante.dif)}`}
-              >
-                {displayNoMinus(resumen.visitante.dif)}
-              </div>
-            </div>
-          </div>
-
-          {resumen.neutro.total > 0 && (
-            <div className="relative rounded-2xl border  border-slate-500 bg-white p-1 pt-2 sm:col-span-2 mt-2">
-              <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
-                Neutral
-              </label>
-              <div className="grid grid-cols-8 gap-2 text-center text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                <div>PJ</div>
-                <div>G</div>
-                <div>E</div>
-                <div>P</div>
-                <div>G/P</div>
-                <div>GF</div>
-                <div>GC</div>
-                <div>DIF</div>
-              </div>
-
-              <div className="grid grid-cols-8 gap-2 text-center text-sm font-bold text-slate-900">
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.total}
-                </div>
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.g}
-                </div>
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.e}
-                </div>
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.p}
-                </div>
-
-                <div
-                  className={`rounded-xl border px-2 py-1 ${pillBg(resumen.neutro.gp)} ${numColor(resumen.neutro.gp)}`}
-                >
-                  {displayNoMinus(resumen.neutro.gp)}
-                </div>
-
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.gf}
-                </div>
-                <div className="rounded-xl border px-2 py-1">
-                  {resumen.neutro.gc}
-                </div>
-
-                <div
-                  className={`rounded-xl border px-2 py-1 ${pillBg(resumen.neutro.dif)} ${numColor(resumen.neutro.dif)}`}
-                >
-                  {displayNoMinus(resumen.neutro.dif)}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
 
-      {selectedRival && (
+      <div className="flex flex-col lg:flex-row lg:justify-evenly  gap-2">
         <div
-          className={`mb-1 flex justify-evenly h-full  mt-2 gap-2 ${resumen.total === 0 ? "hidden" : ""} `}
+          className={`rounded-2xl border border-slate-200 bg-slate-200 h-max p-1 flex flex-col gap-2 ${resumen.total === 0 ? "hidden" : ""}`}
         >
-          <TablaGoleadores title={prettySafe(clubKey)} rows={clubRowsWithPJ} />
-
-          <TablaGoleadores
-            title={prettySafe(selectedRival)}
-            rows={rivalRows}
-            hidePJ
-          />
+          <ResumenCard title="General" data={resumen} />
+          <ResumenCard title="Local" data={resumen.local} />
+          <ResumenCard title="Visitante" data={resumen.visitante} />
+          {resumen.neutro.total > 0 && (
+            <ResumenCard title="Neutral" data={resumen.neutro} />
+          )}
         </div>
-      )}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+        {selectedRival && (
+          <div className="flex flex-col gap-2 lg:flex-row">
+            <TablaGoleadores
+              title={prettySafe(clubKey)}
+              rows={clubRowsWithPJ}
+            />
+
+            <TablaGoleadores
+              title={prettySafe(selectedRival)}
+              rows={rivalRows}
+              hidePJ
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">
         {orderedMatches.map((m) => {
           const outcome = getOutcome(m);
           return (
