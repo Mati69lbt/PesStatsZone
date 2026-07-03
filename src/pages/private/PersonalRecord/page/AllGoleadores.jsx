@@ -102,7 +102,7 @@ const AllGoleadores = () => {
   };
 
   return (
-    <div className="p-2 max-w-screen-xl mx-auto">
+    <div className="p-1 w-max mx-auto">
       <div className="flex flex-row items-center justify-between gap-3 mb-1">
         <div>
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 flex items-center gap-1">

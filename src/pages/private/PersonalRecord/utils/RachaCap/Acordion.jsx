@@ -44,7 +44,7 @@ export const CondAccordion = ({ cond, streaks }) => {
       </button>
 
       {isOpen && (
-        <div className="p-2 space-y-3 min-w-0 overflow-hidden">
+        <div className="p-1 space-y-3 min-w-0 overflow-hidden">
           {/* botones de ordenamiento */}
           <div className="flex flex-wrap gap-1 p-2 rounded-xl bg-slate-50 border border-slate-100">
             {SORT_OPTS.map((o) => {

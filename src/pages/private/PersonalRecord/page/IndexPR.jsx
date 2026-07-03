@@ -23,7 +23,7 @@ const IndexPR = () => {
   ];
 
   return (
-    <div className="p-2 md:p-4 w-max mx-auto space-y-2">
+    <div className="p-2 md:p-4 w-full mx-auto space-y-2">
       {/* CONTENEDOR DEL SELECT (Centrado y ajustado al contenido con w-max) */}
       <div className="flex justify-center py-2">
         <div className="relative w-max mx-auto">

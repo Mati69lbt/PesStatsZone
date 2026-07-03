@@ -43,7 +43,7 @@ export const TipoTable = ({ tipo, rows, sortField, sortDir }) => {
           : r.p;
 
   return (
-    <div className={`rounded-xl border ${cfg.border} overflow-hidden`}>
+    <div className={`rounded-xl border ${cfg.border} overflow-hidden w-full`}>
       {/* toggle del tipo */}
       <button
         type="button"
@@ -76,17 +76,23 @@ export const TipoTable = ({ tipo, rows, sortField, sortDir }) => {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto border-t border-slate-100 max-w-full">
-            <table className="text-sm w-max">
+          /* 🛠️ CORRECCIÓN 1: Forzamos ancho completo y comportamiento block para scroll fluido */
+          <div className="overflow-x-auto border-t border-slate-100 w-full block scrollbar-thin">
+            {/* 🛠️ CORRECCIÓN 2: Cambiamos w-max por w-full + table-fixed en móviles y auto en escritorio */}
+            <table className="text-sm w-full table-fixed md:table-auto">
               <thead className="bg-slate-50 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th className="px-2 py-2 text-left">Capitán</th>
-
-                  <th className="px-2 py-2 text-center">Racha</th>
-                  <th className="px-2 py-2 text-center">{col4Header}</th>
-                  <th className="px-2 py-2 text-center">GF</th>
-                  <th className="px-2 py-2 text-center">GC</th>
-                  <th className="px-2 py-2 text-left">Período</th>
+                  {/* 🛠️ CORRECCIÓN 3: Seteamos anchos base estrictos en mobile para el contenido textual */}
+                  <th className="px-2 py-2 text-left w-[130px] md:w-auto">
+                    Capitán
+                  </th>
+                  <th className="px-2 py-2 text-center w-12">Racha</th>
+                  <th className="px-2 py-2 text-center w-16">{col4Header}</th>
+                  <th className="px-2 py-2 text-center w-10">GF</th>
+                  <th className="px-2 py-2 text-center w-10">GC</th>
+                  <th className="px-2 py-2 text-left w-[90px] md:w-auto">
+                    Período
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -101,17 +107,23 @@ export const TipoTable = ({ tipo, rows, sortField, sortDir }) => {
                           <span className="text-[10px] text-slate-400 font-medium w-4 shrink-0">
                             {i + 1}
                           </span>
-                          <span className="text-xs font-bold text-slate-800">
+                          {/* 🛠️ CORRECCIÓN 4: Truncado para evitar rotura por nombres muy extensos */}
+                          <span
+                            className="text-xs font-bold text-slate-800 truncate max-w-[110px] md:max-w-none"
+                            title={pretty(r.captain)}
+                          >
                             {pretty(r.captain)}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 pl-5">
-                          <span className="text-[11px] font-semibold text-slate-500">
+                          <span
+                            className="text-[11px] font-semibold text-slate-500 truncate max-w-[100px] md:max-w-none"
+                            title={pretty(r.club)}
+                          >
                             {pretty(r.club)}
                           </span>
                         </div>
-
-                        <span className="text-[10px] text-slate-400 ml-4">
+                        <span className="text-[10px] text-slate-400 ml-5">
                           {r.yearRange}
                         </span>
                       </div>
@@ -131,7 +143,7 @@ export const TipoTable = ({ tipo, rows, sortField, sortDir }) => {
                       {r.gc}
                     </td>
                     <td className="px-2 py-2 whitespace-nowrap">
-                      <div className="flex flex-col leading-tight text-xs text-slate-500">
+                      <div className="flex flex-col leading-tight text-[11px] text-slate-500">
                         <span>{fmtFecha(r.fechaInicio)}</span>
                         <span>{fmtFecha(r.fechaFin)}</span>
                       </div>

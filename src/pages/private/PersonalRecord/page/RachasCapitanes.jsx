@@ -29,7 +29,7 @@ const RachasCapitanes = () => {
   if (!hasData) return <Navigate to="/formacion" replace />;
 
   return (
-    <div className="p-2 max-w-max mx-auto">
+    <div className="p-1 mx-auto">
       <div className="flex flex-col items-start border-l-4 border-sky-500 pl-4 py-1 mb-4">
         <h2 className="text-2xl font-black tracking-tight text-slate-900 uppercase">
           Rachas de Capitanes

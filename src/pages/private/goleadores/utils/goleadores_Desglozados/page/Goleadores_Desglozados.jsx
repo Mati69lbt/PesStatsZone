@@ -15,61 +15,87 @@ const Goleadores_Desglozados = ({ matches }) => {
   const [ordenCampo, setOrdenCampo] = useState("goles");
   const [ordenDireccion, setOrdenDireccion] = useState("desc");
 
-  return (
-    <div className="mt-2">
-      <div className="flex flex-wrap items-center justify-center gap-2 mb-2 px-2">
-        <h2 className="text-2xl font-bold">🔥 Top Scorer</h2>
+  const handleCampoClick = (campoValue) => {
+    if (ordenCampo === campoValue) {
+      // Si el campo ya estaba activo, invertimos la dirección (flecha)
+      setOrdenDireccion((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      // Si es un campo nuevo, lo activamos y seteamos orden descendente por defecto
+      setOrdenCampo(campoValue);
+      setOrdenDireccion("desc");
+    }
+  };
 
-        <select
-          value={scope}
-          onChange={(e) => setScope(e.target.value)}
-          className="rounded-xl border px-1 py-2 text-sm shadow-sm transition
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-            bg-white text-slate-800 border-slate-300"
-        >
-          <option value="general">General</option>
-          <option value="local">Local</option>
-          <option value="visitante">Visitante</option>
-          <option value="neutro">Neutro</option>
-        </select>
+return (
+  <div className="mt-2 w-full px-1">
+    {/* Contenedor Principal de Filtros */}
+    <div className="flex flex-col items-center justify-center gap-3 mb-4 w-full max-w-md mx-auto">
+      <h2 className="text-xl font-black text-slate-800 tracking-tight">
+        🔥 Top Scorer
+      </h2>
 
-        <select
-          value={ordenCampo}
-          onChange={(e) => setOrdenCampo(e.target.value)}
-          className="rounded-xl border px-1 py-2 text-sm shadow-sm transition
-            focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500
-            bg-white text-slate-800 border-slate-300"
-        >
-          {CAMPOS.map((c) => (
-            <option key={c.value} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
-
-        <button
-          type="button"
-          onClick={() =>
-            setOrdenDireccion(ordenDireccion === "asc" ? "desc" : "asc")
-          }
-          className="rounded-xl border px-3 py-2 text-sm font-semibold shadow-sm transition
-            focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500
-            bg-white text-slate-800 border-slate-300 hover:border-sky-300"
-        >
-          {ordenDireccion === "asc" ? "↑" : "↓"}
-        </button>
+      {/* 📊 FILA 1: Selector de Ámbito (Scope) */}
+      <div className="flex w-full gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner">
+        {[
+          { id: "general", label: "📊 Gral" },
+          { id: "local", label: "🏠 Loc" },
+          { id: "visitante", label: "✈️ Vis" },
+          { id: "neutro", label: "⚖️ Neu" },
+        ].map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setScope(item.id)}
+            className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-200 ${
+              scope === item.id
+                ? "bg-blue-600 text-white shadow-sm font-black"
+                : "text-slate-600 hover:bg-slate-200/70"
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
-      <Gol
-        scope={scope}
-        matches={matches}
-        ordenCampo={ordenCampo}
-        setOrdenCampo={setOrdenCampo}
-        ordenDireccion={ordenDireccion}
-        setOrdenDireccion={setOrdenDireccion}
-      />
+      {/* ⚙️ FILA 2: Selector de Criterio de Ordenamiento (CAMPOS) */}
+      <div className="flex flex-wrap justify-center gap-1 w-full bg-slate-50 p-1 rounded-xl border border-slate-100">
+        {CAMPOS.map((c) => {
+          const isActive = ordenCampo === c.value;
+          return (
+            <button
+              key={c.value}
+              type="button"
+              onClick={() => handleCampoClick(c.value)}
+              className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition-all duration-150 flex items-center gap-1 ${
+                isActive
+                  ? "bg-slate-800 text-white border-slate-800 shadow-sm font-bold"
+                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-100/70"
+              }`}
+            >
+              <span>{c.label}</span>
+              {/* Flecha integrada: Solo se muestra en el campo activo */}
+              {isActive && (
+                <span className="text-[10px] font-black text-amber-400 animate-fade-in">
+                  {ordenDireccion === "asc" ? "▲" : "▼"}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
-  );
+
+    {/* Renderizado de la tabla/componente de goles */}
+    <Gol
+      scope={scope}
+      matches={matches}
+      ordenCampo={ordenCampo}
+      setOrdenCampo={setOrdenCampo}
+      ordenDireccion={ordenDireccion}
+      setOrdenDireccion={setOrdenDireccion}
+    />
+  </div>
+);
 };
 
 export default Goleadores_Desglozados;
