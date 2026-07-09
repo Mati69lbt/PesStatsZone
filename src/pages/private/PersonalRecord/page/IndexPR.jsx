@@ -7,6 +7,7 @@ import Rachas from "./Rachas";
 import Gol from "./Gol";
 import GolVersus from "./GolVersus";
 import RachasCapitanes from "./RachasCapitanes";
+import Rivales from "./Rivales";
 
 const IndexPR = () => {
   const [view, setView] = useState("palmares");
@@ -20,6 +21,7 @@ const IndexPR = () => {
     { id: "rachas", label: "🔥 Rachas Históricas" },
     { id: "gol", label: "🎯 Goles Detallados" },
     { id: "golversus", label: "🏟️ Rachas de Capitanes" },
+    { id: "rivales", label: "🛡️ Rivales" },
   ];
 
   return (
@@ -71,6 +73,7 @@ const IndexPR = () => {
         {view === "rachas" && <Rachas />}
         {view === "gol" && <Gol />}
         {view === "golversus" && <RachasCapitanes />}
+        {view === "rivales" && <Rivales />}
       </div>
     </div>
   );

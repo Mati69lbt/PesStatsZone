@@ -166,7 +166,7 @@ const AllGoleadores = () => {
               <div
                 key={`${r.team}-${r.name}-${idx}`}
                 className={[
-                  "grid grid-cols-[10%_15%_30%_15%_15%] gap-3 px-4 py-3 items-center transition",
+                  "grid grid-cols-[10%_10%_40%_10%_15%] gap-3 px-4 py-3 items-center transition",
                   idx % 2 === 0 ? "bg-white" : "bg-slate-50",
                   "hover:bg-blue-50",
                 ].join(" ")}
@@ -184,7 +184,7 @@ const AllGoleadores = () => {
                 </div>
 
                 <div className="min-w-0">
-                  <div className="font-semibold text-slate-900 truncate">
+                  <div className="font-semibold text-slate-900 ">
                     {pretty(r.name)}
                   </div>
                   <div className="text-[10px] text-slate-500 uppercase tracking-wider">

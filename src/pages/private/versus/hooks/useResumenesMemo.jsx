@@ -22,6 +22,8 @@ const useResumenesMemo = (matches = []) => {
       const ambito =
         (m?.condition === "local" && "local") ||
         (m?.condition === "visitante" && "visitante") ||
+        (m?.condition === "neutro" && "neutro") ||
+        (m?.condition === "neutral" && "neutro") ||
         "general";
       const captain = (m?.captain || "").trim();
 
@@ -31,6 +33,7 @@ const useResumenesMemo = (matches = []) => {
           general: emptyBox(),
           local: emptyBox(),
           visitante: emptyBox(),
+          neutro: emptyBox(),
         };
         // y las dinámicas para capitanes (se crean on-demand abajo)
       }
