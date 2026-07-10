@@ -79,8 +79,13 @@ const Analysis = () => {
     );
   }, [captainsVisible]);
 
+  // 👈 CAMBIO: un solo estado controla qué sección está abierta ("totales" o el nombre del torneo)
+  const [openSection, setOpenSection] = useState("");
+  const toggleSection = (key) =>
+    setOpenSection((prev) => (prev === key ? null : key));
+
   return (
-    <div className="p-2 max-w-7xl mx-auto">
+    <div className="p-2 max-w-max mx-auto">
       <div className="flex items-center justify-evenly gap-1 mb-2 mt-2">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex flex-col gap-0 leading-none">
           <span>📊 Análisis</span>
@@ -117,68 +122,97 @@ const Analysis = () => {
       <div className="flex justify-center mb-2"></div>
 
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between px-6 py-2 border-b border-slate-200">
+        {/* 👈 CAMBIO: header clickeable */}
+        <button
+          type="button"
+          onClick={() => toggleSection("totales")}
+          className="w-full flex items-center justify-between px-6 py-2 border-b border-slate-200 focus:outline-none"
+        >
           <h2 className="text-sm font-extrabold tracking-wide text-slate-800 uppercase">
             Totales Generales
           </h2>
-          <span className="text-xs text-slate-500">
-            {captainsVisible.length
-              ? `${captainsVisible.length} capitanes`
-              : "—"}
-          </span>
-        </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">
+              {captainsVisible.length
+                ? `${captainsVisible.length} capitanes`
+                : "—"}
+            </span>
+            <span
+              className={`text-slate-400 text-xs transition-transform duration-200 ${openSection === "totales" ? "rotate-180" : ""}`}
+            >
+              ▼
+            </span>
+          </div>
+        </button>
 
-        <div className="p-1">
-          <div className="overflow-x-auto">
-            <div className="flex flex-col gap-2 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
-              {captainsVisibleOrdered.map((cap) => (
-                <div
-                  key={`total-${cap.captain}`}
-                  className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"
-                >
-                  <StatsTable title={cap.captain} rows={toRows(cap.total)} />
-                </div>
-              ))}
-              {!captainsVisible.length && (
-                <div className="text-slate-500 text-sm px-2 py-4">
-                  — Sin partidos —
-                </div>
-              )}
+        {openSection === "totales" && (
+          <div className="p-1">
+            <div className="overflow-x-auto">
+              <div className="flex flex-col gap-2 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
+                {captainsVisibleOrdered.map((cap) => (
+                  <div
+                    key={`total-${cap.captain}`}
+                    className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"
+                  >
+                    <StatsTable title={cap.captain} rows={toRows(cap.total)} />
+                  </div>
+                ))}
+                {!captainsVisible.length && (
+                  <div className="text-slate-500 text-sm px-2 py-4">
+                    — Sin partidos —
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
 
-      <div className="mt-2 space-y-6 ">
+      <div className="mt-3 space-y-3 ">
         {tournamentsOrdered.map((tName) => (
           <section
             key={tName}
             className="rounded-2xl border border-slate-200 bg-white shadow-sm"
           >
-            <div className="px-2 py-2 border-b border-slate-200">
-              <h3 className="text-sm font-extrabold tracking-wide text-slate-800 uppercase text-center">
+            {/* 👈 CAMBIO: header clickeable por torneo */}
+            <button
+              type="button"
+              onClick={() => toggleSection(tName)}
+              className="w-full flex items-center justify-between px-4 py-2 border-b border-slate-200 focus:outline-none"
+            >
+              <h3 className="text-sm font-extrabold tracking-wide text-slate-800 uppercase">
                 {tName}
               </h3>
-            </div>
+              <span
+                className={`text-slate-400 text-xs transition-transform duration-200 ${openSection === tName ? "rotate-180" : ""}`}
+              >
+                ▼
+              </span>
+            </button>
 
-            <div className="p-2">
-              <div className="overflow-x-auto">
-                <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
-                  {captainsVisible.map((cap) => {
-                    const triple = cap.byTournament[tName] || emptyTriple();
-                    if ((triple?.General?.pj ?? 0) === 0) return null;
-                    return (
-                      <div
-                        key={`${tName}-${cap.captain}`}
-                        className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"
-                      >
-                        <StatsTable title={cap.captain} rows={toRows(triple)} />
-                      </div>
-                    );
-                  })}
+            {openSection === tName && (
+              <div className="p-2">
+                <div className="overflow-x-auto">
+                  <div className="flex flex-col gap-3 mx-auto w-max sm:flex-row sm:flex-nowrap sm:justify-center">
+                    {captainsVisible.map((cap) => {
+                      const triple = cap.byTournament[tName] || emptyTriple();
+                      if ((triple?.General?.pj ?? 0) === 0) return null;
+                      return (
+                        <div
+                          key={`${tName}-${cap.captain}`}
+                          className="min-w-[260px] sm:min-w-[280px] lg:min-w-[320px]"
+                        >
+                          <StatsTable
+                            title={cap.captain}
+                            rows={toRows(triple)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </section>
         ))}
       </div>

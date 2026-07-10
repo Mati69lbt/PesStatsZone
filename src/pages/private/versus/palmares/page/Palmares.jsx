@@ -3,12 +3,20 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { pretty } from "../../../match/utils/pretty";
 
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  deleteDoc,
+} from "firebase/firestore"; // 👈 CAMBIO: agregar doc y deleteDoc
+import Notiflix from "notiflix"; // 👈 CAMBIO: para confirmar antes de borrar
 import useAuth from "../../../../../hooks/useAuth";
-import { db } from "../../../../../configuration/firebase"; 
-import { useLineups } from "../../../../../context/LineUpProvider"; 
-import { usePartido } from "../../../../../context/PartidoReducer"; 
-import { normalizeName } from "../../../../../utils/normalizeName"; 
+import { db } from "../../../../../configuration/firebase";
+import { useLineups } from "../../../../../context/LineUpProvider";
+import { usePartido } from "../../../../../context/PartidoReducer";
+import { normalizeName } from "../../../../../utils/normalizeName";
 import { useUserData } from "../../../../../hooks/useUserData";
 
 // Badge de color según resultado del campeonato
@@ -57,13 +65,13 @@ const Palmares = () => {
   const { state: matchState, dispatch: matchDispatch } = usePartido();
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
 
-  useUserData(uid, matchDispatch, lineupDispatch);  
+  useUserData(uid, matchDispatch, lineupDispatch);
 
   const [data, setData] = useState(null);
 
   const clubs = Object.keys(lineupState?.lineups || []);
   const [selectedClub, setSelectedClub] = useState(
-    lineupState?.activeClub || clubs[0] || ""
+    lineupState?.activeClub || clubs[0] || "",
   );
 
   const clubKey = normalizeName(selectedClub || "");
@@ -141,8 +149,8 @@ const Palmares = () => {
       // Orden interno por nombre de torneo (alfabético)
       campeonatos.sort((a, b) =>
         String(a.torneoDisplay || "").localeCompare(
-          String(b.torneoDisplay || "")
-        )
+          String(b.torneoDisplay || ""),
+        ),
       );
 
       return {
@@ -151,6 +159,26 @@ const Palmares = () => {
       };
     });
   }, [items]);
+
+  // 👈 CAMBIO: borrar item del palmarés
+  const handleDelete = (item) => {
+    Notiflix.Confirm.show(
+      "Borrar del Palmarés",
+      `¿Borrar "${item.torneoDisplay || "este torneo"}"?`,
+      "Sí, borrar",
+      "Cancelar",
+      async () => {
+        try {
+          await deleteDoc(doc(db, "palmares", item.id));
+          setItems((prev) => prev.filter((i) => i.id !== item.id));
+          Notiflix.Notify.success("Eliminado del palmarés");
+        } catch (err) {
+          console.error("Error borrando:", err);
+          Notiflix.Notify.failure("Error al borrar");
+        }
+      },
+    );
+  };
 
   return (
     <div className="p-2 max-w-3xl mx-auto">
@@ -209,8 +237,8 @@ const Palmares = () => {
                     )}
                   </div>
 
-                  {/* “Tabulación invisible”: resultado alineado a la derecha */}
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                  {/* resultado + botón X */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     {item.resultado && (
                       <span
                         className={getResultadoBadgeClasses(item.resultado)}
@@ -218,6 +246,15 @@ const Palmares = () => {
                         {item.resultadoLabel || item.resultado}
                       </span>
                     )}
+                    {/* 👈 CAMBIO: X para borrar */}
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(item)}
+                      className="text-slate-300 hover:text-rose-500 transition-colors font-black text-xs leading-none"
+                      title="Borrar del palmarés"
+                    >
+                      ✕
+                    </button>
                   </div>
                 </div>
               ))}

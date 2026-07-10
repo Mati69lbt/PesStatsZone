@@ -6,80 +6,67 @@ import { useUserData } from "../../../../hooks/useUserData";
 import { normalizeName } from "../../../../utils/normalizeName";
 import { Navigate } from "react-router-dom";
 import { pretty } from "../../match/utils/pretty";
-import { useConsoleDownloader } from "../../../../components/useConsoleDownloader";
-import { usePointsChartData } from "../hooks/usePointsChartData";
-import PointsLineChart from "../components/PointsLineChart";
-import BreakdownFilters from "../components/BreakdownFilters";
-import SegmentedTabs from "../components/SegmentedTabs";
+import Extras from "../components/Extras";
+import GraficosOld from "../components/GraficosOld";
+import EntreClubs from "../components/EntreClubs"; // 👈 nuevo
+
+const VIEWS = [
+  { key: "extras", label: "📊 Extras" },
+  { key: "general", label: "📈 General" },
+  { key: "entreClubs", label: "🆚 Entre Clubs" },
+];
 
 const Graficos = () => {
-  const { downloadLogs } = useConsoleDownloader();
   const { uid } = useAuth();
   const { state: matchState, dispatch: matchDispatch } = usePartido();
   const { state: lineupState, dispatch: lineupDispatch } = useLineups();
 
   useUserData(uid, matchDispatch, lineupDispatch);
 
+  const [viewOne, setViewOne] = useState("extras");
   const [data, setData] = useState(null);
 
-  const clubs = Object.keys(lineupState?.lineups || {});
+  const lineupsObj = lineupState?.lineups || {};
+  const clubs = Object.keys(lineupsObj);
+
   const [selectedClub, setSelectedClub] = useState(
     lineupState?.activeClub || clubs[0] || "",
   );
 
   const clubKey = normalizeName(selectedClub || "");
-  const bucket = clubKey ? lineupState?.lineups?.[clubKey] : null;
+  const bucket = clubKey ? lineupsObj?.[clubKey] : null;
 
   useEffect(() => {
-    if (!bucket) return;
-    if (Object.keys(bucket).length === 0) return;
+    if (!bucket || Object.keys(bucket).length === 0) return;
     setData(bucket);
   }, [bucket]);
 
   const matches = Array.isArray(data?.matches) ? data.matches : [];
   const torneosConfig = data?.torneosConfig || {};
 
-  const clubData = lineupState?.lineups?.[clubKey] || {};
+  const clubData = lineupsObj?.[clubKey] || {};
   const hasPlayers = (clubData.players?.length ?? 0) > 0;
   const hasFormations = (clubData.formations?.length ?? 0) > 0;
   const hasPlayerStats = clubData.playersStats
     ? Object.keys(clubData.playersStats).length > 0
     : false;
 
-  // UI states
-  const [view, setView] = useState("general");
-  const [breakdown, setBreakdown] = useState("all"); // all | year | tournament
-  const [selectedYear, setSelectedYear] = useState(null);
-  const [selectedTournament, setSelectedTournament] = useState(null);
-
   if (!clubKey || (!hasPlayers && !hasFormations && !hasPlayerStats)) {
     return <Navigate to="/formacion" replace />;
   }
 
-  const visibleClub = selectedClub;
-
-
-
-  const { years, tournaments, chartData, yMax, captainA, captainB } =
-    usePointsChartData(matches, {
-      view,
-      breakdown,
-      selectedYear,
-      selectedTournament,
-      torneosConfig,
-    });
+  // El selector de club solo aplica a Extras y General
+  const showClubSelector = viewOne !== "entreClubs" && clubs.length > 1;
 
   return (
-    <div className="p-2 max-w-7xl mx-auto">
-      {" "}
+    <div className="p-2 w-full max-w-5xl mx-auto">
+      {/* ── header ── */}
       <div className="flex flex-row items-center justify-evenly gap-4 m-2">
-        {/* Título a la izquierda */}
         <h1 className="text-left text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 leading-none">
           📈 Gráficos 📉
         </h1>
 
-        {/* Selector a la derecha */}
-        {clubs.length > 1 && (
+        {showClubSelector && (
           <div className="relative">
             <label className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold uppercase tracking-wide text-sky-600 z-10">
               Club
@@ -98,25 +85,39 @@ const Graficos = () => {
           </div>
         )}
       </div>
-      <div className="mt-4 space-y-3">
-        <SegmentedTabs value={view} onChange={setView} />
 
-        <BreakdownFilters
-          breakdown={breakdown}
-          setBreakdown={(v) => {
-            setBreakdown(v);
-            setSelectedYear(null);
-            setSelectedTournament(null);
-          }}
-          years={years}
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          tournaments={tournaments}
-          selectedTournament={selectedTournament}
-          setSelectedTournament={setSelectedTournament}
-        />
+      {/* ── botones de vista ── */}
+      <div className="flex gap-2 justify-center mb-3 flex-wrap">
+        {VIEWS.map((v) => {
+          const active = viewOne === v.key;
+          // ocultar "Entre Clubs" si solo hay 1 club
+          if (v.key === "entreClubs" && clubs.length < 2) return null;
+          return (
+            <button
+              key={v.key}
+              type="button"
+              onClick={() => setViewOne(v.key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+                active
+                  ? "bg-sky-600 text-white border-sky-700"
+                  : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+              }`}
+            >
+              {v.label}
+            </button>
+          );
+        })}
+      </div>
 
-        <PointsLineChart chartData={chartData} yMax={yMax} />
+      {/* ── contenido ── */}
+      <div className="mt-2">
+        {viewOne === "extras" && (
+          <Extras matches={matches} torneosConfig={torneosConfig} />
+        )}
+        {viewOne === "general" && (
+          <GraficosOld matches={matches} torneosConfig={torneosConfig} />
+        )}
+        {viewOne === "entreClubs" && <EntreClubs lineupsObj={lineupsObj} />}
       </div>
     </div>
   );

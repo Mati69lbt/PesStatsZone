@@ -113,7 +113,7 @@ const Versus = () => {
   }
 
   return (
-    <div className="p-2 max-w-7xl mx-auto">
+    <div className="p-2 max-w-max mx-auto">
       <h1 className="mt-2 mb-2 text-center text-2xl font-extrabold tracking-tight text-slate-900">
         📊 Estadísticas del Equipo
       </h1>
@@ -261,17 +261,17 @@ const Versus = () => {
       </div>
 
       {/* Tabla responsive como la anterior */}
-      <div className="max-h-[80vh] w-[100%] mx-auto overflow-auto border rounded">
+      <div className="w-max mx-auto overflow-auto border rounded">
         <table className="min-w-full w-max table-auto text-[11px] md:text-sm border-collapse">
           <thead className="bg-blue-200 sticky top-0 shadow-lg">
             <tr>
-              <th className="border px-2 py-2 min-w-[64px] w-[64px] text-left font-bold">
+              <th className="border px-2 py-2 w-max text-left font-bold">
                 Rival
               </th>
               {columnas.map((col) => (
                 <th
                   key={col}
-                  className="border px-2 py-1 text-center min-w-[110px]"
+                  className="border px-2 py-1 text-center min-w-[100px]"
                 >
                   {prettyScope(col)}
                 </th>
@@ -302,20 +302,14 @@ const Versus = () => {
                 const rivalKey = normalizeName(rival) || `rival-${index}`;
 
                 const rivalCell = (
-                  <div style={{ lineHeight: "1.2", padding: "4px 0" }}>
-                    <span
-                      style={{
-                        fontWeight: "bold",
-                        color: "#666",
-                        fontSize: "0.85em",
-                      }}
-                    >
-                      {index + 1} -
+                  <div
+                    className="flex flex-col items-start gap-1 py-1"
+                    style={{ lineHeight: "1.2" }}
+                  >
+                    <span className="text-[12px] font-bold text-slate-400 shrink-0">
+                      {index + 1}.
                     </span>
-                    <br />
-                    <span
-                      style={{ fontSize: "1em", textTransform: "capitalize" }}
-                    >
+                    <span className="text-sm font-semibold capitalize whitespace-normal min-w-0">
                       {rivalText}
                     </span>
                   </div>
@@ -324,15 +318,8 @@ const Versus = () => {
                 const hasSpace = /\s/.test(rivalText);
                 return (
                   <tr key={rivalKey} className={rowBg}>
-                    <td className="border px-1 py-2 font-semibold text-left w-[64px] min-w-[64px]">
-                      <div
-                        title={rivalText}
-                        className={
-                          hasSpace
-                            ? "block w-full whitespace-normal"
-                            : "block w-full truncate"
-                        }
-                      >
+                    <td className="border px-1 py-2 font-semibold text-left max-w-[110px]">
+                      <div title={rivalText} className="whitespace-normal truncate">
                         {rivalCell}
                       </div>
                     </td>

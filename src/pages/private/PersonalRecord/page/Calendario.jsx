@@ -64,7 +64,7 @@ const Calendario = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-2">
+    <div className="w-full max-w-max min-w-full mx-auto p-2">
       <div className="flex items-center gap-3 mb-2 px-2">
         <CalendarIcon className="text-slate-900" size={24} />
         <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">
@@ -105,22 +105,23 @@ const Calendario = () => {
             >
               <button
                 onClick={() => setOpenMonth(isOpen ? null : mIdx)}
-                className={`w-full flex items-center justify-between p-4 transition-all ${
+                className={`w-full flex items-center justify-between p-3 transition-all ${
                   isOpen
                     ? "bg-slate-700 text-white"
                     : "hover:bg-slate-50 text-slate-700"
                 }`}
               >
-                <div className="flex items-center gap-3 w-full">
-                  {/* Nombre del mes con ancho fijo para alinear todo verticalmente */}
-                  <span className="font-bold uppercase tracking-widest text-sm w-28 flex-shrink-0">
+                <div className="grid grid-cols-[7rem_1fr] items-center w-full">
+                  {/* 20%: mes */}
+
+                  <span className="font-bold uppercase tracking-widest text-sm mx-2">
                     {mes}
                   </span>
 
-                  {/* Contenedor de estadísticas alineado simétricamente */}
-                  <div className="flex items-center gap-1.5">
+                  {/* 80%: 4 columnas fijas para PJ G E P */}
+                  <div className="grid grid-cols-4 items-center ">
                     <span
-                      className={`text-[12px] px-2 py-0.5 rounded-md font-black tracking-wider ${
+                      className={`text-[12px] px-0.5 py-0.5 rounded-md font-black tracking-wider justify-self-center ${
                         isOpen
                           ? "bg-white/10 text-white"
                           : "bg-slate-100 text-slate-600"
@@ -128,35 +129,32 @@ const Calendario = () => {
                     >
                       PJ: {statsMes.total}
                     </span>
-
                     <span
-                      className={`text-[12px] px-1.5 py-0.5 rounded-md font-black ${
+                      className={`text-[12px] px-0.5 py-0.5 rounded-md font-black justify-self-center ${
                         isOpen
                           ? "bg-green-500/80 text-white"
                           : "bg-green-500 text-white"
                       }`}
                     >
-                      G: {statsMes.g === 0 ? 0 : statsMes.g}
+                      G: {statsMes.g}
                     </span>
-
                     <span
-                      className={`text-[12px] px-1.5 py-0.5 rounded-md font-black ${
+                      className={`text-[12px] px-0.5 py-0.5 rounded-md font-black justify-self-center ${
                         isOpen
                           ? "bg-amber-400/80 text-black"
                           : "bg-amber-400 text-black"
                       }`}
                     >
-                      E: {statsMes.e === 0 ? 0 : statsMes.e}
+                      E: {statsMes.e}
                     </span>
-
                     <span
-                      className={`text-[12px] px-1.5 py-0.5 rounded-md font-black ${
+                      className={`text-[12px] px-0.5 py-0.5 rounded-md font-black justify-self-center ${
                         isOpen
                           ? "bg-rose-600/80 text-white"
                           : "bg-rose-600 text-white"
                       }`}
                     >
-                      P: {statsMes.p === 0 ? 0 : statsMes.p}
+                      P: {statsMes.p}
                     </span>
                   </div>
                 </div>
@@ -196,27 +194,25 @@ const Calendario = () => {
                       >
                         <button
                           onClick={() => setOpenDay(isDayOpen ? null : dayKey)}
-                          className={`w-full flex items-center justify-between p-3 transition-all ${
+                          className={`w-full flex items-center justify-between p-2 transition-all ${
                             isDayOpen
                               ? "bg-slate-700 text-white shadow-inner"
                               : "hover:bg-slate-50 text-slate-700"
                           }`}
                         >
-                          {/* CONVERTIDO EN GRID DE 5 COLUMNAS: Logra el efecto tabla de forma limpia */}
-                          <div className="grid grid-cols-5 items-center gap-2 w-full text-left">
-                            {/* Celda 1: Fecha (Día / Mes) */}
+                          {/* TABLA igual que meses: alinea badges en columna entre filas */}
+                          <div className="grid grid-cols-[7rem_1fr] items-center w-full">
                             <span
-                              className={`text-xs font-black uppercase tracking-wider whitespace-nowrap ${
+                              className={`text-xs font-black uppercase tracking-wider whitespace-nowrap flex-shrink-0 ${
                                 isDayOpen ? "text-white" : "text-slate-700"
                               }`}
                             >
                               {dd} / {mes}
                             </span>
 
-                            {/* Celda 2: Partidos Jugados */}
-                            <div className="justify-self-start">
+                            <div className="grid grid-cols-4 items-center gap-1.5">
                               <span
-                                className={`text-[12px] px-1.5 py-0.5 rounded font-bold tracking-wide ${
+                                className={`text-[12px] px-0.5 py-0.5 rounded font-bold tracking-wide ${
                                   isDayOpen
                                     ? "bg-white/10 text-white"
                                     : "bg-slate-100 text-slate-600"
@@ -224,46 +220,37 @@ const Calendario = () => {
                               >
                                 PJ: {statsDia.total}
                               </span>
-                            </div>
 
-                            {/* Celda 3: Ganados */}
-                            <div className="justify-self-start">
                               <span
-                                className={`text-[11px] px-1.5 py-0.5 rounded font-black ${
+                                className={`text-[11px] px-1.0.5 py-0.5 rounded font-black ${
                                   statsDia.g === 0
                                     ? isDayOpen
-                                      ? "text-slate-400 pl-2"
-                                      : "text-slate-300 pl-2"
+                                      ? "text-slate-400"
+                                      : "text-slate-300"
                                     : "bg-green-500 text-white"
                                 }`}
                               >
                                 G: {statsDia.g === 0 ? "-" : statsDia.g}
                               </span>
-                            </div>
 
-                            {/* Celda 4: Empatados */}
-                            <div className="justify-self-start">
                               <span
-                                className={`text-[12px] px-1.5 py-0.5 rounded font-black ${
+                                className={`text-[12px] px-0.5 py-0.5 rounded font-black ${
                                   statsDia.e === 0
                                     ? isDayOpen
-                                      ? "text-slate-400 pl-2"
-                                      : "text-slate-300 pl-2"
+                                      ? "text-slate-400"
+                                      : "text-slate-300"
                                     : "bg-amber-400 text-black"
                                 }`}
                               >
                                 E: {statsDia.e === 0 ? "-" : statsDia.e}
                               </span>
-                            </div>
 
-                            {/* Celda 5: Perdidos */}
-                            <div className="justify-self-start">
                               <span
-                                className={`text-[12px] px-1.5 py-0.5 rounded font-black ${
+                                className={`text-[12px] px-0.5 py-0.5 rounded font-black ${
                                   statsDia.p === 0
                                     ? isDayOpen
-                                      ? "text-slate-400 pl-2"
-                                      : "text-slate-300 pl-2"
+                                      ? "text-slate-400"
+                                      : "text-slate-300"
                                     : "bg-rose-600 text-white"
                                 }`}
                               >
